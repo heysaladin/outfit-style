@@ -9,7 +9,7 @@ export default function Home() {
         
         {/* Logo or Brand */}
         <h1 className="text-6xl font-bold text-white mb-4">
-          "Outfit Style"
+          Outfit Style
         </h1>
         
         {/* Coming Soon Text */}
