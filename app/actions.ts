@@ -33,7 +33,7 @@ export async function uploadItem(formData: FormData) {
     .from('wardrobe')
     .upload(originalPath, originalBytes, { contentType: file.type })
 
-  if (uploadError) throw uploadError
+  if (uploadError) throw new Error(uploadError.message)
 
   const { data: { publicUrl: originalUrl } } = supabase.storage
     .from('wardrobe')
@@ -79,7 +79,7 @@ export async function uploadItem(formData: FormData) {
     original_image_url: originalUrl,
   })
 
-  if (error) throw error
+  if (error) throw new Error(error.message)
   revalidatePath('/')
 }
 
@@ -118,4 +118,33 @@ export async function deleteItem(id: string) {
     .eq('user_id', user.id)
 
   revalidatePath('/')
+}
+
+export async function addToPlan(itemId: string, date: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { error } = await supabase.from('weekly_plans').insert({
+    user_id: user.id,
+    item_id: itemId,
+    planned_date: date,
+  })
+
+  if (error && error.code !== '23505') throw new Error(error.message)
+  revalidatePath('/plan')
+}
+
+export async function removeFromPlan(planId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  await supabase
+    .from('weekly_plans')
+    .delete()
+    .eq('id', planId)
+    .eq('user_id', user.id)
+
+  revalidatePath('/plan')
 }

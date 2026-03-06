@@ -35,3 +35,11 @@ export interface WardrobeItem {
   original_image_url: string | null
   created_at: string
 }
+
+export interface PlanEntry {
+  id: string
+  user_id: string
+  item_id: string
+  planned_date: string
+  wardrobe_items: WardrobeItem
+}

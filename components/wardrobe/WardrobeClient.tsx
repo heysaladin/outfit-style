@@ -9,6 +9,7 @@ import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
 import { UploadModal } from './UploadModal'
 import { ItemDetailModal } from './ItemDetailModal'
+import { BottomNav } from '@/components/BottomNav'
 
 interface WardrobeClientProps {
   items: WardrobeItem[]
@@ -28,7 +29,7 @@ export function WardrobeClient({ items, user }: WardrobeClientProps) {
   })
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0A0A0A] pb-16">
       <Header user={user} onUpload={() => setUploadOpen(true)} />
 
       <FilterBar
@@ -59,11 +60,12 @@ export function WardrobeClient({ items, user }: WardrobeClientProps) {
       {/* Floating action button */}
       <button
         onClick={() => setUploadOpen(true)}
-        className="fixed bottom-6 right-5 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl hover:bg-gray-100 transition-colors active:scale-95"
+        className="fixed bottom-20 right-5 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl hover:bg-gray-100 transition-colors active:scale-95"
       >
         <Plus size={22} className="text-black" strokeWidth={2.5} />
       </button>
 
+      <BottomNav />
       <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
       <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
     </div>
