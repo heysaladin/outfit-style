@@ -26,6 +26,8 @@ Smart wardrobe planner app untuk personal use.
 - Laundry state management
 - Item state: Clean → Worn → Laundry → Clean
 
+---
+
 ## Database
 
 Run this SQL in Supabase SQL Editor:
