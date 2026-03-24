@@ -17,7 +17,7 @@ export function Header({ user, onUpload }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-10 bg-[#0A0A0A]/95 backdrop-blur border-b border-[#1F1F1F] px-4 py-3 flex items-center justify-between">
-      <h1 className="text-white font-bold text-lg tracking-tight">Outfit Style App</h1>
+      <h1 className="text-white font-bold text-lg tracking-tight">Outfit Style</h1>
       <div className="flex items-center gap-3">
         <button
           onClick={onUpload}
