@@ -10,10 +10,10 @@ export async function signOut() {
   redirect('/login')
 }
 
-export async function uploadItem(formData: FormData) {
+export async function uploadItem(formData: FormData): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  if (!user) return { error: 'Not authenticated. Please log in again.' }
 
   const name = formData.get('name') as string
   const category = formData.get('category') as string
@@ -21,7 +21,7 @@ export async function uploadItem(formData: FormData) {
   const file = formData.get('image') as File
 
   if (!file || !name || !category || !color) {
-    throw new Error('Missing required fields')
+    return { error: 'Missing required fields.' }
   }
 
   const timestamp = Date.now()
@@ -33,7 +33,10 @@ export async function uploadItem(formData: FormData) {
     .from('wardrobe')
     .upload(originalPath, originalBytes, { contentType: file.type })
 
-  if (uploadError) throw new Error(uploadError.message)
+  if (uploadError) {
+    console.error('[uploadItem] storage upload failed:', uploadError)
+    return { error: `Storage error: ${uploadError.message}` }
+  }
 
   const { data: { publicUrl: originalUrl } } = supabase.storage
     .from('wardrobe')
@@ -79,8 +82,13 @@ export async function uploadItem(formData: FormData) {
     original_image_url: originalUrl,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    console.error('[uploadItem] db insert failed:', error)
+    return { error: `Database error: ${error.message}` }
+  }
+
   revalidatePath('/')
+  return {}
 }
 
 export async function deleteItem(id: string) {

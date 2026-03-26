@@ -42,11 +42,11 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     formData.set('color', color)
 
     startTransition(async () => {
-      try {
-        await uploadItem(formData)
+      const result = await uploadItem(formData)
+      if (result?.error) {
+        setError(result.error)
+      } else {
         handleClose()
-      } catch {
-        setError('Upload failed. Please try again.')
       }
     })
   }
