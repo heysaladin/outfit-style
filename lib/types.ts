@@ -34,6 +34,7 @@ export interface WardrobeItem {
   image_url: string
   original_image_url: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface PlanEntry {
