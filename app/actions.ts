@@ -73,19 +73,21 @@ export async function uploadItem(formData: FormData): Promise<{ error?: string }
     }
   }
 
-  const { error } = await supabase.from('wardrobe_items').insert({
+  const { data: inserted, error } = await supabase.from('wardrobe_items').insert({
     user_id: user.id,
     name,
     category,
     color,
     image_url: imageUrl,
     original_image_url: originalUrl,
-  })
+  }).select()
 
   if (error) {
-    console.error('[uploadItem] db insert failed:', error)
+    console.error('[uploadItem] db insert failed:', JSON.stringify(error))
     return { error: `Database error: ${error.message}` }
   }
+
+  console.log('[uploadItem] inserted row:', inserted)
 
   revalidatePath('/')
   return {}
