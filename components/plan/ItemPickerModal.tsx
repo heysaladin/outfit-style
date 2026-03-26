@@ -3,7 +3,7 @@
 import { useTransition, useState, useEffect } from 'react'
 import { X, Check } from 'lucide-react'
 import { addToPlan, removeFromPlan } from '@/app/actions'
-import { CATEGORIES, type WardrobeItem, type PlanEntry } from '@/lib/types'
+import { CATEGORY_TREE, type WardrobeItem, type PlanEntry } from '@/lib/types'
 
 interface ItemPickerModalProps {
   open: boolean
@@ -87,17 +87,17 @@ export function ItemPickerModal({ open, date, dayPlans, allItems, onClose }: Ite
           >
             All
           </button>
-          {CATEGORIES.map(cat => (
+          {CATEGORY_TREE.map(cat => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(activeCategory === cat.value ? null : cat.value)}
-              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+              className={`flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                 activeCategory === cat.value
                   ? 'bg-white text-black'
                   : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
               }`}
             >
-              {cat.label}
+              <span>{cat.icon}</span>{cat.label}
             </button>
           ))}
         </div>

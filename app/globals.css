@@ -123,5 +123,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent overscroll bounce on iOS */
+    overscroll-behavior: none;
   }
+  /* Extend background into status bar + home indicator areas */
+  html {
+    background-color: #0A0A0A;
+  }
+}
+
+/* Safe area utility */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.pb-nav-safe {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
 }

@@ -1,28 +1,30 @@
 'use client'
 
 import { signOut } from '@/app/actions'
-import { LogOut, Plus } from 'lucide-react'
+import { LogOut, Plus, CheckSquare } from 'lucide-react'
 
 interface HeaderProps {
-  user: {
-    email?: string
-    user_metadata?: { full_name?: string; avatar_url?: string }
-  }
+  user: { email?: string; user_metadata?: { full_name?: string; avatar_url?: string } }
   onUpload: () => void
+  onSelectMode?: () => void
 }
 
-export function Header({ user, onUpload }: HeaderProps) {
-  const name = user.user_metadata?.full_name ?? user.email ?? 'U'
+export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
+  const name   = user.user_metadata?.full_name ?? user.email ?? 'U'
   const avatar = user.user_metadata?.avatar_url
 
   return (
     <header className="sticky top-0 z-10 bg-[#0A0A0A]/95 backdrop-blur border-b border-[#1F1F1F] px-4 py-3 flex items-center justify-between">
       <h1 className="text-white font-bold text-lg tracking-tight">Outfit Style</h1>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onUpload}
-          className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors"
-        >
+      <div className="flex items-center gap-2">
+        {onSelectMode && (
+          <button onClick={onSelectMode}
+            className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center hover:border-[#3A3A3A] transition-colors">
+            <CheckSquare size={15} className="text-[#666666]" />
+          </button>
+        )}
+        <button onClick={onUpload}
+          className="w-8 h-8 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
           <Plus size={16} className="text-black" strokeWidth={2.5} />
         </button>
         <form action={signOut}>

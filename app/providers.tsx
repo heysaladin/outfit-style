@@ -7,17 +7,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient())
 
   useEffect(() => {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {})
+    }
+
+    // Suppress Radix UI releasePointerCapture noise
     const original = Element.prototype.releasePointerCapture
     Element.prototype.releasePointerCapture = function (pointerId) {
-      try {
-        original.call(this, pointerId)
-      } catch {
-        // Radix UI fires this after pointer is already released — safe to ignore
-      }
+      try { original.call(this, pointerId) } catch { /* ignore */ }
     }
-    return () => {
-      Element.prototype.releasePointerCapture = original
-    }
+    return () => { Element.prototype.releasePointerCapture = original }
   }, [])
 
   return (
