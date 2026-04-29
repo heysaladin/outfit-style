@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition, useRef, useState } from 'react'
-import { X, ImagePlus, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, ImagePlus, ChevronDown, ChevronUp, Link } from 'lucide-react'
 import { uploadItem } from '@/app/actions'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef, getSubcategoryDef } from '@/lib/types'
 
@@ -13,6 +13,10 @@ interface UploadModalProps {
 export function UploadModal({ open, onClose }: UploadModalProps) {
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
+  const [useImageUrl, setUseImageUrl] = useState(false)
+  const [imageUrlInput, setImageUrlInput] = useState('')
+  const [draggedUrl, setDraggedUrl] = useState<string | null>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
   const [category, setCategory] = useState('')
   const [subcategory, setSubcategory] = useState('')
   const [itemType, setItemType] = useState('')
@@ -44,9 +48,44 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     setOccasions(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
   }
 
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragOver(false)
+
+    if (e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0]
+      if (file.type.startsWith('image/')) {
+        setDraggedUrl(null)
+        setPreview(URL.createObjectURL(file))
+        const dt = new DataTransfer()
+        dt.items.add(file)
+        const fileInput = formRef.current?.querySelector<HTMLInputElement>('input[name="image"]')
+        if (fileInput) fileInput.files = dt.files
+        return
+      }
+    }
+
+    const uri = e.dataTransfer.getData('text/uri-list')
+    if (uri && uri.startsWith('http')) {
+      setDraggedUrl(uri)
+      setPreview(uri)
+      return
+    }
+
+    const html = e.dataTransfer.getData('text/html')
+    if (html) {
+      const match = html.match(/src="([^"]+)"/)
+      if (match?.[1] && match[1].startsWith('http')) {
+        setDraggedUrl(match[1])
+        setPreview(match[1])
+      }
+    }
+  }
+
   function reset() {
     formRef.current?.reset()
-    setPreview(null); setCategory(''); setSubcategory(''); setItemType('')
+    setPreview(null); setUseImageUrl(false); setImageUrlInput(''); setDraggedUrl(null)
+    setCategory(''); setSubcategory(''); setItemType('')
     setColor(''); setSeasons([]); setOccasions([]); setMoreOpen(false); setError('')
   }
 
@@ -58,6 +97,14 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     if (hasSubcategories && !subcategory) return setError('Please select a subcategory')
     if (availableTypes.length > 0 && !itemType) return setError('Please select a type')
     if (!color) return setError('Please select a color')
+
+    const resolvedUrl = useImageUrl ? imageUrlInput.trim() : draggedUrl
+    if (resolvedUrl) {
+      if (!resolvedUrl.startsWith('http')) return setError('Please enter a valid image URL')
+    } else {
+      const file = (e.currentTarget.querySelector('input[name="image"]') as HTMLInputElement)?.files?.[0]
+      if (!file) return setError('Please add an image')
+    }
     setError('')
 
     const formData = new FormData(e.currentTarget)
@@ -69,6 +116,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     seasons.forEach(s => formData.append('seasons', s))
     formData.delete('occasions')
     occasions.forEach(o => formData.append('occasions', o))
+    if (resolvedUrl) formData.set('image_url_input', resolvedUrl)
 
     startTransition(async () => {
       const result = await uploadItem(formData)
@@ -95,23 +143,65 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
 
         <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5 pb-8">
           {/* Image picker */}
-          <label className="block cursor-pointer">
-            <input type="file" name="image" accept="image/*" required className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) setPreview(URL.createObjectURL(f)) }} />
+          <div className="space-y-2">
+            {/* Drag / file area */}
+            <input type="file" name="image" accept="image/*" className="hidden" id="image-file-input"
+              onChange={e => { const f = e.target.files?.[0]; if (f) { setDraggedUrl(null); setPreview(URL.createObjectURL(f)) } }} />
+
             {preview ? (
-              <div className="relative mx-auto w-36 aspect-[3/4] rounded-2xl overflow-hidden border border-[#2A2A2A]">
-                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                  <p className="text-white text-xs font-medium">Change</p>
+              <label htmlFor={useImageUrl ? undefined : 'image-file-input'} className={useImageUrl ? 'block' : 'block cursor-pointer'}>
+                <div className="relative mx-auto w-36 aspect-[3/4] rounded-2xl overflow-hidden border border-[#2A2A2A]">
+                  <img src={preview} alt="Preview" className="w-full h-full object-cover" onError={() => setPreview(null)} />
+                  {!useImageUrl && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <p className="text-white text-xs font-medium">Change</p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </label>
             ) : (
-              <div className="border-2 border-dashed border-[#2A2A2A] rounded-2xl p-8 text-center hover:border-[#3A3A3A] transition-colors">
+              <label
+                htmlFor="image-file-input"
+                className={`block cursor-pointer border-2 border-dashed rounded-2xl p-8 text-center transition-colors ${
+                  isDragOver ? 'border-white bg-white/5' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'
+                }`}
+                onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={handleDrop}
+              >
                 <ImagePlus size={28} className="mx-auto mb-2 text-[#444444]" />
-                <p className="text-[#666666] text-sm">Tap to select photo</p>
-              </div>
+                <p className="text-[#666666] text-sm">Tap or drop photo here</p>
+                <p className="text-[#444444] text-xs mt-1">Drag from browser or files</p>
+              </label>
             )}
-          </label>
+
+            {/* Add image URL toggle */}
+            <button
+              type="button"
+              onClick={() => { setUseImageUrl(v => !v); setPreview(null); setDraggedUrl(null); setImageUrlInput('') }}
+              className="flex items-center justify-between w-full px-4 py-3 bg-[#181818] border border-[#333333] rounded-xl mt-1"
+            >
+              <div className="flex items-center gap-2 text-white text-sm font-medium">
+                <Link size={14} className="text-[#888888]" />
+                Add image URL
+              </div>
+              <div className={`relative w-10 h-6 rounded-full transition-colors duration-200 ${useImageUrl ? 'bg-white' : 'bg-[#333333]'}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-200 ${useImageUrl ? 'left-5 bg-black' : 'left-1 bg-[#888888]'}`} />
+              </div>
+            </button>
+
+            {/* URL input (shown when toggle is on) */}
+            {useImageUrl && (
+              <input
+                type="url"
+                placeholder="https://example.com/image.jpg"
+                value={imageUrlInput}
+                onChange={e => { setImageUrlInput(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]"
+                autoFocus
+              />
+            )}
+          </div>
 
           {/* Name */}
           <input type="text" name="name" placeholder="Item name" required

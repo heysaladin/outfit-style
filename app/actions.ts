@@ -31,46 +31,58 @@ export async function uploadItem(formData: FormData): Promise<{ error?: string }
   const occasions  = formData.getAll('occasions') as string[]
   const tagsRaw    = (formData.get('tags') as string) || ''
   const tags       = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
-  const file       = formData.get('image') as File
+  const file          = formData.get('image') as File | null
+  const imageUrlInput = (formData.get('image_url_input') as string) || null
 
-  if (!file || !name || !category || !color) return { error: 'Missing required fields.' }
+  if (!name || !category || !color) return { error: 'Missing required fields.' }
+  if (!imageUrlInput && (!file || file.size === 0)) return { error: 'Please provide an image.' }
 
-  const timestamp    = Date.now()
-  const ext          = file.name.split('.').pop() || 'jpg'
-  const originalPath = `${user.id}/${timestamp}_original.${ext}`
+  let imageUrl: string
+  let originalUrl: string
 
-  const originalBytes = await file.arrayBuffer()
-  const { error: uploadError } = await supabase.storage
-    .from('wardrobe')
-    .upload(originalPath, originalBytes, { contentType: file.type })
+  if (imageUrlInput) {
+    imageUrl = imageUrlInput
+    originalUrl = imageUrlInput
+  } else {
+    const f = file!
+    const timestamp    = Date.now()
+    const ext          = f.name.split('.').pop() || 'jpg'
+    const originalPath = `${user.id}/${timestamp}_original.${ext}`
 
-  if (uploadError) {
-    console.error('[uploadItem] storage:', uploadError)
-    return { error: `Storage error: ${uploadError.message}` }
-  }
+    const originalBytes = await f.arrayBuffer()
+    const { error: uploadError } = await supabase.storage
+      .from('wardrobe')
+      .upload(originalPath, originalBytes, { contentType: f.type })
 
-  const { data: { publicUrl: originalUrl } } = supabase.storage.from('wardrobe').getPublicUrl(originalPath)
-  let imageUrl = originalUrl
+    if (uploadError) {
+      console.error('[uploadItem] storage:', uploadError)
+      return { error: `Storage error: ${uploadError.message}` }
+    }
 
-  const apiKey = process.env.REMOVE_BG_API_KEY
-  if (apiKey && apiKey !== 'your_remove_bg_key') {
-    try {
-      const bgForm = new FormData()
-      bgForm.append('image_file', file)
-      bgForm.append('size', 'auto')
-      const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
-        method: 'POST',
-        headers: { 'X-Api-Key': apiKey },
-        body: bgForm,
-      })
-      if (bgRes.ok) {
-        const bgBytes = await bgRes.arrayBuffer()
-        const bgPath = `${user.id}/${timestamp}_nobg.png`
-        await supabase.storage.from('wardrobe').upload(bgPath, bgBytes, { contentType: 'image/png' })
-        const { data: { publicUrl: noBgUrl } } = supabase.storage.from('wardrobe').getPublicUrl(bgPath)
-        imageUrl = noBgUrl
-      }
-    } catch { /* fallback to original */ }
+    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(originalPath)
+    originalUrl = publicUrl
+    imageUrl = publicUrl
+
+    const apiKey = process.env.REMOVE_BG_API_KEY
+    if (apiKey && apiKey !== 'your_remove_bg_key') {
+      try {
+        const bgForm = new FormData()
+        bgForm.append('image_file', f)
+        bgForm.append('size', 'auto')
+        const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: { 'X-Api-Key': apiKey },
+          body: bgForm,
+        })
+        if (bgRes.ok) {
+          const bgBytes = await bgRes.arrayBuffer()
+          const bgPath = `${user.id}/${timestamp}_nobg.png`
+          await supabase.storage.from('wardrobe').upload(bgPath, bgBytes, { contentType: 'image/png' })
+          const { data: { publicUrl: noBgUrl } } = supabase.storage.from('wardrobe').getPublicUrl(bgPath)
+          imageUrl = noBgUrl
+        }
+      } catch { /* fallback to original */ }
+    }
   }
 
   const { error } = await supabase.from('wardrobe_items').insert({
