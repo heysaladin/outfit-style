@@ -103,6 +103,42 @@ export async function uploadItem(formData: FormData): Promise<{ error?: string }
   return {}
 }
 
+export async function updateItem(id: string, formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const name        = formData.get('name') as string
+  const category    = formData.get('category') as string
+  const subcategory = (formData.get('subcategory') as string) || null
+  const item_type   = (formData.get('item_type') as string) || null
+  const color       = formData.get('color') as string
+  const brand       = (formData.get('brand') as string) || null
+  const priceRaw    = formData.get('price') as string
+  const price       = priceRaw ? parseFloat(priceRaw) : null
+  const seasons     = formData.getAll('seasons') as string[]
+  const occasions   = formData.getAll('occasions') as string[]
+  const tagsRaw     = (formData.get('tags') as string) || ''
+  const tags        = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
+
+  if (!name || !category || !color) return { error: 'Missing required fields.' }
+
+  const { error } = await supabase.from('wardrobe_items').update({
+    name, category, subcategory, item_type, color, brand, price,
+    seasons: seasons.length > 0 ? seasons : null,
+    occasions: occasions.length > 0 ? occasions : null,
+    tags: tags.length > 0 ? tags : null,
+    updated_at: new Date().toISOString(),
+  }).eq('id', id).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/stats')
+  revalidatePath('/declutter')
+  return {}
+}
+
 export async function deleteItem(id: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

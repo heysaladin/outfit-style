@@ -1,9 +1,10 @@
 'use client'
 
 import { useTransition, useState } from 'react'
-import { X, Trash2, ShirtIcon, Tag, Package2 } from 'lucide-react'
+import { X, Trash2, ShirtIcon, Tag, Package2, Pencil } from 'lucide-react'
 import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe } from '@/app/actions'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
+import { EditClothModal } from './EditClothModal'
 
 interface ItemDetailModalProps {
   item: WardrobeItem | null
@@ -14,6 +15,7 @@ interface ItemDetailModalProps {
 export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalProps) {
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useState<'info' | 'storage' | 'declutter'>('info')
+  const [editOpen, setEditOpen] = useState(false)
 
   if (!item) return null
 
@@ -39,9 +41,14 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
       <div className="absolute inset-x-0 bottom-0 bg-[#0F0F0F] rounded-t-3xl max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-[#2A2A2A] rounded-full mx-auto mt-3" />
-        <button onClick={onClose} className="absolute top-4 right-4 text-[#555555] hover:text-white z-10">
-          <X size={20} />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+          <button onClick={() => setEditOpen(true)} className="text-[#555555] hover:text-white transition-colors">
+            <Pencil size={18} />
+          </button>
+          <button onClick={onClose} className="text-[#555555] hover:text-white">
+            <X size={20} />
+          </button>
+        </div>
 
         {/* Image */}
         <div className="mx-4 mt-4 aspect-square rounded-2xl overflow-hidden bg-[#1A1A1A]">
@@ -205,6 +212,9 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
           )}
         </div>
       </div>
+      {editOpen && (
+        <EditClothModal item={item} onClose={() => { setEditOpen(false); onClose() }} />
+      )}
     </div>
   )
 }
