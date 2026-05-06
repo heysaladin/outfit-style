@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition, useRef, useState } from 'react'
-import { X, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, ChevronDown, ChevronUp, Camera, Link } from 'lucide-react'
 import { updateItem } from '@/app/actions'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef, getSubcategoryDef, type WardrobeItem } from '@/lib/types'
 
@@ -22,7 +22,31 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
     !!(item.seasons?.length || item.occasions?.length || item.brand || item.price || item.tags?.length)
   )
   const [error, setError] = useState('')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageUrlInput, setImageUrlInput] = useState('')
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImageUrlInput('')
+    setShowUrlInput(false)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  function handleUrlApply() {
+    if (!imageUrlInput.startsWith('https://')) {
+      setError('Image URL must start with https://')
+      return
+    }
+    setImageFile(null)
+    setImagePreview(imageUrlInput)
+    setError('')
+  }
 
   const catDef = getCategoryDef(category)
   const subDef = getSubcategoryDef(category, subcategory)
@@ -64,6 +88,10 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
     seasons.forEach(s => formData.append('seasons', s))
     formData.delete('occasions')
     occasions.forEach(o => formData.append('occasions', o))
+    if (imageFile) formData.set('image', imageFile)
+    else formData.delete('image')
+    if (imageUrlInput && !imageFile) formData.set('image_url_input', imageUrlInput)
+    else formData.delete('image_url_input')
 
     startTransition(async () => {
       const result = await updateItem(item.id, formData)
@@ -86,11 +114,68 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
           </button>
         </div>
 
-        {/* Current image preview */}
-        <div className="mx-5 mt-4">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A]">
-            <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+        {/* Image editor */}
+        <div className="mx-5 mt-4 space-y-2">
+          <div className="flex items-end gap-3">
+            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] flex-shrink-0">
+              <img
+                src={imagePreview ?? item.image_url}
+                alt={item.name}
+                className="w-full h-full object-contain"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+              >
+                <Camera size={18} className="text-white" />
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg text-[#888888] text-xs flex items-center gap-1.5 hover:border-[#3A3A3A] hover:text-white transition-colors"
+              >
+                <Camera size={12} /> Upload
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(v => !v)}
+                className="px-3 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg text-[#888888] text-xs flex items-center gap-1.5 hover:border-[#3A3A3A] hover:text-white transition-colors"
+              >
+                <Link size={12} /> URL
+              </button>
+            </div>
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          {showUrlInput && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="https://..."
+                value={imageUrlInput}
+                onChange={e => setImageUrlInput(e.target.value)}
+                className="flex-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-3 py-2 text-white placeholder-[#444444] text-xs outline-none focus:border-[#3A3A3A]"
+              />
+              <button
+                type="button"
+                onClick={handleUrlApply}
+                className="px-3 py-2 bg-white text-black rounded-xl text-xs font-medium"
+              >
+                Apply
+              </button>
+            </div>
+          )}
+          {imagePreview && (
+            <p className="text-[#555555] text-xs">New image selected — save to apply</p>
+          )}
         </div>
 
         <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5 pb-8">

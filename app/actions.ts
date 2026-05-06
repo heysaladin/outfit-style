@@ -120,16 +120,61 @@ export async function updateItem(id: string, formData: FormData): Promise<{ erro
   const occasions   = formData.getAll('occasions') as string[]
   const tagsRaw     = (formData.get('tags') as string) || ''
   const tags        = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
+  const file          = formData.get('image') as File | null
+  const imageUrlInput = (formData.get('image_url_input') as string) || null
 
   if (!name || !category || !color) return { error: 'Missing required fields.' }
 
-  const { error } = await supabase.from('wardrobe_items').update({
+  const updatePayload: Record<string, unknown> = {
     name, category, subcategory, item_type, color, brand, price,
     seasons: seasons.length > 0 ? seasons : null,
     occasions: occasions.length > 0 ? occasions : null,
     tags: tags.length > 0 ? tags : null,
     updated_at: new Date().toISOString(),
-  }).eq('id', id).eq('user_id', user.id)
+  }
+
+  if (imageUrlInput) {
+    updatePayload.image_url = imageUrlInput
+    updatePayload.original_image_url = imageUrlInput
+  } else if (file && file.size > 0) {
+    const timestamp    = Date.now()
+    const ext          = file.name.split('.').pop() || 'jpg'
+    const originalPath = `${user.id}/${timestamp}_original.${ext}`
+
+    const originalBytes = await file.arrayBuffer()
+    const { error: uploadError } = await supabase.storage
+      .from('wardrobe')
+      .upload(originalPath, originalBytes, { contentType: file.type })
+
+    if (uploadError) return { error: `Storage error: ${uploadError.message}` }
+
+    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(originalPath)
+    updatePayload.original_image_url = publicUrl
+    updatePayload.image_url = publicUrl
+
+    const apiKey = process.env.REMOVE_BG_API_KEY
+    if (apiKey && apiKey !== 'your_remove_bg_key') {
+      try {
+        const bgForm = new FormData()
+        bgForm.append('image_file', file)
+        bgForm.append('size', 'auto')
+        const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: { 'X-Api-Key': apiKey },
+          body: bgForm,
+        })
+        if (bgRes.ok) {
+          const bgBytes = await bgRes.arrayBuffer()
+          const bgPath = `${user.id}/${timestamp}_nobg.png`
+          await supabase.storage.from('wardrobe').upload(bgPath, bgBytes, { contentType: 'image/png' })
+          const { data: { publicUrl: noBgUrl } } = supabase.storage.from('wardrobe').getPublicUrl(bgPath)
+          updatePayload.image_url = noBgUrl
+        }
+      } catch { /* fallback to original */ }
+    }
+  }
+
+  const { error } = await supabase.from('wardrobe_items').update(updatePayload).eq('id', id).eq('user_id', user.id)
 
   if (error) return { error: error.message }
 
