@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, CheckSquare, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
-import type { WardrobeItem } from '@/lib/types'
+import type { WardrobeItem, Wardrobe } from '@/lib/types'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
@@ -13,10 +13,11 @@ import { BottomNav } from '@/components/BottomNav'
 
 interface WardrobeClientProps {
   items: WardrobeItem[]
+  wardrobes: Wardrobe[]
   user: User
 }
 
-export function WardrobeClient({ items, user }: WardrobeClientProps) {
+export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) {
   const [uploadOpen, setUploadOpen]     = useState(false)
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null)
   const [selectMode, setSelectMode]     = useState(false)
@@ -108,7 +109,7 @@ export function WardrobeClient({ items, user }: WardrobeClientProps) {
 
       <BottomNav />
       <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
-      <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      <ItemDetailModal item={selectedItem} wardrobes={wardrobes} onClose={() => setSelectedItem(null)} />
     </div>
   )
 }

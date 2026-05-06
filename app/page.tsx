@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { WardrobeClient } from '@/components/wardrobe/WardrobeClient'
-import type { WardrobeItem } from '@/lib/types'
+import type { WardrobeItem, Wardrobe } from '@/lib/types'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -9,11 +9,16 @@ export default async function Home() {
 
   if (!user) redirect('/login')
 
-  const { data: items } = await supabase
-    .from('wardrobe_items')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const [{ data: items }, { data: wardrobes }] = await Promise.all([
+    supabase.from('wardrobe_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    supabase.from('wardrobes').select('*').eq('user_id', user.id).order('code', { ascending: true }),
+  ])
 
-  return <WardrobeClient items={(items ?? []) as WardrobeItem[]} user={user} />
+  return (
+    <WardrobeClient
+      items={(items ?? []) as WardrobeItem[]}
+      wardrobes={(wardrobes ?? []) as Wardrobe[]}
+      user={user}
+    />
+  )
 }

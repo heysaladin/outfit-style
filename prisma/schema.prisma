@@ -15,16 +15,30 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Wardrobe {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  code        String
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("wardrobes")
+}
+
 model WardrobeItem {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  name            String
-  category        String
-  color           String
-  imageUrl        String   @map("image_url")
-  originalImageUrl String? @map("original_image_url")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  wardrobeId       String?  @map("wardrobe_id")
+  name             String
+  category         String
+  color            String
+  imageUrl         String   @map("image_url")
+  originalImageUrl String?  @map("original_image_url")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("wardrobe_items")

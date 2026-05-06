@@ -1,18 +1,19 @@
 'use client'
 
 import { useTransition, useState } from 'react'
-import { X, Trash2, ShirtIcon, Tag, DollarSign } from 'lucide-react'
-import { deleteItem, wearItem, flagDeclutter } from '@/app/actions'
-import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem } from '@/lib/types'
+import { X, Trash2, ShirtIcon, Tag, Package2 } from 'lucide-react'
+import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe } from '@/app/actions'
+import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
 
 interface ItemDetailModalProps {
   item: WardrobeItem | null
+  wardrobes: Wardrobe[]
   onClose: () => void
 }
 
-export function ItemDetailModal({ item, onClose }: ItemDetailModalProps) {
+export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalProps) {
   const [isPending, startTransition] = useTransition()
-  const [tab, setTab] = useState<'info' | 'declutter'>('info')
+  const [tab, setTab] = useState<'info' | 'storage' | 'declutter'>('info')
 
   if (!item) return null
 
@@ -28,6 +29,9 @@ export function ItemDetailModal({ item, onClose }: ItemDetailModalProps) {
   }
   function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | null) {
     startTransition(async () => { await flagDeclutter(item!.id, status); onClose() })
+  }
+  function handleAssign(wardrobeId: string | null) {
+    startTransition(async () => { await assignItemToWardrobe(item!.id, wardrobeId); onClose() })
   }
 
   return (
@@ -60,7 +64,7 @@ export function ItemDetailModal({ item, onClose }: ItemDetailModalProps) {
 
           {/* Tabs */}
           <div className="flex gap-1 bg-[#1A1A1A] rounded-xl p-1">
-            {(['info', 'declutter'] as const).map(t => (
+            {(['info', 'storage', 'declutter'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
                 className={`flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-all ${
                   tab === t ? 'bg-[#2A2A2A] text-white' : 'text-[#555555]'
@@ -140,6 +144,40 @@ export function ItemDetailModal({ item, onClose }: ItemDetailModalProps) {
                 <Trash2 size={15} />
                 {isPending ? 'Deleting...' : 'Delete Item'}
               </button>
+            </div>
+          )}
+
+          {tab === 'storage' && (
+            <div className="space-y-3">
+              <p className="text-[#666666] text-sm">Assign this item to a wardrobe:</p>
+              {wardrobes.length === 0 ? (
+                <div className="flex flex-col items-center py-6 text-center">
+                  <Package2 size={28} className="text-[#2A2A2A] mb-2" />
+                  <p className="text-[#555555] text-sm">No wardrobes yet</p>
+                  <p className="text-[#3A3A3A] text-xs mt-0.5">Create one in the Wardrobes page</p>
+                </div>
+              ) : (
+                <>
+                  {wardrobes.map(w => (
+                    <button key={w.id} onClick={() => handleAssign(w.id)} disabled={isPending}
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-sm font-medium transition-all disabled:opacity-40 ${
+                        item.wardrobe_id === w.id
+                          ? 'border-white/30 bg-white/10 text-white'
+                          : 'border-[#2A2A2A] bg-[#1A1A1A] text-[#888888] hover:border-[#3A3A3A]'
+                      }`}>
+                      <span className="text-xs font-mono text-[#555555] bg-[#0F0F0F] px-1.5 py-0.5 rounded">{w.code}</span>
+                      <span className="flex-1 text-left">{w.name}</span>
+                      {item.wardrobe_id === w.id && <span className="text-xs text-[#666666]">Current ✓</span>}
+                    </button>
+                  ))}
+                  {item.wardrobe_id && (
+                    <button onClick={() => handleAssign(null)} disabled={isPending}
+                      className="w-full text-[#555555] text-xs py-2 disabled:opacity-40 hover:text-white transition-colors">
+                      Remove from wardrobe
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           )}
 

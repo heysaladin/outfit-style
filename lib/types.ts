@@ -139,9 +139,20 @@ export type DeclutterStatus = 'donate' | 'sell' | 'giveaway'
 
 // ─── Interfaces ───────────────────────────────────────────────────────────
 
+export interface Wardrobe {
+  id: string
+  user_id: string
+  code: string
+  name: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface WardrobeItem {
   id: string
   user_id: string
+  wardrobe_id: string | null
   name: string
   category: string
   subcategory: string | null

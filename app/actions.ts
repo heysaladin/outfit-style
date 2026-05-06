@@ -163,6 +163,74 @@ export async function flagDeclutter(
   return {}
 }
 
+// ─── Wardrobes (Storage Locations) ───────────────────────────────────────
+
+export async function createWardrobe(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const code        = (formData.get('code') as string)?.trim()
+  const name        = (formData.get('name') as string)?.trim()
+  const description = (formData.get('description') as string)?.trim() || null
+
+  if (!code || !name) return { error: 'Code and name are required.' }
+
+  const { error } = await supabase.from('wardrobes').insert({ user_id: user.id, code, name, description })
+  if (error) return { error: error.message }
+  revalidatePath('/wardrobes')
+  return {}
+}
+
+export async function updateWardrobe(id: string, formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const code        = (formData.get('code') as string)?.trim()
+  const name        = (formData.get('name') as string)?.trim()
+  const description = (formData.get('description') as string)?.trim() || null
+
+  if (!code || !name) return { error: 'Code and name are required.' }
+
+  const { error } = await supabase.from('wardrobes')
+    .update({ code, name, description })
+    .eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/wardrobes')
+  return {}
+}
+
+export async function deleteWardrobe(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  await supabase.from('wardrobe_items')
+    .update({ wardrobe_id: null })
+    .eq('wardrobe_id', id).eq('user_id', user.id)
+
+  const { error } = await supabase.from('wardrobes').delete().eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/wardrobes')
+  revalidatePath('/')
+  return {}
+}
+
+export async function assignItemToWardrobe(itemId: string, wardrobeId: string | null): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { error } = await supabase.from('wardrobe_items')
+    .update({ wardrobe_id: wardrobeId })
+    .eq('id', itemId).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/')
+  revalidatePath('/wardrobes')
+  return {}
+}
+
 // ─── Outfits ──────────────────────────────────────────────────────────────
 
 export async function createOutfit(
