@@ -11,32 +11,33 @@ function LoginContent() {
 
   async function signInWithGoogle() {
     const supabase = createClient()
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback`,
       },
     })
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       {/* App Icon */}
-      <div className="mb-8 w-16 h-16 rounded-2xl bg-white flex items-center justify-center">
+      <div className="mb-8 w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
         <span className="text-2xl">👔</span>
       </div>
 
       {/* Title */}
-      <h1 className="text-white text-2xl font-bold tracking-tight mb-1">
+      <h1 className="text-foreground text-2xl font-bold tracking-tight mb-1">
         Outfit Style
       </h1>
-      <p className="text-[#777777] text-sm mb-10">
+      <p className="text-muted-foreground text-sm mb-10">
         Your smart wardrobe planner
       </p>
 
       {/* Error state */}
       {error && (
-        <p className="text-red-400 text-sm mb-6 bg-red-400/10 px-4 py-2 rounded-lg">
+        <p className="text-destructive text-sm mb-6 bg-destructive/10 px-4 py-2 rounded-lg">
           Sign in failed. Please try again.
         </p>
       )}
@@ -44,14 +45,14 @@ function LoginContent() {
       {/* Google Sign In */}
       <Button
         onClick={signInWithGoogle}
-        className="w-full max-w-[320px] h-12 bg-white hover:bg-gray-100 text-black font-medium text-sm rounded-xl flex items-center justify-center gap-3 transition-all"
+        className="w-full max-w-[320px] h-12 bg-card hover:bg-muted text-foreground border border-border font-medium text-sm rounded-xl flex items-center justify-center gap-3 transition-all"
       >
         <GoogleIcon />
         Continue with Google
       </Button>
 
       {/* Footer */}
-      <p className="text-[#555555] text-xs mt-10 max-w-[280px] text-center leading-5">
+      <p className="text-muted-foreground text-xs mt-10 max-w-[280px] text-center leading-5">
         By continuing, you agree to our terms and privacy policy.
       </p>
     </div>

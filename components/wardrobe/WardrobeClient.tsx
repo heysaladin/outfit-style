@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, CheckSquare, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
 import { Header } from './Header'
@@ -28,6 +28,11 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [activeColor,       setActiveColor]       = useState<string | null>(null)
   const [activeSeason,      setActiveSeason]      = useState<string | null>(null)
   const [activeOccasion,    setActiveOccasion]    = useState<string | null>(null)
+  const [showVerified,      setShowVerified]      = useState(true)
+  const [showDraft,         setShowDraft]         = useState(false)
+  const [mounted,           setMounted]           = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   const filtered = items.filter(item => {
     if (activeCategory    && item.category    !== activeCategory)    return false
@@ -35,6 +40,11 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (activeColor       && item.color       !== activeColor)       return false
     if (activeSeason      && !(item.seasons ?? []).includes(activeSeason))   return false
     if (activeOccasion    && !(item.occasions ?? []).includes(activeOccasion)) return false
+    if (mounted) {
+      const isDraft = !item.status || item.status === 'draft'
+      if (isDraft && !showDraft)     return false
+      if (!isDraft && !showVerified) return false
+    }
     return true
   })
 
@@ -54,24 +64,26 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-16">
+    <div className="min-h-screen bg-background pb-16">
       <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={() => setSelectMode(v => !v)} />
 
       <FilterBar
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}
         activeColor={activeColor} activeSeason={activeSeason} activeOccasion={activeOccasion}
+        showVerified={showVerified} showDraft={showDraft}
         onCategoryChange={v => { setActiveCategory(v); setActiveSubcategory(null) }}
         onSubcategoryChange={setActiveSubcategory}
         onColorChange={setActiveColor} onSeasonChange={setActiveSeason} onOccasionChange={setActiveOccasion}
+        onShowVerifiedChange={setShowVerified} onShowDraftChange={setShowDraft}
       />
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 text-center px-6">
           <div className="text-5xl mb-4">👔</div>
-          <p className="text-white font-semibold mb-1">
+          <p className="text-foreground font-semibold mb-1">
             {items.length === 0 ? 'Your wardrobe is empty' : 'No items match'}
           </p>
-          <p className="text-[#444444] text-sm">
+          <p className="text-muted-foreground text-sm">
             {items.length === 0 ? 'Tap + to add your first item' : 'Try a different filter'}
           </p>
         </div>
@@ -90,18 +102,18 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       {/* FAB */}
       {!selectMode && (
         <button onClick={() => setUploadOpen(true)}
-          className="fixed bottom-20 right-5 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl hover:bg-gray-100 transition-colors active:scale-95">
-          <Plus size={22} className="text-black" strokeWidth={2.5} />
+          className="fixed bottom-20 right-5 w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-2xl hover:opacity-90 transition-opacity active:scale-95">
+          <Plus size={22} className="text-primary-foreground" strokeWidth={2.5} />
         </button>
       )}
 
       {/* Bulk select bar */}
       {selectMode && (
-        <div className="fixed bottom-16 inset-x-0 bg-[#0F0F0F] border-t border-[#1F1F1F] px-5 py-3 flex items-center justify-between">
-          <span className="text-white text-sm font-medium">
+        <div className="fixed bottom-16 inset-x-0 bg-background border-t border-border px-5 py-3 flex items-center justify-between">
+          <span className="text-foreground text-sm font-medium">
             {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
           </span>
-          <button onClick={exitSelectMode} className="text-[#555555] hover:text-white transition-colors">
+          <button onClick={exitSelectMode} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>

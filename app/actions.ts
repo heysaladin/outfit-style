@@ -244,6 +244,23 @@ export async function flagDeclutter(
   return {}
 }
 
+export async function setItemStatus(
+  itemId: string, status: 'draft' | 'verified'
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase.from('wardrobe_items')
+    .update({ status })
+    .eq('id', itemId).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/')
+  revalidatePath('/stats')
+  return {}
+}
+
 // ─── Wardrobes (Storage Locations) ───────────────────────────────────────
 
 export async function createWardrobe(formData: FormData): Promise<{ error?: string }> {

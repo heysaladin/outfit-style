@@ -20,25 +20,21 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
 
   function handleRemove(planId: string) {
     startTransition(async () => {
-      try {
-        await removeFromPlan(planId)
-      } catch {
-        // silently fail, server will show current state on next load
-      }
+      try { await removeFromPlan(planId) } catch { /* silently fail */ }
     })
   }
 
   return (
-    <div className={`flex gap-3 p-4 ${isToday ? 'bg-white/[0.025]' : ''}`}>
+    <div className={`flex gap-3 p-4 ${isToday ? 'bg-primary/5' : ''}`}>
       {/* Day label */}
       <div className="w-11 flex-shrink-0 pt-0.5">
-        <p className={`text-xs font-bold ${isToday ? 'text-white' : 'text-[#444444]'}`}>
+        <p className={`text-xs font-bold ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>
           {dayLabel}
         </p>
-        <p className={`text-xs mt-0.5 ${isToday ? 'text-[#888888]' : 'text-[#333333]'}`}>
+        <p className={`text-xs mt-0.5 ${isToday ? 'text-muted-foreground' : 'text-muted-foreground/50'}`}>
           {formatMonthDay(date)}
         </p>
-        {isToday && <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5" />}
+        {isToday && <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />}
       </div>
 
       {/* Items row */}
@@ -46,7 +42,7 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
         {plans.map(plan => (
           <div
             key={plan.id}
-            className="relative flex-shrink-0 w-16 h-[84px] rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A]"
+            className="relative flex-shrink-0 w-16 h-[84px] rounded-xl overflow-hidden bg-muted border border-border"
           >
             <img
               src={plan.wardrobe_items.image_url}
@@ -65,9 +61,9 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
 
         <button
           onClick={onAdd}
-          className="flex-shrink-0 w-16 h-[84px] rounded-xl border border-dashed border-[#2A2A2A] flex items-center justify-center hover:border-[#3A3A3A] transition-colors"
+          className="flex-shrink-0 w-16 h-[84px] rounded-xl border border-dashed border-border flex items-center justify-center hover:border-primary/50 transition-colors"
         >
-          <Plus size={18} className="text-[#333333]" />
+          <Plus size={18} className="text-muted-foreground" />
         </button>
       </div>
     </div>

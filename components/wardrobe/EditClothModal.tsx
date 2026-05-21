@@ -10,6 +10,10 @@ interface EditClothModalProps {
   onClose: () => void
 }
 
+const inputCls = 'w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors'
+const chipActive = 'bg-primary text-primary-foreground'
+const chipInactive = 'bg-muted text-muted-foreground border border-border'
+
 export function EditClothModal({ item, onClose }: EditClothModalProps) {
   const [isPending, startTransition] = useTransition()
   const [category, setCategory] = useState(item.category)
@@ -53,21 +57,10 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
   const availableTypes = subcategory ? (subDef?.types ?? []) : (catDef?.types ?? [])
   const hasSubcategories = (catDef?.subcategories.length ?? 0) > 0
 
-  function pickCategory(val: string) {
-    setCategory(val)
-    setSubcategory('')
-    setItemType('')
-  }
-  function pickSubcategory(val: string) {
-    setSubcategory(val)
-    setItemType('')
-  }
-  function toggleSeason(v: string) {
-    setSeasons(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
-  }
-  function toggleOccasion(v: string) {
-    setOccasions(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
-  }
+  function pickCategory(val: string) { setCategory(val); setSubcategory(''); setItemType('') }
+  function pickSubcategory(val: string) { setSubcategory(val); setItemType('') }
+  function toggleSeason(v: string) { setSeasons(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v]) }
+  function toggleOccasion(v: string) { setOccasions(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v]) }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -101,15 +94,15 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/80 flex items-end" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/70 flex items-end" onClick={onClose}>
       <div
-        className="w-full bg-[#0F0F0F] rounded-t-3xl max-h-[95vh] overflow-y-auto"
+        className="w-full bg-background rounded-t-3xl max-h-[95vh] overflow-y-auto border-t border-border"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-[#2A2A2A] rounded-full mx-auto mt-3 mb-1" />
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#1F1F1F]">
-          <h2 className="text-white font-bold text-base">Edit Clothing</h2>
-          <button onClick={onClose} className="text-[#555555] hover:text-white transition-colors">
+        <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1" />
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+          <h2 className="text-foreground font-bold text-base">Edit Clothing</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -117,7 +110,7 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
         {/* Image editor */}
         <div className="mx-5 mt-4 space-y-2">
           <div className="flex items-end gap-3">
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] flex-shrink-0">
+            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted border border-border flex-shrink-0">
               <img
                 src={imagePreview ?? item.image_url}
                 alt={item.name}
@@ -135,26 +128,20 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg text-[#888888] text-xs flex items-center gap-1.5 hover:border-[#3A3A3A] hover:text-white transition-colors"
+                className="px-3 py-2 bg-muted border border-border rounded-lg text-muted-foreground text-xs flex items-center gap-1.5 hover:border-primary/50 hover:text-foreground transition-colors"
               >
                 <Camera size={12} /> Upload
               </button>
               <button
                 type="button"
                 onClick={() => setShowUrlInput(v => !v)}
-                className="px-3 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg text-[#888888] text-xs flex items-center gap-1.5 hover:border-[#3A3A3A] hover:text-white transition-colors"
+                className="px-3 py-2 bg-muted border border-border rounded-lg text-muted-foreground text-xs flex items-center gap-1.5 hover:border-primary/50 hover:text-foreground transition-colors"
               >
                 <Link size={12} /> URL
               </button>
             </div>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
           {showUrlInput && (
             <div className="flex gap-2">
               <input
@@ -162,19 +149,19 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
                 placeholder="https://..."
                 value={imageUrlInput}
                 onChange={e => setImageUrlInput(e.target.value)}
-                className="flex-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-3 py-2 text-white placeholder-[#444444] text-xs outline-none focus:border-[#3A3A3A]"
+                className="flex-1 bg-muted border border-border rounded-xl px-3 py-2 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors"
               />
               <button
                 type="button"
                 onClick={handleUrlApply}
-                className="px-3 py-2 bg-white text-black rounded-xl text-xs font-medium"
+                className="px-3 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium"
               >
                 Apply
               </button>
             </div>
           )}
           {imagePreview && (
-            <p className="text-[#555555] text-xs">New image selected — save to apply</p>
+            <p className="text-muted-foreground text-xs">New image selected — save to apply</p>
           )}
         </div>
 
@@ -186,19 +173,17 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
             placeholder="Item name"
             defaultValue={item.name}
             required
-            className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]"
+            className={inputCls}
           />
 
           {/* Category */}
           <div>
-            <p className="text-[#666666] text-xs font-medium mb-2">Category</p>
+            <p className="text-muted-foreground text-xs font-medium mb-2">Category</p>
             <div className="grid grid-cols-5 gap-2">
               {CATEGORY_TREE.map(cat => (
                 <button type="button" key={cat.value} onClick={() => pickCategory(cat.value)}
-                  className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium transition-all border ${
-                    category === cat.value
-                      ? 'bg-white text-black border-white'
-                      : 'bg-[#1A1A1A] text-[#666666] border-[#2A2A2A]'
+                  className={`flex flex-col items-center gap-1 py-2.5 rounded-xl text-xs font-medium transition-all border ${
+                    category === cat.value ? chipActive + ' border-primary' : chipInactive
                   }`}>
                   <span className="text-lg">{cat.icon}</span>
                   <span className="text-[10px]">{cat.label}</span>
@@ -210,12 +195,12 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
           {/* Subcategory */}
           {category && hasSubcategories && (
             <div>
-              <p className="text-[#666666] text-xs font-medium mb-2">Subcategory</p>
+              <p className="text-muted-foreground text-xs font-medium mb-2">Subcategory</p>
               <div className="flex flex-wrap gap-2">
                 {catDef!.subcategories.map(sub => (
                   <button type="button" key={sub.value} onClick={() => pickSubcategory(sub.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      subcategory === sub.value ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                    className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                      subcategory === sub.value ? chipActive : chipInactive
                     }`}>
                     {sub.label}
                   </button>
@@ -227,12 +212,12 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
           {/* Item Type */}
           {category && availableTypes.length > 0 && (!hasSubcategories || subcategory) && (
             <div>
-              <p className="text-[#666666] text-xs font-medium mb-2">Type</p>
+              <p className="text-muted-foreground text-xs font-medium mb-2">Type</p>
               <div className="flex flex-wrap gap-2">
                 {availableTypes.map(t => (
                   <button type="button" key={t.value} onClick={() => setItemType(t.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      itemType === t.value ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                    className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                      itemType === t.value ? chipActive : chipInactive
                     }`}>
                     {t.label}
                   </button>
@@ -243,13 +228,13 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
 
           {/* Color */}
           <div>
-            <p className="text-[#666666] text-xs font-medium mb-2">Color</p>
+            <p className="text-muted-foreground text-xs font-medium mb-2">Color</p>
             <div className="flex flex-wrap gap-2.5">
               {COLORS.map(c => (
                 <button type="button" key={c.value} onClick={() => setColor(c.value)} title={c.label}
-                  className={`w-7 h-7 rounded-full border-2 transition-all ${
-                    color === c.value ? 'border-white scale-110' : 'border-[#2A2A2A]'
-                  } ${c.value === 'white' ? '!border-[#3A3A3A]' : ''}`}
+                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    color === c.value ? 'border-primary scale-110' : 'border-border'
+                  }`}
                   style={{ backgroundColor: c.hex }} />
               ))}
             </div>
@@ -257,7 +242,7 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
 
           {/* More details toggle */}
           <button type="button" onClick={() => setMoreOpen(v => !v)}
-            className="flex items-center gap-2 text-[#666666] text-xs font-medium hover:text-white transition-colors">
+            className="flex items-center gap-2 text-muted-foreground text-xs font-medium hover:text-foreground transition-colors">
             {moreOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             {moreOpen ? 'Less details' : 'More details (season, brand, price…)'}
           </button>
@@ -266,12 +251,12 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
             <div className="space-y-4 pt-1">
               {/* Seasons */}
               <div>
-                <p className="text-[#666666] text-xs font-medium mb-2">Season</p>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Season</p>
                 <div className="flex gap-2 flex-wrap">
                   {SEASONS.map(s => (
                     <button type="button" key={s.value} onClick={() => toggleSeason(s.value)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        seasons.includes(s.value) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                        seasons.includes(s.value) ? chipActive : chipInactive
                       }`}>
                       <span>{s.icon}</span>{s.label}
                     </button>
@@ -281,12 +266,12 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
 
               {/* Occasions */}
               <div>
-                <p className="text-[#666666] text-xs font-medium mb-2">Occasion</p>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Occasion</p>
                 <div className="flex gap-2 flex-wrap">
                   {OCCASIONS.map(o => (
                     <button type="button" key={o.value} onClick={() => toggleOccasion(o.value)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        occasions.includes(o.value) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                      className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                        occasions.includes(o.value) ? chipActive : chipInactive
                       }`}>
                       {o.label}
                     </button>
@@ -297,23 +282,23 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
               {/* Brand + Price */}
               <div className="grid grid-cols-2 gap-3">
                 <input type="text" name="brand" placeholder="Brand (optional)" defaultValue={item.brand ?? ''}
-                  className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
                 <input type="number" name="price" placeholder="Price (optional)" min="0" step="0.01"
                   defaultValue={item.price ?? ''}
-                  className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
               </div>
 
               {/* Tags */}
               <input type="text" name="tags" placeholder="Tags: vintage, oversized, fav… (comma separated)"
                 defaultValue={item.tags?.join(', ') ?? ''}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                className={inputCls} />
             </div>
           )}
 
-          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {error && <p className="text-destructive text-xs font-medium">{error}</p>}
 
           <button type="submit" disabled={isPending}
-            className="w-full bg-white text-black font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 transition-opacity">
+            className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 transition-opacity hover:opacity-90">
             {isPending ? 'Saving…' : 'Save Changes'}
           </button>
         </form>

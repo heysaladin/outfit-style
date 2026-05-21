@@ -38,29 +38,27 @@ export function WeeklyPlanClient({ weekStart, plans, allItems, today }: WeeklyPl
   const pickerDayPlans = pickerDay ? (plansByDate[pickerDay] ?? []) : []
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#0A0A0A]/95 backdrop-blur border-b border-[#1F1F1F] px-4 pt-3 pb-3">
-        <h1 className="text-white font-bold text-lg tracking-tight mb-2">Weekly Plan</h1>
+    <div className="min-h-screen bg-background pb-20">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
+        <h1 className="text-foreground font-bold text-lg tracking-tight mb-2">Weekly Plan</h1>
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-[#555555] hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-white text-sm font-medium">{weekLabel}</span>
+          <span className="text-foreground text-sm font-medium">{weekLabel}</span>
           <button
             onClick={() => navigate(1)}
-            className="w-8 h-8 flex items-center justify-center text-[#555555] hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronRight size={20} />
           </button>
         </div>
       </header>
 
-      {/* Day rows */}
-      <div className="divide-y divide-[#1A1A1A]">
+      <div className="divide-y divide-border">
         {days.map((date, i) => {
           const dateStr = formatDate(date)
           return (

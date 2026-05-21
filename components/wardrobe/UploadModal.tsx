@@ -10,6 +10,10 @@ interface UploadModalProps {
   onClose: () => void
 }
 
+const inputCls = 'w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors'
+const chipActive = 'bg-primary text-primary-foreground'
+const chipInactive = 'bg-muted text-muted-foreground border border-border'
+
 export function UploadModal({ open, onClose }: UploadModalProps) {
   const [isPending, startTransition] = useTransition()
   const [preview, setPreview] = useState<string | null>(null)
@@ -32,21 +36,10 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
   const availableTypes = subcategory ? (subDef?.types ?? []) : (catDef?.types ?? [])
   const hasSubcategories = (catDef?.subcategories.length ?? 0) > 0
 
-  function pickCategory(val: string) {
-    setCategory(val)
-    setSubcategory('')
-    setItemType('')
-  }
-  function pickSubcategory(val: string) {
-    setSubcategory(val)
-    setItemType('')
-  }
-  function toggleSeason(v: string) {
-    setSeasons(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
-  }
-  function toggleOccasion(v: string) {
-    setOccasions(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
-  }
+  function pickCategory(val: string) { setCategory(val); setSubcategory(''); setItemType('') }
+  function pickSubcategory(val: string) { setSubcategory(val); setItemType('') }
+  function toggleSeason(v: string) { setSeasons(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v]) }
+  function toggleOccasion(v: string) { setOccasions(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v]) }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
@@ -66,19 +59,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
     }
 
     const uri = e.dataTransfer.getData('text/uri-list')
-    if (uri && uri.startsWith('http')) {
-      setDraggedUrl(uri)
-      setPreview(uri)
-      return
-    }
+    if (uri && uri.startsWith('http')) { setDraggedUrl(uri); setPreview(uri); return }
 
     const html = e.dataTransfer.getData('text/html')
     if (html) {
       const match = html.match(/src="([^"]+)"/)
-      if (match?.[1] && match[1].startsWith('http')) {
-        setDraggedUrl(match[1])
-        setPreview(match[1])
-      }
+      if (match?.[1] && match[1].startsWith('http')) { setDraggedUrl(match[1]); setPreview(match[1]) }
     }
   }
 
@@ -130,13 +116,13 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-end" onClick={handleClose}>
       <div
-        className="w-full bg-[#0F0F0F] rounded-t-3xl max-h-[95vh] overflow-y-auto"
+        className="w-full bg-background rounded-t-3xl max-h-[95vh] overflow-y-auto border-t border-border"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-[#2A2A2A] rounded-full mx-auto mt-3 mb-1" />
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#1F1F1F]">
-          <h2 className="text-white font-bold text-base">Add Clothing</h2>
-          <button onClick={handleClose} className="text-[#555555] hover:text-white transition-colors">
+        <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1" />
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+          <h2 className="text-foreground font-bold text-base">Add Clothing</h2>
+          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -144,13 +130,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
         <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5 pb-8">
           {/* Image picker */}
           <div className="space-y-2">
-            {/* Drag / file area */}
             <input type="file" name="image" accept="image/*" className="hidden" id="image-file-input"
               onChange={e => { const f = e.target.files?.[0]; if (f) { setDraggedUrl(null); setPreview(URL.createObjectURL(f)) } }} />
 
             {preview ? (
               <label htmlFor={useImageUrl ? undefined : 'image-file-input'} className={useImageUrl ? 'block' : 'block cursor-pointer'}>
-                <div className="relative mx-auto w-36 aspect-[3/4] rounded-2xl overflow-hidden border border-[#2A2A2A]">
+                <div className="relative mx-auto w-36 aspect-[3/4] rounded-2xl overflow-hidden border border-border">
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" onError={() => setPreview(null)} />
                   {!useImageUrl && (
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
@@ -163,15 +148,15 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
               <label
                 htmlFor="image-file-input"
                 className={`block cursor-pointer border-2 border-dashed rounded-2xl p-8 text-center transition-colors ${
-                  isDragOver ? 'border-white bg-white/5' : 'border-[#2A2A2A] hover:border-[#3A3A3A]'
+                  isDragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                 }`}
                 onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={handleDrop}
               >
-                <ImagePlus size={28} className="mx-auto mb-2 text-[#444444]" />
-                <p className="text-[#666666] text-sm">Tap or drop photo here</p>
-                <p className="text-[#444444] text-xs mt-1">Drag from browser or files</p>
+                <ImagePlus size={28} className="mx-auto mb-2 text-muted-foreground" />
+                <p className="text-muted-foreground text-sm">Tap or drop photo here</p>
+                <p className="text-muted-foreground/60 text-xs mt-1">Drag from browser or files</p>
               </label>
             )}
 
@@ -179,44 +164,40 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
             <button
               type="button"
               onClick={() => { setUseImageUrl(v => !v); setPreview(null); setDraggedUrl(null); setImageUrlInput('') }}
-              className="flex items-center justify-between w-full px-4 py-3 bg-[#181818] border border-[#333333] rounded-xl mt-1"
+              className="flex items-center justify-between w-full px-4 py-3 bg-muted border border-border rounded-xl mt-1"
             >
-              <div className="flex items-center gap-2 text-white text-sm font-medium">
-                <Link size={14} className="text-[#888888]" />
+              <div className="flex items-center gap-2 text-foreground text-sm font-medium">
+                <Link size={14} className="text-muted-foreground" />
                 Add image URL
               </div>
-              <div className={`relative w-10 h-6 rounded-full transition-colors duration-200 ${useImageUrl ? 'bg-white' : 'bg-[#333333]'}`}>
-                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-200 ${useImageUrl ? 'left-5 bg-black' : 'left-1 bg-[#888888]'}`} />
+              <div className={`relative w-10 h-6 rounded-full transition-colors duration-200 ${useImageUrl ? 'bg-primary' : 'bg-border'}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-200 ${useImageUrl ? 'left-5 bg-white' : 'left-1 bg-muted-foreground'}`} />
               </div>
             </button>
 
-            {/* URL input (shown when toggle is on) */}
             {useImageUrl && (
               <input
                 type="url"
                 placeholder="https://example.com/image.jpg"
                 value={imageUrlInput}
                 onChange={e => { setImageUrlInput(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]"
+                className={inputCls}
                 autoFocus
               />
             )}
           </div>
 
           {/* Name */}
-          <input type="text" name="name" placeholder="Item name" required
-            className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+          <input type="text" name="name" placeholder="Item name" required className={inputCls} />
 
           {/* Category */}
           <div>
-            <p className="text-[#666666] text-xs font-medium mb-2">Category</p>
+            <p className="text-muted-foreground text-xs font-medium mb-2">Category</p>
             <div className="grid grid-cols-5 gap-2">
               {CATEGORY_TREE.map(cat => (
                 <button type="button" key={cat.value} onClick={() => pickCategory(cat.value)}
-                  className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-medium transition-all border ${
-                    category === cat.value
-                      ? 'bg-white text-black border-white'
-                      : 'bg-[#1A1A1A] text-[#666666] border-[#2A2A2A]'
+                  className={`flex flex-col items-center gap-1 py-2.5 rounded-xl text-xs font-medium transition-all border ${
+                    category === cat.value ? chipActive + ' border-primary' : chipInactive
                   }`}>
                   <span className="text-lg">{cat.icon}</span>
                   <span className="text-[10px]">{cat.label}</span>
@@ -228,12 +209,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
           {/* Subcategory */}
           {category && hasSubcategories && (
             <div>
-              <p className="text-[#666666] text-xs font-medium mb-2">Subcategory</p>
+              <p className="text-muted-foreground text-xs font-medium mb-2">Subcategory</p>
               <div className="flex flex-wrap gap-2">
                 {catDef!.subcategories.map(sub => (
                   <button type="button" key={sub.value} onClick={() => pickSubcategory(sub.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      subcategory === sub.value ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                    className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                      subcategory === sub.value ? chipActive : chipInactive
                     }`}>
                     {sub.label}
                   </button>
@@ -245,12 +226,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
           {/* Item Type */}
           {category && availableTypes.length > 0 && (!hasSubcategories || subcategory) && (
             <div>
-              <p className="text-[#666666] text-xs font-medium mb-2">Type</p>
+              <p className="text-muted-foreground text-xs font-medium mb-2">Type</p>
               <div className="flex flex-wrap gap-2">
                 {availableTypes.map(t => (
                   <button type="button" key={t.value} onClick={() => setItemType(t.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      itemType === t.value ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                    className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                      itemType === t.value ? chipActive : chipInactive
                     }`}>
                     {t.label}
                   </button>
@@ -261,13 +242,13 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
 
           {/* Color */}
           <div>
-            <p className="text-[#666666] text-xs font-medium mb-2">Color</p>
+            <p className="text-muted-foreground text-xs font-medium mb-2">Color</p>
             <div className="flex flex-wrap gap-2.5">
               {COLORS.map(c => (
                 <button type="button" key={c.value} onClick={() => setColor(c.value)} title={c.label}
-                  className={`w-7 h-7 rounded-full border-2 transition-all ${
-                    color === c.value ? 'border-white scale-110' : 'border-[#2A2A2A]'
-                  } ${c.value === 'white' ? '!border-[#3A3A3A]' : ''}`}
+                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    color === c.value ? 'border-primary scale-110' : 'border-border'
+                  }`}
                   style={{ backgroundColor: c.hex }} />
               ))}
             </div>
@@ -275,7 +256,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
 
           {/* More details toggle */}
           <button type="button" onClick={() => setMoreOpen(v => !v)}
-            className="flex items-center gap-2 text-[#666666] text-xs font-medium hover:text-white transition-colors">
+            className="flex items-center gap-2 text-muted-foreground text-xs font-medium hover:text-foreground transition-colors">
             {moreOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             {moreOpen ? 'Less details' : 'More details (season, brand, price…)'}
           </button>
@@ -284,12 +265,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
             <div className="space-y-4 pt-1">
               {/* Seasons */}
               <div>
-                <p className="text-[#666666] text-xs font-medium mb-2">Season</p>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Season</p>
                 <div className="flex gap-2 flex-wrap">
                   {SEASONS.map(s => (
                     <button type="button" key={s.value} onClick={() => toggleSeason(s.value)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        seasons.includes(s.value) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                        seasons.includes(s.value) ? chipActive : chipInactive
                       }`}>
                       <span>{s.icon}</span>{s.label}
                     </button>
@@ -299,12 +280,12 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
 
               {/* Occasions */}
               <div>
-                <p className="text-[#666666] text-xs font-medium mb-2">Occasion</p>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Occasion</p>
                 <div className="flex gap-2 flex-wrap">
                   {OCCASIONS.map(o => (
                     <button type="button" key={o.value} onClick={() => toggleOccasion(o.value)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        occasions.includes(o.value) ? 'bg-white text-black' : 'bg-[#1A1A1A] text-[#666666] border border-[#2A2A2A]'
+                      className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                        occasions.includes(o.value) ? chipActive : chipInactive
                       }`}>
                       {o.label}
                     </button>
@@ -315,21 +296,21 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
               {/* Brand + Price */}
               <div className="grid grid-cols-2 gap-3">
                 <input type="text" name="brand" placeholder="Brand (optional)"
-                  className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
                 <input type="number" name="price" placeholder="Price (optional)" min="0" step="0.01"
-                  className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
               </div>
 
               {/* Tags */}
               <input type="text" name="tags" placeholder="Tags: vintage, oversized, fav… (comma separated)"
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white placeholder-[#444444] text-sm outline-none focus:border-[#3A3A3A]" />
+                className={inputCls} />
             </div>
           )}
 
-          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {error && <p className="text-destructive text-xs font-medium">{error}</p>}
 
           <button type="submit" disabled={isPending}
-            className="w-full bg-white text-black font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 transition-opacity">
+            className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 transition-opacity hover:opacity-90">
             {isPending ? 'Uploading...' : 'Add to Wardrobe'}
           </button>
         </form>
