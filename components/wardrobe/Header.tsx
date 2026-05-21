@@ -1,7 +1,7 @@
 'use client'
 
 import { signOut } from '@/app/actions'
-import { LogOut, Plus, CheckSquare, Sun, Moon } from 'lucide-react'
+import { Plus, CheckSquare, Sun, Moon, LogOut } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 
 interface HeaderProps {
@@ -11,41 +11,44 @@ interface HeaderProps {
 }
 
 export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
-  const name   = user.user_metadata?.full_name ?? user.email ?? 'U'
+  const name   = user.user_metadata?.full_name?.split(' ')[0] ?? 'You'
   const avatar = user.user_metadata?.avatar_url
   const { theme, toggle } = useTheme()
 
   return (
-    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-      <h1 className="text-foreground font-bold text-lg tracking-tight">Outfit Style</h1>
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border px-5 py-4 flex items-center justify-between">
+      <div>
+        <h1 className="text-foreground font-bold text-base tracking-tight leading-none">Wardrobe</h1>
+        <p className="text-muted-foreground text-[11px] mt-0.5">Good to see you, {name}</p>
+      </div>
+
+      <div className="flex items-center gap-1.5">
         {onSelectMode && (
           <button onClick={onSelectMode}
-            className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center hover:border-primary/50 transition-colors">
-            <CheckSquare size={15} className="text-muted-foreground" />
+            className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-accent transition-colors">
+            <CheckSquare size={14} className="text-muted-foreground" />
           </button>
         )}
         <button onClick={toggle}
-          className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center hover:border-primary/50 transition-colors"
+          className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-accent transition-colors"
           aria-label="Toggle theme">
-          {theme === 'dark' ? <Sun size={15} className="text-muted-foreground" /> : <Moon size={15} className="text-muted-foreground" />}
+          {theme === 'dark'
+            ? <Sun size={14} className="text-muted-foreground" />
+            : <Moon size={14} className="text-muted-foreground" />}
         </button>
         <button onClick={onUpload}
-          className="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 transition-opacity">
-          <Plus size={16} className="text-primary-foreground" strokeWidth={2.5} />
+          className="h-8 px-3 rounded-lg bg-primary flex items-center gap-1.5 hover:opacity-90 transition-opacity">
+          <Plus size={14} className="text-primary-foreground" strokeWidth={2.5} />
+          <span className="text-primary-foreground text-[11px] font-semibold">Add</span>
         </button>
         <form action={signOut}>
-          <button type="submit" className="text-muted-foreground hover:text-foreground transition-colors">
-            <LogOut size={18} />
+          <button type="submit"
+            className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center hover:bg-accent transition-colors">
+            {avatar
+              ? <img src={avatar} alt={name} className="w-6 h-6 rounded-md object-cover" />
+              : <LogOut size={14} className="text-muted-foreground" />}
           </button>
         </form>
-        {avatar ? (
-          <img src={avatar} alt={name} className="w-8 h-8 rounded-full object-cover" />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold">
-            {name[0].toUpperCase()}
-          </div>
-        )}
       </div>
     </header>
   )

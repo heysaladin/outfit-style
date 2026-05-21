@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition, useState } from 'react'
-import { X, Trash2, ShirtIcon, Tag, Package2, Pencil } from 'lucide-react'
+import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2 } from 'lucide-react'
 import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus } from '@/app/actions'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
 import { EditClothModal } from './EditClothModal'
@@ -19,9 +19,10 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
 
   if (!item) return null
 
-  const colorInfo  = COLORS.find(c => c.value === item.color)
-  const catLabel   = getCategoryLabel(item.category, item.subcategory, item.item_type)
+  const colorInfo   = COLORS.find(c => c.value === item.color)
+  const catLabel    = getCategoryLabel(item.category, item.subcategory, item.item_type)
   const costPerWear = item.price && item.wear_count > 0 ? (item.price / item.wear_count).toFixed(2) : null
+  const isDraft     = !item.status || item.status === 'draft'
 
   function handleDelete() {
     startTransition(async () => { await deleteItem(item!.id); onClose() })
@@ -44,71 +45,100 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70" onClick={onClose}>
-      <div className="absolute inset-x-0 bottom-0 bg-background rounded-t-3xl max-h-[90vh] overflow-y-auto border-t border-border"
-        onClick={e => e.stopPropagation()}>
-        <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
-        <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-          <button onClick={() => setEditOpen(true)} className="text-muted-foreground hover:text-foreground transition-colors">
-            <Pencil size={18} />
-          </button>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X size={20} />
-          </button>
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="sticky top-0 z-10 bg-background pt-3 pb-2 px-4">
+          <div className="w-8 h-1 bg-border rounded-full mx-auto mb-3" />
+
+          {/* Top bar: edit + close */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium transition-colors"
+            >
+              <Pencil size={12} />
+              Edit
+            </button>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors"
+            >
+              <X size={16} className="text-foreground" />
+            </button>
+          </div>
         </div>
 
         {/* Image */}
-        <div className="mx-4 mt-4 aspect-square rounded-2xl overflow-hidden bg-muted">
+        <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted">
           <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
         </div>
 
-        <div className="p-5 space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-foreground font-bold text-xl">{item.name}</h2>
-              {item.brand && <p className="text-muted-foreground text-sm mt-0.5">{item.brand}</p>}
+        {/* Name / meta */}
+        <div className="px-4 pt-4 pb-2 flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-foreground font-bold text-lg leading-tight truncate">{item.name}</h2>
+              {!isDraft && <CheckCircle2 size={15} className="text-primary shrink-0" />}
             </div>
-            {item.price && (
-              <div className="text-right">
-                <p className="text-foreground font-semibold">${item.price}</p>
-                {costPerWear && <p className="text-muted-foreground text-xs">${costPerWear}/wear</p>}
-              </div>
+            {item.brand && <p className="text-muted-foreground text-xs mt-0.5">{item.brand}</p>}
+            {isDraft && (
+              <span className="inline-block mt-1 text-[9px] font-semibold tracking-widest uppercase text-muted-foreground/50">
+                Draft
+              </span>
             )}
           </div>
+          {item.price && (
+            <div className="text-right shrink-0">
+              <p className="text-foreground font-semibold text-sm">${item.price}</p>
+              {costPerWear && <p className="text-muted-foreground text-[10px]">${costPerWear}/wear</p>}
+            </div>
+          )}
+        </div>
 
-          {/* Tabs */}
-          <div className="flex gap-1 bg-muted rounded-xl p-1">
+        {/* Tabs */}
+        <div className="px-4 pb-1">
+          <div className="flex gap-0 border-b border-border">
             {(['info', 'storage', 'declutter'] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-all ${
-                  tab === t ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+                className={`px-4 py-2.5 text-xs font-medium capitalize transition-all border-b-2 -mb-px ${
+                  tab === t
+                    ? 'border-foreground text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}>{t}</button>
             ))}
           </div>
+        </div>
+
+        {/* Tab content */}
+        <div className="px-4 py-4 space-y-3 pb-10">
 
           {tab === 'info' && (
             <div className="space-y-3">
               {/* Category */}
               <div className="flex items-center gap-2">
-                <ShirtIcon size={14} className="text-muted-foreground" />
-                <span className="text-muted-foreground text-sm">{catLabel}</span>
+                <ShirtIcon size={13} className="text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground text-xs">{catLabel}</span>
               </div>
 
               {/* Color */}
               {colorInfo && (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: colorInfo.hex }} />
-                  <span className="text-muted-foreground text-sm">{colorInfo.label}</span>
+                  <div className="w-3.5 h-3.5 rounded-full border border-border shrink-0" style={{ backgroundColor: colorInfo.hex }} />
+                  <span className="text-muted-foreground text-xs">{colorInfo.label}</span>
                 </div>
               )}
 
               {/* Seasons */}
               {item.seasons && item.seasons.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 flex-wrap">
                   {item.seasons.map(s => {
                     const def = SEASONS.find(x => x.value === s)
                     return (
-                      <span key={s} className="flex items-center gap-1 bg-muted border border-border text-muted-foreground text-xs px-2 py-1 rounded-full">
+                      <span key={s} className="flex items-center gap-1 bg-muted text-muted-foreground text-[10px] px-2 py-1 rounded-lg">
                         {def?.icon} {def?.label ?? s}
                       </span>
                     )
@@ -118,89 +148,89 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
 
               {/* Occasions */}
               {item.occasions && item.occasions.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 flex-wrap">
                   {item.occasions.map(o => (
-                    <span key={o} className="bg-muted border border-border text-muted-foreground text-xs px-2 py-1 rounded-full capitalize">{o}</span>
+                    <span key={o} className="bg-muted text-muted-foreground text-[10px] px-2 py-1 rounded-lg capitalize">{o}</span>
                   ))}
                 </div>
               )}
 
               {/* Tags */}
               {item.tags && item.tags.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Tag size={12} className="text-muted-foreground" />
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <Tag size={11} className="text-muted-foreground" />
                   {item.tags.map(t => (
-                    <span key={t} className="text-muted-foreground text-xs">#{t}</span>
+                    <span key={t} className="text-muted-foreground text-[10px]">#{t}</span>
                   ))}
                 </div>
               )}
 
               {/* Wear stats */}
-              <div className="flex items-center justify-between bg-muted rounded-xl p-3 border border-border">
+              <div className="flex items-center justify-between bg-muted rounded-xl p-3.5">
                 <div>
                   <p className="text-foreground text-sm font-semibold">{item.wear_count} wears</p>
-                  <p className="text-muted-foreground text-xs">
-                    {item.last_worn ? `Last worn ${new Date(item.last_worn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Never worn'}
+                  <p className="text-muted-foreground text-[10px] mt-0.5">
+                    {item.last_worn
+                      ? `Last ${new Date(item.last_worn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                      : 'Never worn'}
                   </p>
                 </div>
                 <button onClick={handleWear} disabled={isPending}
-                  className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 rounded-xl disabled:opacity-40 hover:opacity-90 transition-opacity">
-                  + Log Wear
+                  className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 hover:opacity-80 transition-opacity">
+                  + Wear
                 </button>
               </div>
 
-              <p className="text-muted-foreground/50 text-xs">
+              <p className="text-muted-foreground/40 text-[10px]">
                 Added {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
 
-              {/* Verify / Draft toggle */}
-              {item.status === 'verified' ? (
-                <button onClick={() => handleSetStatus('draft')} disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-medium py-3 rounded-xl text-sm disabled:opacity-40">
-                  <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-                    <path d="M1 5.5L5 9.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Verified — Revert to Draft
+              {/* Verify toggle */}
+              {isDraft ? (
+                <button onClick={() => handleSetStatus('verified')} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
+                  <CheckCircle2 size={15} />
+                  {isPending ? 'Saving…' : 'Set as Verified'}
                 </button>
               ) : (
-                <button onClick={() => handleSetStatus('verified')} disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-500 text-white font-semibold py-3 rounded-xl text-sm disabled:opacity-40 hover:bg-emerald-600 transition-colors">
-                  <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-                    <path d="M1 5.5L5 9.5L13 1" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  {isPending ? 'Saving...' : 'Set as Verified'}
+                <button onClick={() => handleSetStatus('draft')} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground font-medium py-3 rounded-xl text-sm disabled:opacity-40 hover:text-foreground transition-colors">
+                  <CheckCircle2 size={15} className="text-primary" />
+                  Verified — Revert to Draft
                 </button>
               )}
 
               <button onClick={handleDelete} disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 font-medium py-3 rounded-xl text-sm disabled:opacity-40">
-                <Trash2 size={15} />
-                {isPending ? 'Deleting...' : 'Delete Item'}
+                className="w-full flex items-center justify-center gap-2 text-destructive font-medium py-3 rounded-xl text-sm border border-destructive/20 bg-destructive/5 disabled:opacity-40 hover:bg-destructive/10 transition-colors">
+                <Trash2 size={14} />
+                {isPending ? 'Deleting…' : 'Delete'}
               </button>
             </div>
           )}
 
           {tab === 'storage' && (
-            <div className="space-y-3">
-              <p className="text-muted-foreground text-sm">Assign this item to a wardrobe:</p>
+            <div className="space-y-2">
+              <p className="text-muted-foreground text-xs mb-3">Assign to a wardrobe:</p>
               {wardrobes.length === 0 ? (
-                <div className="flex flex-col items-center py-6 text-center">
-                  <Package2 size={28} className="text-border mb-2" />
+                <div className="flex flex-col items-center py-8 text-center">
+                  <Package2 size={24} className="text-border mb-2" />
                   <p className="text-muted-foreground text-sm">No wardrobes yet</p>
-                  <p className="text-muted-foreground/60 text-xs mt-0.5">Create one in the Wardrobes page</p>
+                  <p className="text-muted-foreground/60 text-xs mt-0.5">Create one in Storage</p>
                 </div>
               ) : (
                 <>
                   {wardrobes.map(w => (
                     <button key={w.id} onClick={() => handleAssign(w.id)} disabled={isPending}
-                      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-sm font-medium transition-all disabled:opacity-40 ${
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
                         item.wardrobe_id === w.id
-                          ? 'border-primary/40 bg-primary/10 text-foreground'
-                          : 'border-border bg-muted text-muted-foreground hover:border-primary/40'
+                          ? 'bg-foreground text-background'
+                          : 'bg-muted text-muted-foreground hover:text-foreground'
                       }`}>
-                      <span className="text-xs font-mono text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border">{w.code}</span>
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                        item.wardrobe_id === w.id ? 'bg-background/20' : 'bg-background text-foreground border border-border'
+                      }`}>{w.code}</span>
                       <span className="flex-1 text-left">{w.name}</span>
-                      {item.wardrobe_id === w.id && <span className="text-xs text-primary">Current ✓</span>}
+                      {item.wardrobe_id === w.id && <span className="text-[10px] opacity-60">Current</span>}
                     </button>
                   ))}
                   {item.wardrobe_id && (
@@ -215,17 +245,17 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
           )}
 
           {tab === 'declutter' && (
-            <div className="space-y-3">
-              <p className="text-muted-foreground text-sm">Flag this item for decluttering:</p>
+            <div className="space-y-2">
+              <p className="text-muted-foreground text-xs mb-3">Flag for decluttering:</p>
               {DECLUTTER_STATUSES.map(d => (
                 <button key={d.value} onClick={() => handleDeclutter(d.value)} disabled={isPending}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm font-medium transition-all disabled:opacity-40 ${
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
                     item.declutter_status === d.value
-                      ? 'border-primary/40 bg-primary/10 text-foreground'
-                      : 'border-border bg-muted text-muted-foreground hover:border-primary/40'
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'
                   }`}>
                   <span>{d.label}</span>
-                  {item.declutter_status === d.value && <span className="text-xs text-primary">Active ✓</span>}
+                  {item.declutter_status === d.value && <span className="text-[10px] opacity-60">Active</span>}
                 </button>
               ))}
               {item.declutter_status && (
@@ -239,6 +269,7 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
 
         </div>
       </div>
+
       {editOpen && (
         <EditClothModal item={item} onClose={() => { setEditOpen(false); onClose() }} />
       )}

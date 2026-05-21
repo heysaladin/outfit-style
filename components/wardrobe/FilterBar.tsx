@@ -39,39 +39,39 @@ export function FilterBar({
   }
 
   return (
-    <div className="border-b border-border px-4 py-3 space-y-3">
+    <div className="border-b border-border px-5 py-3 space-y-3">
       {/* Category row */}
       <div className="flex items-center gap-2">
-        <div className="flex gap-2 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
           <button onClick={() => { onCategoryChange(null); onSubcategoryChange(null) }}
-            className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
               !activeCategory
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground border border-border'
+                ? 'bg-foreground text-background'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}>All</button>
           {CATEGORY_TREE.map(cat => (
             <button key={cat.value} onClick={() => {
               onCategoryChange(activeCategory === cat.value ? null : cat.value)
               onSubcategoryChange(null)
             }}
-              className={`flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+              className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground border border-border'
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}>
               <span>{cat.icon}</span>{cat.label}
             </button>
           ))}
         </div>
         <button onClick={() => setExpanded(v => !v)}
-          className={`flex-shrink-0 relative w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+          className={`flex-shrink-0 relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
             expanded || activeCount > 0
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground border border-border'
+              ? 'bg-foreground text-background'
+              : 'bg-muted text-muted-foreground hover:text-foreground'
           }`}>
-          <SlidersHorizontal size={14} />
+          <SlidersHorizontal size={13} />
           {activeCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center border border-background">
+            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
               {activeCount}
             </span>
           )}
@@ -80,15 +80,15 @@ export function FilterBar({
 
       {/* Subcategory row */}
       {activeCategory && hasSubcategories && (
-        <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           <button onClick={() => onSubcategoryChange(null)}
-            className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-              !activeSubcategory ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground border border-border'
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+              !activeSubcategory ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}>All</button>
           {catDef!.subcategories.map(sub => (
             <button key={sub.value} onClick={() => onSubcategoryChange(activeSubcategory === sub.value ? null : sub.value)}
-              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                activeSubcategory === sub.value ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground border border-border'
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                activeSubcategory === sub.value ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}>{sub.label}</button>
           ))}
         </div>
@@ -96,28 +96,28 @@ export function FilterBar({
 
       {/* Expanded filters */}
       {expanded && (
-        <div className="space-y-3 pt-1">
+        <div className="space-y-4 pt-1">
           {/* Colors */}
           <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             <button onClick={() => onColorChange(null)} title="All"
-              className={`flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all bg-gradient-to-br from-red-400 via-blue-400 to-green-400 ${
-                !activeColor ? 'border-primary scale-110' : 'border-border'
+              className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all bg-gradient-to-br from-red-400 via-blue-400 to-green-400 ${
+                !activeColor ? 'border-foreground scale-110' : 'border-transparent'
               }`} />
             {COLORS.map(c => (
               <button key={c.value} onClick={() => onColorChange(activeColor === c.value ? null : c.value)} title={c.label}
-                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all ${
-                  activeColor === c.value ? 'border-primary scale-110' : 'border-border'
+                className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all ${
+                  activeColor === c.value ? 'border-foreground scale-110' : 'border-transparent'
                 }`}
                 style={{ backgroundColor: c.hex }} />
             ))}
           </div>
 
           {/* Seasons */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {SEASONS.map(s => (
               <button key={s.value} onClick={() => onSeasonChange(activeSeason === s.value ? null : s.value)}
-                className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  activeSeason === s.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground border border-border'
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                  activeSeason === s.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}>
                 <span>{s.icon}</span>{s.label}
               </button>
@@ -125,40 +125,36 @@ export function FilterBar({
           </div>
 
           {/* Occasions */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {OCCASIONS.map(o => (
               <button key={o.value} onClick={() => onOccasionChange(activeOccasion === o.value ? null : o.value)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  activeOccasion === o.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground border border-border'
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                  activeOccasion === o.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}>{o.label}</button>
             ))}
           </div>
 
           {/* Status */}
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <button onClick={() => onShowVerifiedChange(!showVerified)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                showVerified ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30' : 'bg-muted text-muted-foreground border-border'
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                showVerified ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}>
-              <span className={`w-3 h-3 rounded-full border flex items-center justify-center ${showVerified ? 'bg-emerald-500 border-emerald-500' : 'border-muted-foreground/40'}`}>
-                {showVerified && <svg width="7" height="5" viewBox="0 0 7 5" fill="none"><path d="M1 2.5L2.5 4L6 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              </span>
+              <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
               Verified
             </button>
             <button onClick={() => onShowDraftChange(!showDraft)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                showDraft ? 'bg-amber-400/15 text-amber-500 border-amber-400/30' : 'bg-muted text-muted-foreground border-border'
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                showDraft ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}>
-              <span className={`w-3 h-3 rounded-full border flex items-center justify-center ${showDraft ? 'bg-amber-400 border-amber-400' : 'border-muted-foreground/40'}`}>
-                {showDraft && <svg width="7" height="5" viewBox="0 0 7 5" fill="none"><path d="M1 2.5L2.5 4L6 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              </span>
+              <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
               Draft
             </button>
           </div>
 
           {(activeColor || activeSeason || activeOccasion || showDraft || !showVerified) && (
-            <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground transition-colors">
-              <X size={12} /> Clear all filters
+            <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-[11px] hover:text-foreground transition-colors">
+              <X size={11} /> Clear filters
             </button>
           )}
         </div>

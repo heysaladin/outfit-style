@@ -78,17 +78,16 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       />
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 text-center px-6">
-          <div className="text-5xl mb-4">👔</div>
-          <p className="text-foreground font-semibold mb-1">
+        <div className="flex flex-col items-center justify-center py-32 text-center px-8">
+          <p className="text-foreground font-semibold text-sm mb-1">
             {items.length === 0 ? 'Your wardrobe is empty' : 'No items match'}
           </p>
-          <p className="text-muted-foreground text-sm">
-            {items.length === 0 ? 'Tap + to add your first item' : 'Try a different filter'}
+          <p className="text-muted-foreground text-xs">
+            {items.length === 0 ? 'Tap Add to start building your wardrobe' : 'Adjust the filters above'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 pb-24">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-5 px-5 py-5 pb-28">
           {filtered.map(item => (
             <ItemCard key={item.id} item={item}
               onClick={() => handleItemClick(item)}
@@ -99,22 +98,14 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
         </div>
       )}
 
-      {/* FAB */}
-      {!selectMode && (
-        <button onClick={() => setUploadOpen(true)}
-          className="fixed bottom-20 right-5 w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-2xl hover:opacity-90 transition-opacity active:scale-95">
-          <Plus size={22} className="text-primary-foreground" strokeWidth={2.5} />
-        </button>
-      )}
-
       {/* Bulk select bar */}
       {selectMode && (
-        <div className="fixed bottom-16 inset-x-0 bg-background border-t border-border px-5 py-3 flex items-center justify-between">
+        <div className="fixed bottom-16 inset-x-0 bg-background/95 backdrop-blur-md border-t border-border px-5 py-3 flex items-center justify-between">
           <span className="text-foreground text-sm font-medium">
             {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
           </span>
           <button onClick={exitSelectMode} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
       )}
