@@ -21,11 +21,11 @@ export function ItemCard({ item, onClick, selected, selectable }: ItemCardProps)
   return (
     <div className={`group relative flex flex-col gap-2 ${selected ? 'opacity-90' : ''}`}>
       {/* Image */}
-      <div className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-muted transition-all ${
+      <div className={`relative aspect-square rounded-xl overflow-hidden bg-white transition-all ${
         selected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''
       }`}>
         <button onClick={onClick} className="absolute inset-0 w-full h-full">
-          <img src={src} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          <img src={src} alt={item.name} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]" />
         </button>
 
         {/* Top indicators */}

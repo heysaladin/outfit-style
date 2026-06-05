@@ -202,3 +202,145 @@ export interface PlanEntry {
   planned_date: string
   wardrobe_items: WardrobeItem
 }
+
+// ─── Gear / Hobbies ───────────────────────────────────────────────────────
+
+export const HOBBIES = [
+  { value: 'motorcycle',   label: 'Motorcycle',   icon: '🏍️',  category: 'hands_on'  },
+  { value: 'electronics',  label: 'Electronics',  icon: '📱',  category: 'technical' },
+  { value: 'watches',      label: 'Watches',      icon: '⌚',  category: 'lifestyle' },
+  { value: 'photography',  label: 'Photography',  icon: '📷',  category: 'creative'  },
+  { value: 'videography',  label: 'Videography',  icon: '🎥',  category: 'creative'  },
+  { value: 'workspace',    label: 'Workspace',    icon: '🖥️',  category: 'lifestyle' },
+  { value: 'outdoor',      label: 'Outdoor',      icon: '🏕️',  category: 'wellness'  },
+  { value: 'cooking',      label: 'Cooking',      icon: '🍳',  category: 'hands_on'  },
+  { value: 'fish_keeping', label: 'Fish Keeping', icon: '🐠',  category: 'hands_on'  },
+  { value: 'drawing',      label: 'Drawing',      icon: '✏️',  category: 'creative'  },
+  { value: '3d_modelling', label: '3D Modelling', icon: '🧊',  category: 'creative'  },
+  { value: 'reading',      label: 'Reading',      icon: '📚',  category: 'wellness'  },
+  { value: 'grooming',     label: 'Grooming',     icon: '💈',  category: 'lifestyle' },
+  { value: 'coding',       label: 'Coding',       icon: '💻',  category: 'technical' },
+] as const
+
+export type HobbyValue = typeof HOBBIES[number]['value']
+
+export const GEAR_CONDITIONS = [
+  { value: 'new',       label: 'New'       },
+  { value: 'like_new',  label: 'Like New'  },
+  { value: 'good',      label: 'Good'      },
+  { value: 'fair',      label: 'Fair'      },
+  { value: 'poor',      label: 'Poor'      },
+] as const
+
+// Per-hobby metadata field definitions
+export interface GearMetaField {
+  key: string
+  label: string
+  type: 'text' | 'number' | 'date' | 'select'
+  options?: string[]
+  placeholder?: string
+}
+
+export const HOBBY_META_FIELDS: Record<string, GearMetaField[]> = {
+  motorcycle: [
+    { key: 'model',            label: 'Model',           type: 'text',   placeholder: 'e.g. Honda CB500F' },
+    { key: 'year',             label: 'Year',            type: 'number', placeholder: 'e.g. 2022' },
+    { key: 'cc',               label: 'Engine (cc)',     type: 'number', placeholder: 'e.g. 500' },
+    { key: 'plate',            label: 'Plate Number',    type: 'text'   },
+    { key: 'last_service',     label: 'Last Service',    type: 'date'   },
+    { key: 'mileage_km',       label: 'Mileage (km)',    type: 'number' },
+  ],
+  electronics: [
+    { key: 'model_number',     label: 'Model Number',    type: 'text'   },
+    { key: 'serial',           label: 'Serial Number',   type: 'text'   },
+    { key: 'specs',            label: 'Specs',           type: 'text',   placeholder: 'e.g. 16GB RAM, M3 chip' },
+    { key: 'warranty_until',   label: 'Warranty Until',  type: 'date'   },
+  ],
+  watches: [
+    { key: 'reference',        label: 'Reference No.',   type: 'text'   },
+    { key: 'movement',         label: 'Movement',        type: 'select', options: ['Automatic', 'Manual', 'Quartz', 'Solar', 'Smartwatch'] },
+    { key: 'case_size_mm',     label: 'Case Size (mm)',  type: 'number' },
+    { key: 'dial_color',       label: 'Dial Color',      type: 'text'   },
+    { key: 'strap_material',   label: 'Strap Material',  type: 'select', options: ['Leather', 'Rubber', 'Metal', 'Nato', 'Canvas'] },
+  ],
+  photography: [
+    { key: 'model_number',     label: 'Model',           type: 'text',   placeholder: 'e.g. Sony A7IV' },
+    { key: 'mount',            label: 'Mount',           type: 'text',   placeholder: 'e.g. Sony E-mount' },
+    { key: 'focal_length',     label: 'Focal Length',    type: 'text',   placeholder: 'e.g. 24-70mm' },
+    { key: 'sensor',           label: 'Sensor',          type: 'select', options: ['Full Frame', 'APS-C', 'Micro 4/3', 'Medium Format', 'Phone'] },
+  ],
+  videography: [
+    { key: 'model_number',     label: 'Model',           type: 'text'   },
+    { key: 'resolution',       label: 'Max Resolution',  type: 'select', options: ['4K', '6K', '8K', '1080p', '720p'] },
+    { key: 'stabilization',    label: 'Stabilization',   type: 'select', options: ['IBIS', 'OIS', 'Gimbal', 'None'] },
+  ],
+  workspace: [
+    { key: 'model_number',     label: 'Model/Spec',      type: 'text'   },
+    { key: 'specs',            label: 'Specs',           type: 'text'   },
+    { key: 'color',            label: 'Color',           type: 'text'   },
+  ],
+  outdoor: [
+    { key: 'type',             label: 'Type',            type: 'text',   placeholder: 'e.g. Tent, Backpack, Bike' },
+    { key: 'weight_kg',        label: 'Weight (kg)',     type: 'number' },
+    { key: 'size',             label: 'Size/Capacity',   type: 'text'   },
+  ],
+  cooking: [
+    { key: 'material',         label: 'Material',        type: 'select', options: ['Stainless Steel', 'Cast Iron', 'Non-stick', 'Ceramic', 'Copper', 'Carbon Steel'] },
+    { key: 'size',             label: 'Size',            type: 'text',   placeholder: 'e.g. 26cm, 5L' },
+    { key: 'type',             label: 'Type',            type: 'text',   placeholder: 'e.g. Pan, Knife, Blender' },
+  ],
+  fish_keeping: [
+    { key: 'species',          label: 'Species',         type: 'text',   placeholder: 'e.g. Guppy, Betta' },
+    { key: 'tank_size_liters', label: 'Tank Size (L)',   type: 'number' },
+    { key: 'tank_type',        label: 'Type',            type: 'select', options: ['Freshwater', 'Saltwater', 'Planted', 'Brackish'] },
+    { key: 'quantity',         label: 'Quantity',        type: 'number' },
+  ],
+  drawing: [
+    { key: 'medium',           label: 'Medium',          type: 'select', options: ['Pencil', 'Ink', 'Charcoal', 'Watercolor', 'Digital', 'Oil', 'Acrylic'] },
+    { key: 'size',             label: 'Size',            type: 'text',   placeholder: 'e.g. A4, A3' },
+    { key: 'brand_model',      label: 'Brand/Model',     type: 'text'   },
+  ],
+  '3d_modelling': [
+    { key: 'software',         label: 'Software',        type: 'text',   placeholder: 'e.g. Blender, ZBrush' },
+    { key: 'hardware',         label: 'Hardware',        type: 'text'   },
+    { key: 'type',             label: 'Type',            type: 'select', options: ['Software', 'Hardware', 'Peripheral', 'Accessory'] },
+  ],
+  reading: [
+    { key: 'author',           label: 'Author',          type: 'text'   },
+    { key: 'isbn',             label: 'ISBN',            type: 'text'   },
+    { key: 'genre',            label: 'Genre',           type: 'text',   placeholder: 'e.g. Fiction, Self-help' },
+    { key: 'read_status',      label: 'Read Status',     type: 'select', options: ['Unread', 'Reading', 'Finished', 'On Hold'] },
+    { key: 'rating',           label: 'Rating (1-5)',    type: 'number' },
+  ],
+  grooming: [
+    { key: 'type',             label: 'Type',            type: 'text',   placeholder: 'e.g. Perfume, Skincare, Razor' },
+    { key: 'volume_ml',        label: 'Volume (ml)',     type: 'number' },
+    { key: 'scent_family',     label: 'Scent Family',    type: 'select', options: ['Woody', 'Fresh', 'Floral', 'Oriental', 'Citrus', 'Aquatic', 'Spicy'] },
+  ],
+  coding: [
+    { key: 'type',             label: 'Type',            type: 'select', options: ['Hardware', 'Software', 'License', 'Peripheral', 'Subscription'] },
+    { key: 'specs',            label: 'Specs/Version',   type: 'text'   },
+    { key: 'license_key',      label: 'License Key',     type: 'text'   },
+  ],
+}
+
+export interface GearItem {
+  id: string
+  user_id: string
+  hobby: string
+  name: string
+  brand: string | null
+  image_url: string | null
+  original_image_url: string | null
+  purchase_price: number | null
+  purchase_date: string | null
+  condition: string | null
+  status: 'draft' | 'verified'
+  declutter_status: DeclutterStatus | null
+  declutter_note: string | null
+  metadata: Record<string, string | number | null>
+  tags: string[] | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}

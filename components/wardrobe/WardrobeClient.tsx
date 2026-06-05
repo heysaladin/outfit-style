@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Search } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
 import { Header } from './Header'
@@ -31,9 +31,11 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
   const [mounted,           setMounted]           = useState(false)
+  const [search,            setSearch]            = useState('')
 
   useEffect(() => { setMounted(true) }, [])
 
+  const q = search.toLowerCase().trim()
   const filtered = items.filter(item => {
     if (activeCategory    && item.category    !== activeCategory)    return false
     if (activeSubcategory && item.subcategory !== activeSubcategory) return false
@@ -44,6 +46,10 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       const isDraft = !item.status || item.status === 'draft'
       if (isDraft && !showDraft)     return false
       if (!isDraft && !showVerified) return false
+    }
+    if (q) {
+      const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
+      if (!hay.includes(q)) return false
     }
     return true
   })
@@ -66,6 +72,25 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   return (
     <div className="min-h-screen bg-background pb-16">
       <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={() => setSelectMode(v => !v)} />
+
+      {/* Search bar */}
+      <div className="px-5 pt-3 pb-1">
+        <div className="relative">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name, brand, tag…"
+            className="w-full bg-muted rounded-xl pl-9 pr-9 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
 
       <FilterBar
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}

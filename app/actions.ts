@@ -433,3 +433,212 @@ export async function removeFromPlan(planId: string) {
   await supabase.from('weekly_plans').delete().eq('id', planId).eq('user_id', user.id)
   revalidatePath('/plan')
 }
+
+// ─── Gear Items ───────────────────────────────────────────────────────────
+
+export async function createGearItem(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const hobby          = formData.get('hobby') as string
+  const name           = formData.get('name') as string
+  const brand          = (formData.get('brand') as string) || null
+  const priceRaw       = formData.get('purchase_price') as string
+  const purchase_price = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (formData.get('purchase_date') as string) || null
+  const condition      = (formData.get('condition') as string) || null
+  const notes          = (formData.get('notes') as string) || null
+  const tagsRaw        = (formData.get('tags') as string) || ''
+  const tags           = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
+  const metaRaw        = (formData.get('metadata') as string) || '{}'
+  const metadata       = JSON.parse(metaRaw)
+  const file           = formData.get('image') as File | null
+  const imageUrlDirect = (formData.get('image_url_direct') as string) || null
+
+  if (!hobby || !name) return { error: 'Hobby and name are required.' }
+
+  let image_url: string | null = null
+  let original_image_url: string | null = null
+
+  if (imageUrlDirect) {
+    image_url = imageUrlDirect
+    original_image_url = imageUrlDirect
+  } else if (file && file.size > 0) {
+    const timestamp    = Date.now()
+    const ext          = file.name.split('.').pop() || 'jpg'
+    const originalPath = `${user.id}/gear/${timestamp}_original.${ext}`
+
+    const originalBytes = await file.arrayBuffer()
+    const { error: uploadError } = await supabase.storage
+      .from('wardrobe')
+      .upload(originalPath, originalBytes, { contentType: file.type })
+
+    if (uploadError) return { error: `Storage error: ${uploadError.message}` }
+
+    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(originalPath)
+    original_image_url = publicUrl
+    image_url = publicUrl
+
+    const apiKey = process.env.REMOVE_BG_API_KEY
+    if (apiKey && apiKey !== 'your_remove_bg_key') {
+      try {
+        const bgForm = new FormData()
+        bgForm.append('image_file', file)
+        bgForm.append('size', 'auto')
+        const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: { 'X-Api-Key': apiKey },
+          body: bgForm,
+        })
+        if (bgRes.ok) {
+          const bgBytes = await bgRes.arrayBuffer()
+          const bgPath = `${user.id}/gear/${timestamp}_nobg.png`
+          await supabase.storage.from('wardrobe').upload(bgPath, bgBytes, { contentType: 'image/png' })
+          const { data: { publicUrl: noBgUrl } } = supabase.storage.from('wardrobe').getPublicUrl(bgPath)
+          image_url = noBgUrl
+        }
+      } catch { /* fallback to original */ }
+    }
+  }
+
+  const { error } = await supabase.from('gear_items').insert({
+    user_id: user.id, hobby, name, brand, purchase_price,
+    purchase_date: purchase_date || null,
+    condition, notes, metadata,
+    tags: tags.length > 0 ? tags : null,
+    image_url, original_image_url,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath('/gear')
+  return {}
+}
+
+export async function updateGearItem(id: string, formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const name           = formData.get('name') as string
+  const brand          = (formData.get('brand') as string) || null
+  const priceRaw       = formData.get('purchase_price') as string
+  const purchase_price = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (formData.get('purchase_date') as string) || null
+  const condition      = (formData.get('condition') as string) || null
+  const notes          = (formData.get('notes') as string) || null
+  const tagsRaw        = (formData.get('tags') as string) || ''
+  const tags           = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
+  const metaRaw        = (formData.get('metadata') as string) || '{}'
+  const metadata       = JSON.parse(metaRaw)
+  const file           = formData.get('image') as File | null
+  const imageUrlDirect = (formData.get('image_url_direct') as string) || null
+
+  if (!name) return { error: 'Name is required.' }
+
+  const updatePayload: Record<string, unknown> = {
+    name, brand, purchase_price,
+    purchase_date: purchase_date || null,
+    condition, notes, metadata,
+    tags: tags.length > 0 ? tags : null,
+    updated_at: new Date().toISOString(),
+  }
+
+  if (imageUrlDirect) {
+    updatePayload.image_url = imageUrlDirect
+    updatePayload.original_image_url = imageUrlDirect
+  } else if (file && file.size > 0) {
+    const timestamp    = Date.now()
+    const ext          = file.name.split('.').pop() || 'jpg'
+    const originalPath = `${user.id}/gear/${timestamp}_original.${ext}`
+
+    const originalBytes = await file.arrayBuffer()
+    const { error: uploadError } = await supabase.storage
+      .from('wardrobe')
+      .upload(originalPath, originalBytes, { contentType: file.type })
+
+    if (uploadError) return { error: `Storage error: ${uploadError.message}` }
+
+    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(originalPath)
+    updatePayload.original_image_url = publicUrl
+    updatePayload.image_url = publicUrl
+
+    const apiKey = process.env.REMOVE_BG_API_KEY
+    if (apiKey && apiKey !== 'your_remove_bg_key') {
+      try {
+        const bgForm = new FormData()
+        bgForm.append('image_file', file)
+        bgForm.append('size', 'auto')
+        const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+          method: 'POST',
+          headers: { 'X-Api-Key': apiKey },
+          body: bgForm,
+        })
+        if (bgRes.ok) {
+          const bgBytes = await bgRes.arrayBuffer()
+          const bgPath = `${user.id}/gear/${timestamp}_nobg.png`
+          await supabase.storage.from('wardrobe').upload(bgPath, bgBytes, { contentType: 'image/png' })
+          const { data: { publicUrl: noBgUrl } } = supabase.storage.from('wardrobe').getPublicUrl(bgPath)
+          updatePayload.image_url = noBgUrl
+        }
+      } catch { /* fallback to original */ }
+    }
+  }
+
+  const { error } = await supabase.from('gear_items').update(updatePayload).eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/gear')
+  return {}
+}
+
+export async function deleteGearItem(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: item } = await supabase
+    .from('gear_items').select('image_url, original_image_url')
+    .eq('id', id).eq('user_id', user.id).single()
+
+  if (item) {
+    const extractPath = (url: string) => url.match(/\/wardrobe\/(.+)$/)?.[1] ?? null
+    const paths = [...new Set(
+      [item.image_url, item.original_image_url].filter(Boolean)
+        .map(u => extractPath(u as string)).filter(Boolean) as string[]
+    )]
+    if (paths.length) await supabase.storage.from('wardrobe').remove(paths)
+  }
+
+  await supabase.from('gear_items').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath('/gear')
+  return {}
+}
+
+export async function setGearItemStatus(
+  id: string, status: 'draft' | 'verified'
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase.from('gear_items').update({ status }).eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  revalidatePath('/gear')
+  return {}
+}
+
+export async function flagGearDeclutter(
+  id: string, status: 'donate' | 'sell' | 'giveaway' | null, note?: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase.from('gear_items')
+    .update({ declutter_status: status, declutter_note: note ?? null })
+    .eq('id', id).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/gear')
+  return {}
+}
