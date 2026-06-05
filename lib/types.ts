@@ -220,6 +220,8 @@ export const HOBBIES = [
   { value: 'reading',      label: 'Reading',      icon: '📚',  category: 'wellness'  },
   { value: 'grooming',     label: 'Grooming',     icon: '💈',  category: 'lifestyle' },
   { value: 'coding',       label: 'Coding',       icon: '💻',  category: 'technical' },
+  { value: 'car',          label: 'Car',          icon: '🚗',  category: 'hands_on'  },
+  { value: 'plant',        label: 'Plant',        icon: '🪴',  category: 'wellness'  },
 ] as const
 
 export type HobbyValue = typeof HOBBIES[number]['value']
@@ -321,6 +323,19 @@ export const HOBBY_META_FIELDS: Record<string, GearMetaField[]> = {
     { key: 'type',             label: 'Type',            type: 'select', options: ['Hardware', 'Software', 'License', 'Peripheral', 'Subscription'] },
     { key: 'specs',            label: 'Specs/Version',   type: 'text'   },
     { key: 'license_key',      label: 'License Key',     type: 'text'   },
+  ],
+  car: [
+    { key: 'model',            label: 'Model',           type: 'text',   placeholder: 'e.g. Toyota GR86' },
+    { key: 'year',             label: 'Year',            type: 'number', placeholder: 'e.g. 2023' },
+    { key: 'plate',            label: 'Plate Number',    type: 'text'   },
+    { key: 'last_service',     label: 'Last Service',    type: 'date'   },
+    { key: 'mileage_km',       label: 'Mileage (km)',    type: 'number' },
+  ],
+  plant: [
+    { key: 'species',          label: 'Species',         type: 'text',   placeholder: 'e.g. Monstera deliciosa' },
+    { key: 'pot_size_cm',      label: 'Pot Size (cm)',   type: 'number' },
+    { key: 'light',            label: 'Light Needs',     type: 'select', options: ['Full Sun', 'Partial Sun', 'Indirect Light', 'Low Light'] },
+    { key: 'watering',         label: 'Watering',        type: 'select', options: ['Daily', 'Every 2-3 days', 'Weekly', 'Bi-weekly', 'Monthly'] },
   ],
 }
 
