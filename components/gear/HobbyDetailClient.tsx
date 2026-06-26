@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { GearItemCard } from './GearItemCard'
