@@ -502,16 +502,16 @@ export async function createGearItem(formData: FormData): Promise<{ error?: stri
     }
   }
 
-  const { error } = await supabase.from('gear_items').insert({
-    user_id: user.id, hobby, name, brand, purchase_price,
-    purchase_date: purchase_date || null,
-    condition, notes, metadata,
-    tags: tags.length > 0 ? tags : null,
-    image_url, original_image_url,
+  const { error } = await supabase.from('hobby_items').insert({
+    name,
+    description: notes || null,
+    category: hobby,
+    image_url: image_url || null,
+    status: 'draft',
   })
 
   if (error) return { error: error.message }
-  revalidatePath('/gear')
+  revalidatePath(`/${hobby}`)
   return {}
 }
 
@@ -641,4 +641,118 @@ export async function flagGearDeclutter(
   if (error) return { error: error.message }
   revalidatePath('/gear')
   return {}
+}
+
+// ─── Hobby Activities ─────────────────────────────────────────────────────
+
+export async function createHobbyActivity(
+  hobby: string, note: string, location: string, activityAt: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { error } = await supabase.from('hobby_activities').insert({
+    user_id: user.id,
+    hobby,
+    note: note || null,
+    location: location || null,
+    activity_at: activityAt,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath(`/${hobby}`)
+  revalidatePath('/fashion')
+  return {}
+}
+
+export async function deleteHobbyActivity(id: string, hobby: string): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  await supabase.from('hobby_activities').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath(`/${hobby}`)
+  revalidatePath('/fashion')
+}
+
+// ─── Hobby Photos ─────────────────────────────────────────────────────────
+
+export async function addHobbyPhoto(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const hobby = formData.get('hobby') as string
+  const note  = (formData.get('note') as string) || null
+  const file  = formData.get('image') as File | null
+
+  if (!file || file.size === 0) return { error: 'No image provided.' }
+
+  const timestamp = Date.now()
+  const ext       = file.name.split('.').pop() || 'jpg'
+  const path      = `${user.id}/hobby/${hobby}/${timestamp}.${ext}`
+
+  const bytes = await file.arrayBuffer()
+  const { error: uploadError } = await supabase.storage
+    .from('wardrobe')
+    .upload(path, bytes, { contentType: file.type })
+
+  if (uploadError) return { error: `Upload failed: ${uploadError.message}` }
+
+  const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(path)
+
+  // Remove oldest photo if over limit
+  const { data: existing } = await supabase
+    .from('hobby_photos')
+    .select('id, image_url')
+    .eq('user_id', user.id)
+    .eq('hobby', hobby)
+    .order('created_at', { ascending: true })
+
+  if (existing && existing.length >= 6) {
+    const oldest = existing[0]
+    const oldPath = oldest.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
+    if (oldPath) await supabase.storage.from('wardrobe').remove([oldPath])
+    await supabase.from('hobby_photos').delete().eq('id', oldest.id)
+  }
+
+  const { error } = await supabase.from('hobby_photos').insert({
+    user_id: user.id, hobby, image_url: publicUrl, note,
+  })
+
+  if (error) return { error: error.message }
+  revalidatePath(`/${hobby}`)
+  revalidatePath('/fashion')
+  return {}
+}
+
+export async function deleteHobbyPhoto(id: string, hobby: string): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data: photo } = await supabase
+    .from('hobby_photos').select('image_url')
+    .eq('id', id).eq('user_id', user.id).single()
+
+  if (photo) {
+    const path = photo.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
+    if (path) await supabase.storage.from('wardrobe').remove([path])
+  }
+
+  await supabase.from('hobby_photos').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath(`/${hobby}`)
+  revalidatePath('/fashion')
+}
+
+export async function getPublicHobbyItems(category: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('hobby_items')
+    .select('*')
+    .eq('category', category)
+    .eq('status', 'verified')
+    .order('created_at', { ascending: false })
+  return data ?? []
 }

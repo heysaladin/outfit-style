@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { LayoutGrid, Layers, CalendarDays, BarChart2, Archive, Package2, Backpack } from 'lucide-react'
 
 const tabs = [
-  { href: '/',          icon: LayoutGrid,   label: 'Wardrobe'  },
+  { href: '/ofit',      icon: LayoutGrid,   label: 'Wardrobe'  },
   { href: '/outfits',   icon: Layers,       label: 'Outfits'   },
   { href: '/gear',      icon: Backpack,     label: 'Gear'      },
   { href: '/calendar',  icon: CalendarDays, label: 'Calendar'  },

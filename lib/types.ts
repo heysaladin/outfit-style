@@ -207,6 +207,9 @@ export interface PlanEntry {
 
 export const HOBBIES = [
   { value: 'motorcycle',   label: 'Motorcycle',   icon: '🏍️',  category: 'hands_on'  },
+  { value: 'automotive',   label: 'Automotive',   icon: '🚗',  category: 'hands_on'  },
+  { value: 'workout',      label: 'Workout',      icon: '🏋️',  category: 'wellness'  },
+  { value: 'plant_care',   label: 'Plant Care',   icon: '🪴',  category: 'wellness'  },
   { value: 'electronics',  label: 'Electronics',  icon: '📱',  category: 'technical' },
   { value: 'watches',      label: 'Watches',      icon: '⌚',  category: 'lifestyle' },
   { value: 'photography',  label: 'Photography',  icon: '📷',  category: 'creative'  },
@@ -343,4 +346,33 @@ export interface GearItem {
   notes: string | null
   created_at: string
   updated_at: string
+}
+
+export interface HobbyItem {
+  id: string
+  name: string
+  description: string | null
+  category: string
+  image_url: string | null
+  status: 'draft' | 'verified'
+  created_at: string
+}
+
+export interface HobbyActivity {
+  id: string
+  user_id: string
+  hobby: string
+  note: string | null
+  location: string | null
+  activity_at: string
+  created_at: string
+}
+
+export interface HobbyPhoto {
+  id: string
+  user_id: string
+  hobby: string
+  image_url: string
+  note: string | null
+  created_at: string
 }

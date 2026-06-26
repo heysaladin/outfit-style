@@ -9,10 +9,11 @@ import { EditClothModal } from './EditClothModal'
 interface ItemDetailModalProps {
   item: WardrobeItem | null
   wardrobes: Wardrobe[]
+  user?: { id: string } | null
   onClose: () => void
 }
 
-export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalProps) {
+export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailModalProps) {
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useState<'info' | 'storage' | 'declutter'>('info')
   const [editOpen, setEditOpen] = useState(false)
@@ -56,13 +57,15 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
 
           {/* Top bar: edit + close */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => setEditOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium transition-colors"
-            >
-              <Pencil size={12} />
-              Edit
-            </button>
+            {user ? (
+              <button
+                onClick={() => setEditOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium transition-colors"
+              >
+                <Pencil size={12} />
+                Edit
+              </button>
+            ) : <div />}
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors"
@@ -175,43 +178,49 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
                       : 'Never worn'}
                   </p>
                 </div>
-                <button onClick={handleWear} disabled={isPending}
-                  className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 hover:opacity-80 transition-opacity">
-                  + Wear
-                </button>
+                {user && (
+                  <button onClick={handleWear} disabled={isPending}
+                    className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 hover:opacity-80 transition-opacity">
+                    + Wear
+                  </button>
+                )}
               </div>
 
               <p className="text-muted-foreground/40 text-[10px]">
                 Added {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
 
-              {/* Verify toggle */}
-              {isDraft ? (
-                <button onClick={() => handleSetStatus('verified')} disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
-                  <CheckCircle2 size={15} />
-                  {isPending ? 'Saving…' : 'Set as Verified'}
-                </button>
-              ) : (
-                <button onClick={() => handleSetStatus('draft')} disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground font-medium py-3 rounded-xl text-sm disabled:opacity-40 hover:text-foreground transition-colors">
-                  <CheckCircle2 size={15} className="text-primary" />
-                  Verified — Revert to Draft
-                </button>
-              )}
+              {user && (
+                <>
+                  {isDraft ? (
+                    <button onClick={() => handleSetStatus('verified')} disabled={isPending}
+                      className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
+                      <CheckCircle2 size={15} />
+                      {isPending ? 'Saving…' : 'Set as Verified'}
+                    </button>
+                  ) : (
+                    <button onClick={() => handleSetStatus('draft')} disabled={isPending}
+                      className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground font-medium py-3 rounded-xl text-sm disabled:opacity-40 hover:text-foreground transition-colors">
+                      <CheckCircle2 size={15} className="text-primary" />
+                      Verified — Revert to Draft
+                    </button>
+                  )}
 
-              <button onClick={handleDelete} disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 text-destructive font-medium py-3 rounded-xl text-sm border border-destructive/20 bg-destructive/5 disabled:opacity-40 hover:bg-destructive/10 transition-colors">
-                <Trash2 size={14} />
-                {isPending ? 'Deleting…' : 'Delete'}
-              </button>
+                  <button onClick={handleDelete} disabled={isPending}
+                    className="w-full flex items-center justify-center gap-2 text-destructive font-medium py-3 rounded-xl text-sm border border-destructive/20 bg-destructive/5 disabled:opacity-40 hover:bg-destructive/10 transition-colors">
+                    <Trash2 size={14} />
+                    {isPending ? 'Deleting…' : 'Delete'}
+                  </button>
+                </>
+              )}
             </div>
           )}
 
           {tab === 'storage' && (
             <div className="space-y-2">
-              <p className="text-muted-foreground text-xs mb-3">Assign to a wardrobe:</p>
-              {wardrobes.length === 0 ? (
+              {!user ? (
+                <p className="text-muted-foreground text-sm text-center py-8">Sign in to manage storage</p>
+              ) : wardrobes.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center">
                   <Package2 size={24} className="text-border mb-2" />
                   <p className="text-muted-foreground text-sm">No wardrobes yet</p>
@@ -219,6 +228,7 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
                 </div>
               ) : (
                 <>
+                  <p className="text-muted-foreground text-xs mb-3">Assign to a wardrobe:</p>
                   {wardrobes.map(w => (
                     <button key={w.id} onClick={() => handleAssign(w.id)} disabled={isPending}
                       className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
@@ -246,23 +256,29 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
 
           {tab === 'declutter' && (
             <div className="space-y-2">
-              <p className="text-muted-foreground text-xs mb-3">Flag for decluttering:</p>
-              {DECLUTTER_STATUSES.map(d => (
-                <button key={d.value} onClick={() => handleDeclutter(d.value)} disabled={isPending}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
-                    item.declutter_status === d.value
-                      ? 'bg-foreground text-background'
-                      : 'bg-muted text-muted-foreground hover:text-foreground'
-                  }`}>
-                  <span>{d.label}</span>
-                  {item.declutter_status === d.value && <span className="text-[10px] opacity-60">Active</span>}
-                </button>
-              ))}
-              {item.declutter_status && (
-                <button onClick={() => handleDeclutter(null)} disabled={isPending}
-                  className="w-full text-muted-foreground text-xs py-2 disabled:opacity-40 hover:text-foreground transition-colors">
-                  Clear flag
-                </button>
+              {!user ? (
+                <p className="text-muted-foreground text-sm text-center py-8">Sign in to manage declutter</p>
+              ) : (
+                <>
+                  <p className="text-muted-foreground text-xs mb-3">Flag for decluttering:</p>
+                  {DECLUTTER_STATUSES.map(d => (
+                    <button key={d.value} onClick={() => handleDeclutter(d.value)} disabled={isPending}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
+                        item.declutter_status === d.value
+                          ? 'bg-foreground text-background'
+                          : 'bg-muted text-muted-foreground hover:text-foreground'
+                      }`}>
+                      <span>{d.label}</span>
+                      {item.declutter_status === d.value && <span className="text-[10px] opacity-60">Active</span>}
+                    </button>
+                  ))}
+                  {item.declutter_status && (
+                    <button onClick={() => handleDeclutter(null)} disabled={isPending}
+                      className="w-full text-muted-foreground text-xs py-2 disabled:opacity-40 hover:text-foreground transition-colors">
+                      Clear flag
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -270,7 +286,7 @@ export function ItemDetailModal({ item, wardrobes, onClose }: ItemDetailModalPro
         </div>
       </div>
 
-      {editOpen && (
+      {user && editOpen && (
         <EditClothModal item={item} onClose={() => { setEditOpen(false); onClose() }} />
       )}
     </div>

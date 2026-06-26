@@ -30,7 +30,7 @@ export function FilterBar({
   const [expanded, setExpanded] = useState(false)
   const catDef = getCategoryDef(activeCategory ?? '')
   const hasSubcategories = (catDef?.subcategories.length ?? 0) > 0
-  const activeCount = [activeColor, activeSeason, activeOccasion].filter(Boolean).length + (showDraft ? 1 : 0) + (!showVerified ? 1 : 0)
+  const activeCount = [activeColor, activeSeason, activeOccasion].filter(Boolean).length
 
   function clearAll() {
     onCategoryChange(null); onSubcategoryChange(null); onColorChange(null)
@@ -94,6 +94,24 @@ export function FilterBar({
         </div>
       )}
 
+      {/* Status — always visible */}
+      <div className="flex gap-1.5">
+        <button onClick={() => onShowVerifiedChange(!showVerified)}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+            showVerified ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+          }`}>
+          <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+          Verified
+        </button>
+        <button onClick={() => onShowDraftChange(!showDraft)}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+            showDraft ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+          }`}>
+          <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+          Draft
+        </button>
+      </div>
+
       {/* Expanded filters */}
       {expanded && (
         <div className="space-y-4 pt-1">
@@ -131,28 +149,10 @@ export function FilterBar({
                 className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                   activeOccasion === o.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}>{o.label}</button>
-            ))}
+          ))}
           </div>
 
-          {/* Status */}
-          <div className="flex gap-1.5">
-            <button onClick={() => onShowVerifiedChange(!showVerified)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                showVerified ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
-              }`}>
-              <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
-              Verified
-            </button>
-            <button onClick={() => onShowDraftChange(!showDraft)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                showDraft ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
-              }`}>
-              <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
-              Draft
-            </button>
-          </div>
-
-          {(activeColor || activeSeason || activeOccasion || showDraft || !showVerified) && (
+          {(activeColor || activeSeason || activeOccasion) && (
             <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-[11px] hover:text-foreground transition-colors">
               <X size={11} /> Clear filters
             </button>

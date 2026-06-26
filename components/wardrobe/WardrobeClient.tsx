@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Plus, X, Search } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
@@ -14,7 +14,7 @@ import { BottomNav } from '@/components/BottomNav'
 interface WardrobeClientProps {
   items: WardrobeItem[]
   wardrobes: Wardrobe[]
-  user: User
+  user: User | null
 }
 
 export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) {
@@ -30,10 +30,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [activeOccasion,    setActiveOccasion]    = useState<string | null>(null)
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
-  const [mounted,           setMounted]           = useState(false)
   const [search,            setSearch]            = useState('')
-
-  useEffect(() => { setMounted(true) }, [])
 
   const q = search.toLowerCase().trim()
   const filtered = items.filter(item => {
@@ -42,11 +39,9 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (activeColor       && item.color       !== activeColor)       return false
     if (activeSeason      && !(item.seasons ?? []).includes(activeSeason))   return false
     if (activeOccasion    && !(item.occasions ?? []).includes(activeOccasion)) return false
-    if (mounted) {
-      const isDraft = !item.status || item.status === 'draft'
-      if (isDraft && !showDraft)     return false
-      if (!isDraft && !showVerified) return false
-    }
+    const isDraft = !item.status || item.status === 'draft'
+    if (isDraft && !showDraft)     return false
+    if (!isDraft && !showVerified) return false
     if (q) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q)) return false
@@ -71,7 +66,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={() => setSelectMode(v => !v)} />
+      <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={user ? () => setSelectMode(v => !v) : undefined} />
 
       {/* Search bar */}
       <div className="px-5 pt-3 pb-1">
@@ -105,10 +100,10 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 text-center px-8">
           <p className="text-foreground font-semibold text-sm mb-1">
-            {items.length === 0 ? 'Your wardrobe is empty' : 'No items match'}
+            {items.length === 0 ? (user ? 'Your wardrobe is empty' : 'No public items yet') : 'No items match'}
           </p>
           <p className="text-muted-foreground text-xs">
-            {items.length === 0 ? 'Tap Add to start building your wardrobe' : 'Adjust the filters above'}
+            {items.length === 0 ? (user ? 'Tap Add to start building your wardrobe' : 'Sign in to build your own wardrobe') : 'Adjust the filters above'}
           </p>
         </div>
       ) : (
@@ -136,8 +131,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       )}
 
       <BottomNav />
-      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
-      <ItemDetailModal item={selectedItem} wardrobes={wardrobes} onClose={() => setSelectedItem(null)} />
+      {user && <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />}
+      <ItemDetailModal item={selectedItem} wardrobes={wardrobes} user={user} onClose={() => setSelectedItem(null)} />
     </div>
   )
 }

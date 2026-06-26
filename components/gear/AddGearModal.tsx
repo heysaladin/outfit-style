@@ -1,52 +1,52 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { X, Upload, Link } from 'lucide-react'
-import { createGearItem } from '@/app/actions'
-import { HOBBIES, HOBBY_META_FIELDS, GEAR_CONDITIONS } from '@/lib/types'
+import { HOBBIES } from '@/lib/types'
 
 interface AddGearModalProps {
   onClose: () => void
+  defaultHobby?: string
+  returnTo?: string
 }
 
-export function AddGearModal({ onClose }: AddGearModalProps) {
-  const [isPending, startTransition] = useTransition()
-  const [error, setError]           = useState<string | null>(null)
-  const [hobby, setHobby]           = useState<string>(HOBBIES[0].value)
-  const [preview, setPreview]       = useState<string | null>(null)
-  const [metadata, setMetadata]     = useState<Record<string, string>>({})
+export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalProps) {
+  const router                        = useRouter()
+  const [hobby, setHobby]             = useState(defaultHobby ?? HOBBIES[0].value)
+  const [preview, setPreview]         = useState<string | null>(null)
   const [useUrlInput, setUseUrlInput] = useState(false)
   const [imageUrl, setImageUrl]       = useState('')
-  const fileRef                     = useRef<HTMLInputElement>(null)
-
-  const metaFields = HOBBY_META_FIELDS[hobby] ?? []
+  const [loading, setLoading]         = useState(false)
+  const fileRef                       = useRef<HTMLInputElement>(null)
+  const nameRef                       = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
     if (f) setPreview(URL.createObjectURL(f))
   }
 
-  function handleHobbyChange(v: string) {
-    setHobby(v)
-    setMetadata({})
-  }
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError(null)
-    const form = e.currentTarget
-    const fd   = new FormData(form)
-    fd.set('hobby', hobby)
-    fd.set('metadata', JSON.stringify(metadata))
-    if (useUrlInput && imageUrl.trim()) {
-      fd.set('image_url_direct', imageUrl.trim())
+    const name = nameRef.current?.value?.trim()
+    if (!name) return
+    setLoading(true)
+    const fd = new FormData()
+    fd.append('name', name)
+    fd.append('category', hobby)
+    if (useUrlInput) fd.append('image_url', imageUrl)
+    else if (fileRef.current?.files?.[0]) fd.append('image', fileRef.current.files[0])
+    const notesEl = (e.target as HTMLFormElement).querySelector('textarea[name="notes"]') as HTMLTextAreaElement | null
+    if (notesEl?.value) fd.append('notes', notesEl.value)
+    const res = await fetch('/api/hobby-items', { method: 'POST', body: fd })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      console.error('hobby-items error:', err)
+      setLoading(false)
+      return
     }
-
-    startTransition(async () => {
-      const res = await createGearItem(fd)
-      if (res.error) { setError(res.error); return }
-      onClose()
-    })
+    router.refresh()
+    onClose()
   }
 
   return (
@@ -59,23 +59,24 @@ export function AddGearModal({ onClose }: AddGearModalProps) {
         <div className="sticky top-0 z-10 bg-background pt-3 pb-2 px-4 border-b border-border/40">
           <div className="w-8 h-1 bg-border rounded-full mx-auto mb-3" />
           <div className="flex items-center justify-between">
-            <h2 className="text-foreground font-semibold text-base">Add Gear</h2>
-            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors">
+            <h2 className="text-foreground font-semibold text-base">Add Item</h2>
+            <button type="button" onClick={onClose} className="w-8 h-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors">
               <X size={16} />
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="px-4 py-4 space-y-4 pb-10">
+
           {/* Hobby picker */}
           <div>
-            <label className="text-muted-foreground text-xs font-medium mb-2 block">Hobby *</label>
+            <label className="text-muted-foreground text-xs font-medium mb-2 block">Hobby</label>
             <div className="grid grid-cols-4 gap-1.5">
               {HOBBIES.map(h => (
                 <button
                   key={h.value}
                   type="button"
-                  onClick={() => handleHobbyChange(h.value)}
+                  onClick={() => setHobby(h.value)}
                   className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl text-center transition-all border ${
                     hobby === h.value
                       ? 'bg-foreground text-background border-foreground'
@@ -107,9 +108,8 @@ export function AddGearModal({ onClose }: AddGearModalProps) {
                 )}
               </div>
             )}
-            <input ref={fileRef} type="file" name="image" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <input ref={fileRef} name="image" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
 
-            {/* URL toggle */}
             <button
               type="button"
               onClick={() => { setUseUrlInput(v => !v); setPreview(null); setImageUrl('') }}
@@ -132,7 +132,6 @@ export function AddGearModal({ onClose }: AddGearModalProps) {
                   onChange={e => { setImageUrl(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
                   placeholder="https://example.com/image.jpg"
                   className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                  autoFocus
                 />
                 {preview && (
                   <div className="aspect-video rounded-xl overflow-hidden bg-white border border-border">
@@ -143,114 +142,36 @@ export function AddGearModal({ onClose }: AddGearModalProps) {
             )}
           </div>
 
-          {/* Basic fields */}
-          <div className="space-y-3">
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Name *</label>
-              <input
-                name="name" required
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                placeholder={`e.g. My ${HOBBIES.find(h => h.value === hobby)?.label} item`}
-              />
-            </div>
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Brand</label>
-              <input
-                name="brand"
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                placeholder="Brand name"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Price</label>
-                <input
-                  name="purchase_price" type="number" step="0.01" min="0"
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Condition</label>
-                <select
-                  name="condition"
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-                >
-                  <option value="">Select…</option>
-                  {GEAR_CONDITIONS.map(c => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Purchase Date</label>
-              <input
-                name="purchase_date" type="date"
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-              />
-            </div>
+          {/* Name */}
+          <div>
+            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Name *</label>
+            <input
+              name="name"
+              type="text"
+              required
+              ref={nameRef}
+              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
+              placeholder={`e.g. My ${HOBBIES.find(h => h.value === hobby)?.label} item`}
+            />
           </div>
 
-          {/* Per-hobby metadata fields */}
-          {metaFields.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-muted-foreground text-xs font-medium border-t border-border/40 pt-3">
-                {HOBBIES.find(h => h.value === hobby)?.icon} {HOBBIES.find(h => h.value === hobby)?.label} Details
-              </p>
-              {metaFields.map(field => (
-                <div key={field.key}>
-                  <label className="text-muted-foreground text-xs font-medium mb-1.5 block">{field.label}</label>
-                  {field.type === 'select' ? (
-                    <select
-                      value={metadata[field.key] ?? ''}
-                      onChange={e => setMetadata(m => ({ ...m, [field.key]: e.target.value }))}
-                      className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-                    >
-                      <option value="">Select…</option>
-                      {field.options?.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type}
-                      value={metadata[field.key] ?? ''}
-                      onChange={e => setMetadata(m => ({ ...m, [field.key]: e.target.value }))}
-                      placeholder={field.placeholder}
-                      className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Tags & Notes */}
-          <div className="space-y-3">
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Tags</label>
-              <input
-                name="tags"
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                placeholder="comma, separated, tags"
-              />
-            </div>
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Notes</label>
-              <textarea
-                name="notes" rows={3}
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20 resize-none"
-                placeholder="Any notes about this item…"
-              />
-            </div>
+          {/* Notes */}
+          <div>
+            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Notes</label>
+            <textarea
+              name="notes"
+              rows={3}
+              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20 resize-none"
+              placeholder="Any notes about this item…"
+            />
           </div>
-
-          {error && <p className="text-destructive text-xs bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>}
 
           <button
-            type="submit" disabled={isPending}
-            className="w-full bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {isPending ? 'Saving…' : 'Add Gear'}
+            {loading ? 'Saving…' : 'Add Item'}
           </button>
         </form>
       </div>

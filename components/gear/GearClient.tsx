@@ -3,28 +3,25 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
-import type { GearItem } from '@/lib/types'
+import type { HobbyItem } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
 import { GearItemCard } from './GearItemCard'
 import { AddGearModal } from './AddGearModal'
-import { GearItemDetailModal } from './GearItemDetailModal'
-import { BottomNav } from '@/components/BottomNav'
 
 interface GearClientProps {
-  items: GearItem[]
+  items: HobbyItem[]
   user: User
 }
 
 export function GearClient({ items, user }: GearClientProps) {
   const [addOpen, setAddOpen]           = useState(false)
-  const [selectedItem, setSelectedItem] = useState<GearItem | null>(null)
+  const [selectedItem, setSelectedItem] = useState<HobbyItem | null>(null)
   const [activeHobby, setActiveHobby]   = useState<string | null>(null)
 
-  const filtered = activeHobby ? items.filter(i => i.hobby === activeHobby) : items
+  const filtered = activeHobby ? items.filter(i => i.category === activeHobby) : items
 
-  // Count per hobby for filter pills
   const hobbyCounts = HOBBIES.reduce<Record<string, number>>((acc, h) => {
-    acc[h.value] = items.filter(i => i.hobby === h.value).length
+    acc[h.value] = items.filter(i => i.category === h.value).length
     return acc
   }, {})
 
@@ -110,8 +107,6 @@ export function GearClient({ items, user }: GearClientProps) {
       )}
 
       {addOpen && <AddGearModal onClose={() => setAddOpen(false)} />}
-      {selectedItem && <GearItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
-      <BottomNav />
     </div>
   )
 }
