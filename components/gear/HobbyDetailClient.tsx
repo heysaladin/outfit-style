@@ -27,7 +27,6 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
   const router = useRouter()
   const [tab, setTab]               = useState<Tab>('items')
   const [addOpen, setAddOpen]       = useState(false)
-  const [selectedItem, setSelectedItem] = useState<HobbyItem | null>(null)
   const [mounted, setMounted]       = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
@@ -116,7 +115,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
           ) : (
             <div className="grid grid-cols-2 gap-3 p-4">
               {items.map(item => (
-                <GearItemCard key={item.id} item={item} onClick={() => setSelectedItem(item)} />
+                <GearItemCard key={item.id} item={item} onClick={() => router.push(`/${hobby.value}/${item.id}`)} />
               ))}
             </div>
           )}
