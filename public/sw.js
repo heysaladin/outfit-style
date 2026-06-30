@@ -1,4 +1,4 @@
-const CACHE = 'outfit-style-v1'
+const CACHE = 'outfit-style-v4'
 
 const PRECACHE = [
   '/',
@@ -40,17 +40,9 @@ self.addEventListener('fetch', event => {
     url.origin !== self.location.origin
   ) return
 
-  // Static assets (JS/CSS chunks) → cache first
-  if (url.pathname.startsWith('/_next/static')) {
-    event.respondWith(
-      caches.match(request).then(cached => cached || fetch(request).then(res => {
-        const clone = res.clone()
-        caches.open(CACHE).then(cache => cache.put(request, clone))
-        return res
-      }))
-    )
-    return
-  }
+  // Skip /_next/static — Next.js chunks use content-hash filenames,
+  // browser HTTP cache handles them correctly without SW interference
+  if (url.pathname.startsWith('/_next/')) return
 
   // Navigation requests → network first, fall back to cache
   if (request.mode === 'navigate') {
