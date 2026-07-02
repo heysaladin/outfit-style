@@ -63,24 +63,35 @@ export function HomeClient({ user }: { user: User | null }) {
     return { name: h.label, value: total, icon: h.icon, color: HOBBY_COLORS[i % HOBBY_COLORS.length] }
   }).filter(d => d.value > 0)
 
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
+    ?? user?.email?.split('@')[0]
+    ?? null
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border px-5 py-4 flex items-center justify-between">
-        <h1 className="text-foreground font-bold text-base tracking-tight">Interestory</h1>
+      <header className="px-5 pt-14 pb-2 flex items-start justify-between">
+        <div>
+          <p className="text-muted-foreground text-sm font-medium">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+          <h1 className="text-foreground font-bold text-2xl tracking-tight mt-0.5">
+            {firstName ? `Hello, ${firstName}` : 'Interestory'}
+          </h1>
+        </div>
         <button
           onClick={() => setMenuOpen(v => !v)}
-          className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-muted transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-muted mt-1"
         >
-          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          {menuOpen ? <X size={16} className="text-foreground" /> : <Menu size={16} className="text-foreground" />}
         </button>
       </header>
 
-      {/* Burger dropdown */}
+      {/* Dropdown menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)}>
+        <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)}>
           <div
-            className="absolute top-16 right-4 bg-card border border-border rounded-2xl shadow-lg p-2 min-w-[160px]"
+            className="absolute top-28 right-4 bg-background border border-border rounded-2xl shadow-xl p-2 min-w-[180px]"
             onClick={e => e.stopPropagation()}
           >
             {user ? (
@@ -89,13 +100,13 @@ export function HomeClient({ user }: { user: User | null }) {
                 <div className="h-px bg-border my-1" />
                 <Link
                   href="/profile"
-                  className="block px-3 py-2 text-sm rounded-xl hover:bg-muted transition-colors"
+                  className="block px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-muted transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
                   Profile
                 </Link>
                 <form action="/auth/signout" method="post">
-                  <button className="w-full text-left px-3 py-2 text-sm rounded-xl hover:bg-muted transition-colors text-destructive">
+                  <button className="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-muted transition-colors text-destructive">
                     Sign out
                   </button>
                 </form>
@@ -103,7 +114,7 @@ export function HomeClient({ user }: { user: User | null }) {
             ) : (
               <Link
                 href="/login"
-                className="block px-3 py-2 text-sm rounded-xl hover:bg-muted transition-colors"
+                className="block px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-muted transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 Login
@@ -114,21 +125,24 @@ export function HomeClient({ user }: { user: User | null }) {
       )}
 
       {/* Content */}
-      <main className="px-4 pt-6">
+      <main className="px-5 pt-5">
         {tab === 'home' && (
-          <div className="grid grid-cols-2 gap-3 pb-6">
-            {hobbyLinks.map(({ label, icon, href }) => (
-              <Link
-                key={label}
-                href={href}
-                prefetch={false}
-                className="flex flex-col gap-3 bg-card border border-border rounded-2xl px-4 py-5 hover:border-foreground/20 hover:bg-accent/40 transition-all active:scale-[0.98]"
-              >
-                <span className="text-2xl leading-none">{icon}</span>
-                <span className="text-foreground text-sm font-medium tracking-tight">{label}</span>
-              </Link>
-            ))}
-          </div>
+          <>
+            <h2 className="text-foreground font-bold text-base mb-3">Interests</h2>
+            <div className="grid grid-cols-2 gap-2.5 pb-6">
+              {hobbyLinks.map(({ label, icon, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  prefetch={false}
+                  className="flex flex-col gap-4 bg-muted rounded-2xl px-4 py-5 active:scale-[0.97] transition-transform"
+                >
+                  <span className="text-2xl leading-none">{icon}</span>
+                  <span className="text-foreground text-sm font-semibold">{label}</span>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
 
         {tab === 'stats' && (
@@ -136,7 +150,7 @@ export function HomeClient({ user }: { user: User | null }) {
             {!user ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
                 <p className="text-foreground font-semibold">Sign in to see your stats</p>
-                <Link href="/login" className="text-sm text-primary">Login</Link>
+                <Link href="/login" className="text-sm font-medium underline">Login</Link>
               </div>
             ) : statsData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
@@ -145,13 +159,12 @@ export function HomeClient({ user }: { user: User | null }) {
               </div>
             ) : (
               <>
-                <h2 className="text-foreground font-bold text-lg mb-5">Activity Duration</h2>
+                <h2 className="text-foreground font-bold text-base mb-5">Activity Duration</h2>
                 {(() => {
                   const total = statsData.reduce((s, d) => s + d.value, 0)
                   return (
                     <>
-                      {/* Segmented bar */}
-                      <div className="flex h-4 rounded-full overflow-hidden gap-px mb-5">
+                      <div className="flex h-3 rounded-full overflow-hidden gap-px mb-5">
                         {statsData.map(d => (
                           <div
                             key={d.name}
@@ -159,13 +172,12 @@ export function HomeClient({ user }: { user: User | null }) {
                           />
                         ))}
                       </div>
-                      {/* Legend */}
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {statsData.map(d => (
-                          <div key={d.name} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                              <span className="text-sm">{d.icon} {d.name}</span>
+                          <div key={d.name} className="flex items-center justify-between py-3 border-b border-border last:border-0">
+                            <div className="flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
+                              <span className="text-sm font-medium">{d.icon} {d.name}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <span>{d.value} min</span>
@@ -187,7 +199,7 @@ export function HomeClient({ user }: { user: User | null }) {
             {!user ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
                 <p className="text-foreground font-semibold">Sign in to see your gallery</p>
-                <Link href="/login" className="text-sm text-primary">Login</Link>
+                <Link href="/login" className="text-sm font-medium underline">Login</Link>
               </div>
             ) : photos.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
@@ -195,7 +207,7 @@ export function HomeClient({ user }: { user: User | null }) {
                 <p className="text-muted-foreground text-sm">Add moments in your hobbies</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden">
                 {photos.map(p => (
                   <div key={p.id} className="aspect-square bg-muted overflow-hidden">
                     <img src={p.photo_url} alt={p.hobby} className="w-full h-full object-cover" />
@@ -209,23 +221,23 @@ export function HomeClient({ user }: { user: User | null }) {
 
       {/* Bottom nav */}
       <nav
-        className="fixed bottom-0 inset-x-0 z-10 bg-background/95 backdrop-blur-md border-t border-border flex"
+        className="fixed bottom-0 inset-x-0 z-20 bg-background border-t border-border flex"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {([
-          { key: 'home',    label: 'Home',       Icon: Home      },
-          { key: 'stats',   label: 'Statistics', Icon: BarChart2 },
-          { key: 'gallery', label: 'Gallery',    Icon: Images    },
+          { key: 'home',    label: 'Home',    Icon: Home      },
+          { key: 'stats',   label: 'Stats',   Icon: BarChart2 },
+          { key: 'gallery', label: 'Gallery', Icon: Images    },
         ] as const).map(({ key, label, Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`flex-1 flex flex-col items-center pt-2.5 pb-2 gap-1 transition-colors ${
-              tab === key ? 'text-primary' : 'text-muted-foreground/60'
+            className={`flex-1 flex flex-col items-center pt-3 pb-2 gap-0.5 transition-colors ${
+              tab === key ? 'text-foreground' : 'text-muted-foreground/40'
             }`}
           >
-            <Icon size={18} strokeWidth={tab === key ? 2.2 : 1.6} />
-            <span className={`text-[9px] font-medium tracking-wide ${tab === key ? 'opacity-100' : 'opacity-70'}`}>
+            <Icon size={20} strokeWidth={tab === key ? 2 : 1.5} />
+            <span className={`text-[9px] font-medium tracking-wide mt-0.5 ${tab === key ? 'opacity-100' : 'opacity-60'}`}>
               {label}
             </span>
           </button>

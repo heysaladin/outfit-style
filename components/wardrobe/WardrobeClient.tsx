@@ -65,7 +65,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="min-h-screen bg-background pb-24">
       <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={user ? () => setSelectMode(v => !v) : undefined} />
 
       {/* Search bar */}

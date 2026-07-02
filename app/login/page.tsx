@@ -21,40 +21,44 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      {/* App Icon */}
-      <div className="mb-8 w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-        <span className="text-2xl">👔</span>
+    <div className="min-h-screen bg-background flex flex-col px-6">
+      <div className="flex-1 flex flex-col justify-center">
+        {/* App Icon */}
+        <div className="mb-10 w-16 h-16 rounded-3xl bg-foreground flex items-center justify-center">
+          <span className="text-2xl">👔</span>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-foreground text-3xl font-bold tracking-tight mb-2">
+          Outfit Style
+        </h1>
+        <p className="text-muted-foreground text-base">
+          Your smart wardrobe planner
+        </p>
       </div>
 
-      {/* Title */}
-      <h1 className="text-foreground text-2xl font-bold tracking-tight mb-1">
-        Outfit Style
-      </h1>
-      <p className="text-muted-foreground text-sm mb-10">
-        Your smart wardrobe planner
-      </p>
+      <div className="pb-16">
+        {/* Error state */}
+        {error && (
+          <p className="text-destructive text-sm mb-4 bg-destructive/10 px-4 py-3 rounded-2xl">
+            Sign in failed. Please try again.
+          </p>
+        )}
 
-      {/* Error state */}
-      {error && (
-        <p className="text-destructive text-sm mb-6 bg-destructive/10 px-4 py-2 rounded-lg">
-          Sign in failed. Please try again.
+        {/* Google Sign In */}
+        <Button
+          onClick={signInWithGoogle}
+          className="w-full h-14 bg-muted hover:bg-muted/80 text-foreground font-semibold text-sm rounded-2xl flex items-center justify-center gap-3 transition-all border-0 shadow-none"
+        >
+          <GoogleIcon />
+          Continue with Google
+        </Button>
+
+        {/* Footer */}
+        <p className="text-muted-foreground text-xs mt-6 text-center leading-5">
+          By continuing, you agree to our terms and privacy policy.
         </p>
-      )}
-
-      {/* Google Sign In */}
-      <Button
-        onClick={signInWithGoogle}
-        className="w-full max-w-[320px] h-12 bg-card hover:bg-muted text-foreground border border-border font-medium text-sm rounded-xl flex items-center justify-center gap-3 transition-all"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </Button>
-
-      {/* Footer */}
-      <p className="text-muted-foreground text-xs mt-10 max-w-[280px] text-center leading-5">
-        By continuing, you agree to our terms and privacy policy.
-      </p>
+      </div>
     </div>
   )
 }
