@@ -163,6 +163,7 @@ export interface WardrobeItem {
   tags: string[] | null
   brand: string | null
   price: number | null
+  purchase_date: string | null
   wear_count: number
   last_worn: string | null
   image_url: string
@@ -369,6 +370,8 @@ export interface HobbyItem {
   description: string | null
   category: string
   image_url: string | null
+  purchase_price: number | null
+  purchase_date: string | null
   status: 'draft' | 'verified'
   created_at: string
 }

@@ -28,6 +28,7 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const form = e.target as HTMLFormElement
     const name = nameRef.current?.value?.trim()
     if (!name) return
     setLoading(true)
@@ -36,8 +37,12 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
     fd.append('category', hobby)
     if (useUrlInput) fd.append('image_url', imageUrl)
     else if (fileRef.current?.files?.[0]) fd.append('image', fileRef.current.files[0])
-    const notesEl = (e.target as HTMLFormElement).querySelector('textarea[name="notes"]') as HTMLTextAreaElement | null
+    const notesEl = form.querySelector('textarea[name="notes"]') as HTMLTextAreaElement | null
     if (notesEl?.value) fd.append('notes', notesEl.value)
+    const priceEl = form.querySelector('input[name="purchase_price"]') as HTMLInputElement | null
+    if (priceEl?.value) fd.append('purchase_price', priceEl.value)
+    const dateEl = form.querySelector('input[name="purchase_date"]') as HTMLInputElement | null
+    if (dateEl?.value) fd.append('purchase_date', dateEl.value)
     const res = await fetch('/api/hobby-items', { method: 'POST', body: fd })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
@@ -153,6 +158,29 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
               className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
               placeholder={`e.g. My ${HOBBIES.find(h => h.value === hobby)?.label} item`}
             />
+          </div>
+
+          {/* Price + Date */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Harga Beli</label>
+              <input
+                name="purchase_price"
+                type="number"
+                min="0"
+                step="0.01"
+                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Tanggal Beli</label>
+              <input
+                name="purchase_date"
+                type="date"
+                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
+              />
+            </div>
           </div>
 
           {/* Notes */}

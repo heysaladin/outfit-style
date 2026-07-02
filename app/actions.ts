@@ -24,10 +24,11 @@ export async function uploadItem(formData: FormData): Promise<{ error?: string }
   const subcategory = formData.get('subcategory') as string || null
   const item_type  = formData.get('item_type') as string || null
   const color      = formData.get('color') as string
-  const brand      = (formData.get('brand') as string) || null
-  const priceRaw   = formData.get('price') as string
-  const price      = priceRaw ? parseFloat(priceRaw) : null
-  const seasons    = formData.getAll('seasons') as string[]
+  const brand          = (formData.get('brand') as string) || null
+  const priceRaw       = formData.get('price') as string
+  const price          = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (formData.get('purchase_date') as string) || null
+  const seasons        = formData.getAll('seasons') as string[]
   const occasions  = formData.getAll('occasions') as string[]
   const tagsRaw    = (formData.get('tags') as string) || ''
   const tags       = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
@@ -86,7 +87,7 @@ export async function uploadItem(formData: FormData): Promise<{ error?: string }
   }
 
   const { error } = await supabase.from('wardrobe_items').insert({
-    user_id: user.id, name, category, subcategory, item_type, color, brand, price,
+    user_id: user.id, name, category, subcategory, item_type, color, brand, price, purchase_date,
     seasons: seasons.length > 0 ? seasons : null,
     occasions: occasions.length > 0 ? occasions : null,
     tags: tags.length > 0 ? tags : null,
@@ -113,10 +114,11 @@ export async function updateItem(id: string, formData: FormData): Promise<{ erro
   const subcategory = (formData.get('subcategory') as string) || null
   const item_type   = (formData.get('item_type') as string) || null
   const color       = formData.get('color') as string
-  const brand       = (formData.get('brand') as string) || null
-  const priceRaw    = formData.get('price') as string
-  const price       = priceRaw ? parseFloat(priceRaw) : null
-  const seasons     = formData.getAll('seasons') as string[]
+  const brand          = (formData.get('brand') as string) || null
+  const priceRaw       = formData.get('price') as string
+  const price          = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (formData.get('purchase_date') as string) || null
+  const seasons        = formData.getAll('seasons') as string[]
   const occasions   = formData.getAll('occasions') as string[]
   const tagsRaw     = (formData.get('tags') as string) || ''
   const tags        = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : []
@@ -126,7 +128,7 @@ export async function updateItem(id: string, formData: FormData): Promise<{ erro
   if (!name || !category || !color) return { error: 'Missing required fields.' }
 
   const updatePayload: Record<string, unknown> = {
-    name, category, subcategory, item_type, color, brand, price,
+    name, category, subcategory, item_type, color, brand, price, purchase_date,
     seasons: seasons.length > 0 ? seasons : null,
     occasions: occasions.length > 0 ? occasions : null,
     tags: tags.length > 0 ? tags : null,
@@ -744,6 +746,76 @@ export async function deleteHobbyPhoto(id: string, hobby: string): Promise<void>
   await supabase.from('hobby_photos').delete().eq('id', id).eq('user_id', user.id)
   revalidatePath(`/${hobby}`)
   revalidatePath('/fashion')
+}
+
+export async function updateHobbyItem(id: string, formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const name           = (formData.get('name') as string)?.trim()
+  const description    = (formData.get('description') as string)?.trim() || null
+  const priceRaw       = formData.get('purchase_price') as string
+  const purchase_price = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (formData.get('purchase_date') as string) || null
+  const file           = formData.get('image') as File | null
+  const imageUrlDirect = (formData.get('image_url_direct') as string) || null
+
+  if (!name) return { error: 'Name is required.' }
+
+  const updatePayload: Record<string, unknown> = {
+    name, description, purchase_price,
+    purchase_date: purchase_date || null,
+  }
+
+  if (imageUrlDirect) {
+    updatePayload.image_url = imageUrlDirect
+  } else if (file && file.size > 0) {
+    const timestamp = Date.now()
+    const ext       = file.name.split('.').pop() || 'jpg'
+    const path      = `${user.id}/gear/${timestamp}.${ext}`
+    const bytes     = await file.arrayBuffer()
+    const { error: uploadError } = await supabase.storage
+      .from('wardrobe').upload(path, bytes, { contentType: file.type })
+    if (uploadError) return { error: `Storage error: ${uploadError.message}` }
+    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(path)
+    updatePayload.image_url = publicUrl
+  }
+
+  const { data, error } = await supabase
+    .from('hobby_items')
+    .update(updatePayload)
+    .eq('id', id)
+    .select()
+
+  if (error) return { error: error.message }
+  if (!data || data.length === 0) return { error: 'Update gagal — cek RLS policy di Supabase atau jalankan SQL migration.' }
+
+  revalidatePath(`/${id}`)
+  revalidatePath('/gear')
+  return {}
+}
+
+export async function deleteHobbyItem(id: string, hobby: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { data: item } = await supabase
+    .from('hobby_items').select('image_url')
+    .eq('id', id).single()
+
+  if (item?.image_url) {
+    const path = item.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
+    if (path) await supabase.storage.from('wardrobe').remove([path])
+  }
+
+  const { error } = await supabase.from('hobby_items').delete().eq('id', id)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/${hobby}`)
+  revalidatePath('/gear')
+  return {}
 }
 
 export async function getPublicHobbyItems(category: string) {

@@ -23,7 +23,7 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
   const [seasons, setSeasons] = useState<string[]>(item.seasons ?? [])
   const [occasions, setOccasions] = useState<string[]>(item.occasions ?? [])
   const [moreOpen, setMoreOpen] = useState(
-    !!(item.seasons?.length || item.occasions?.length || item.brand || item.price || item.tags?.length)
+    !!(item.seasons?.length || item.occasions?.length || item.brand || item.price || item.purchase_date || item.tags?.length)
   )
   const [error, setError] = useState('')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -283,9 +283,16 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
               <div className="grid grid-cols-2 gap-3">
                 <input type="text" name="brand" placeholder="Brand (optional)" defaultValue={item.brand ?? ''}
                   className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
-                <input type="number" name="price" placeholder="Price (optional)" min="0" step="0.01"
+                <input type="number" name="price" placeholder="Harga beli" min="0" step="0.01"
                   defaultValue={item.price ?? ''}
                   className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
+              </div>
+
+              {/* Purchase Date */}
+              <div>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Tanggal Beli</p>
+                <input type="date" name="purchase_date" defaultValue={item.purchase_date ?? ''}
+                  className={inputCls} />
               </div>
 
               {/* Tags */}

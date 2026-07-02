@@ -297,8 +297,15 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
               <div className="grid grid-cols-2 gap-3">
                 <input type="text" name="brand" placeholder="Brand (optional)"
                   className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
-                <input type="number" name="price" placeholder="Price (optional)" min="0" step="0.01"
+                <input type="number" name="price" placeholder="Harga beli" min="0" step="0.01"
                   className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
+              </div>
+
+              {/* Purchase Date */}
+              <div>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Tanggal Beli</p>
+                <input type="date" name="purchase_date"
+                  className={inputCls} />
               </div>
 
               {/* Tags */}

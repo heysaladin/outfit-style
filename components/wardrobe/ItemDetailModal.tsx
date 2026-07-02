@@ -5,6 +5,7 @@ import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2 } from 'lucid
 import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus } from '@/app/actions'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
 import { EditClothModal } from './EditClothModal'
+import { WorthCard } from '@/components/worth/WorthCard'
 
 interface ItemDetailModalProps {
   item: WardrobeItem | null
@@ -96,8 +97,9 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
           </div>
           {item.price && (
             <div className="text-right shrink-0">
-              <p className="text-foreground font-semibold text-sm">${item.price}</p>
-              {costPerWear && <p className="text-muted-foreground text-[10px]">${costPerWear}/wear</p>}
+              <p className="text-foreground font-semibold text-sm">
+                {item.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
+              </p>
             </div>
           )}
         </div>
@@ -167,6 +169,36 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
                   ))}
                 </div>
               )}
+
+              {/* Harga & Tanggal Beli */}
+              {(item.price || item.purchase_date) && (
+                <div className="bg-muted rounded-xl p-3.5 space-y-2">
+                  <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">Pembelian</p>
+                  {item.price && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Harga Beli</span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {item.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  )}
+                  {item.purchase_date && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Tanggal Beli</span>
+                      <span className="text-foreground text-xs">
+                        {new Date(item.purchase_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Worth */}
+              <WorthCard
+                purchasePrice={item.price}
+                purchaseDate={item.purchase_date}
+                totalUses={item.wear_count}
+              />
 
               {/* Wear stats */}
               <div className="flex items-center justify-between bg-muted rounded-xl p-3.5">

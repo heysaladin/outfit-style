@@ -6,12 +6,15 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body     = await request.formData()
-  const name     = (body.get('name') as string)?.trim()
-  const notes    = (body.get('notes') as string)?.trim() || null
-  const category = (body.get('category') as string)?.trim()
-  const imageUrl = (body.get('image_url') as string)?.trim() || null
-  const file     = body.get('image') as File | null
+  const body          = await request.formData()
+  const name          = (body.get('name') as string)?.trim()
+  const notes         = (body.get('notes') as string)?.trim() || null
+  const category      = (body.get('category') as string)?.trim()
+  const imageUrl      = (body.get('image_url') as string)?.trim() || null
+  const file          = body.get('image') as File | null
+  const priceRaw      = (body.get('purchase_price') as string)?.trim() || null
+  const purchase_price = priceRaw ? parseFloat(priceRaw) : null
+  const purchase_date  = (body.get('purchase_date') as string)?.trim() || null
 
   if (!name || !category) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
@@ -34,6 +37,8 @@ export async function POST(request: Request) {
     description: notes,
     category,
     image_url: image_url || null,
+    purchase_price,
+    purchase_date: purchase_date || null,
     status: 'verified',
   })
 

@@ -4,6 +4,7 @@ import { useTransition, useState, useRef } from 'react'
 import { X, Trash2, Pencil, CheckCircle2, Upload, Tag, Link } from 'lucide-react'
 import { deleteGearItem, updateGearItem, setGearItemStatus, flagGearDeclutter } from '@/app/actions'
 import { HOBBIES, HOBBY_META_FIELDS, GEAR_CONDITIONS, DECLUTTER_STATUSES, type GearItem } from '@/lib/types'
+import { WorthCard } from '@/components/worth/WorthCard'
 
 interface GearItemDetailModalProps {
   item: GearItem | null
@@ -102,7 +103,9 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
           </div>
           {item.purchase_price && (
             <div className="text-right shrink-0">
-              <p className="text-foreground font-semibold text-sm">${item.purchase_price}</p>
+              <p className="text-foreground font-semibold text-sm">
+                {item.purchase_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
+              </p>
             </div>
           )}
         </div>
@@ -124,16 +127,32 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
           {/* INFO TAB */}
           {tab === 'info' && (
             <div className="space-y-3">
-              {item.condition && (
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-xs">Condition:</span>
-                  <span className="text-foreground text-xs font-medium capitalize">{item.condition.replace('_', ' ')}</span>
-                </div>
-              )}
-              {item.purchase_date && (
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground text-xs">Purchased:</span>
-                  <span className="text-foreground text-xs">{new Date(item.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              {/* Pembelian */}
+              {(item.purchase_price || item.purchase_date || item.condition) && (
+                <div className="bg-muted rounded-xl p-3.5 space-y-2">
+                  <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">Pembelian</p>
+                  {item.purchase_price && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Harga Beli</span>
+                      <span className="text-foreground text-xs font-semibold">
+                        {item.purchase_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  )}
+                  {item.purchase_date && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Tanggal Beli</span>
+                      <span className="text-foreground text-xs">
+                        {new Date(item.purchase_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                  {item.condition && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Kondisi</span>
+                      <span className="text-foreground text-xs font-medium capitalize">{item.condition.replace('_', ' ')}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -153,6 +172,12 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
                   })}
                 </div>
               )}
+
+              {/* Worth */}
+              <WorthCard
+                purchasePrice={item.purchase_price}
+                purchaseDate={item.purchase_date}
+              />
 
               {/* Tags */}
               {item.tags && item.tags.length > 0 && (
