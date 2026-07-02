@@ -364,6 +364,14 @@ export interface GearItem {
   updated_at: string
 }
 
+export interface HobbyItemUse {
+  id: string
+  item_id: string
+  used_at: string
+  note: string | null
+  created_at: string
+}
+
 export interface HobbyItem {
   id: string
   name: string
@@ -372,6 +380,8 @@ export interface HobbyItem {
   image_url: string | null
   purchase_price: number | null
   purchase_date: string | null
+  use_count: number
+  last_used: string | null
   status: 'draft' | 'verified'
   created_at: string
 }

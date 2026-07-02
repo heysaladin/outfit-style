@@ -181,6 +181,7 @@ export async function updateItem(id: string, formData: FormData): Promise<{ erro
   if (error) return { error: error.message }
 
   revalidatePath('/')
+  revalidatePath('/ofit')
   revalidatePath('/stats')
   revalidatePath('/declutter')
   return {}
@@ -766,6 +767,7 @@ export async function updateHobbyItem(id: string, formData: FormData): Promise<{
   const updatePayload: Record<string, unknown> = {
     name, description, purchase_price,
     purchase_date: purchase_date || null,
+    updated_at: new Date().toISOString(),
   }
 
   if (imageUrlDirect) {
@@ -782,18 +784,57 @@ export async function updateHobbyItem(id: string, formData: FormData): Promise<{
     updatePayload.image_url = publicUrl
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('hobby_items')
     .update(updatePayload)
     .eq('id', id)
-    .select()
 
   if (error) return { error: error.message }
-  if (!data || data.length === 0) return { error: 'Update gagal — cek RLS policy di Supabase atau jalankan SQL migration.' }
 
   revalidatePath(`/${id}`)
   revalidatePath('/gear')
   return {}
+}
+
+export async function useHobbyItem(
+  id: string,
+  hobby: string,
+  usedAt: string,
+  note: string | null
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const dayName = new Date(usedAt).toLocaleDateString('en-US', { weekday: 'long' })
+  const finalNote = note?.trim() || dayName
+
+  const { data: item } = await supabase
+    .from('hobby_items').select('use_count').eq('id', id).single()
+
+  const [{ error: useErr }] = await Promise.all([
+    supabase.from('hobby_items').update({
+      use_count: (item?.use_count ?? 0) + 1,
+      last_used: usedAt,
+    }).eq('id', id),
+    supabase.from('hobby_item_uses').insert({ item_id: id, used_at: usedAt, note: finalNote }),
+  ])
+
+  if (useErr) return { error: useErr.message }
+  revalidatePath(`/${hobby}/${id}`)
+  return {}
+}
+
+export async function getHobbyItemUses(itemId: string): Promise<{ data?: import('@/lib/types').HobbyItemUse[]; error?: string }> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('hobby_item_uses')
+    .select('*')
+    .eq('item_id', itemId)
+    .order('used_at', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (error) return { error: error.message }
+  return { data: data as import('@/lib/types').HobbyItemUse[] }
 }
 
 export async function deleteHobbyItem(id: string, hobby: string): Promise<{ error?: string }> {
