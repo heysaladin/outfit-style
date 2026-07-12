@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Home, BarChart2, Images, Menu, X } from 'lucide-react'
+import { Home, BarChart2, Images, Menu, X, ArrowUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { HOBBIES } from '@/lib/types'
 import type { User } from '@supabase/supabase-js'
+import { ReorderHobbiesModal, getOrderedHobbies } from './gear/ReorderHobbiesModal'
 
 type Tab = 'home' | 'stats' | 'gallery'
 
@@ -31,15 +32,17 @@ const HOBBY_COLORS = [
 ]
 
 export function HomeClient({ user }: { user: User | null }) {
-  const [tab, setTab]         = useState<Tab>('home')
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [tab, setTab]             = useState<Tab>('home')
+  const [menuOpen, setMenuOpen]   = useState(false)
+  const [reorderOpen, setReorderOpen] = useState(false)
   const [activities, setActivities] = useState<HobbyActivity[]>([])
-  const [photos, setPhotos]   = useState<HobbyPhoto[]>([])
-  const [loaded, setLoaded]   = useState(false)
+  const [photos, setPhotos]       = useState<HobbyPhoto[]>([])
+  const [loaded, setLoaded]       = useState(false)
+  const [hobbyOrder, setHobbyOrder] = useState(() => getOrderedHobbies())
 
   const hobbyLinks = [
     { label: 'Fashion', icon: '👔', href: '/fashion' },
-    ...HOBBIES.map(h => ({ label: h.label, icon: h.icon, href: `/${h.value}` })),
+    ...hobbyOrder.map(h => ({ label: h.label, icon: h.icon, href: `/${h.value}` })),
   ]
 
   useEffect(() => {
@@ -98,6 +101,13 @@ export function HomeClient({ user }: { user: User | null }) {
               <>
                 <p className="px-3 py-2 text-xs text-muted-foreground truncate">{user.email}</p>
                 <div className="h-px bg-border my-1" />
+                <button
+                  className="flex items-center gap-2.5 w-full px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-muted transition-colors"
+                  onClick={() => { setMenuOpen(false); setReorderOpen(true) }}
+                >
+                  <ArrowUpDown size={14} className="text-muted-foreground" />
+                  Change the order
+                </button>
                 <Link
                   href="/profile"
                   className="block px-3 py-2.5 text-sm font-medium rounded-xl hover:bg-muted transition-colors"
@@ -218,6 +228,14 @@ export function HomeClient({ user }: { user: User | null }) {
           </div>
         )}
       </main>
+
+      {reorderOpen && (
+        <ReorderHobbiesModal
+          initialOrder={hobbyOrder}
+          onClose={() => setReorderOpen(false)}
+          onSave={(newOrder) => setHobbyOrder(newOrder)}
+        />
+      )}
 
       {/* Bottom nav */}
       <nav

@@ -2,6 +2,19 @@
 
 import { calcWorth, type WPStatus } from '@/lib/worth'
 
+const C = {
+  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
+  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
+  mint: '#3FBF8F', mintSoft: '#DDF4EA',
+  yellow: '#F59E0B', yellowSoft: '#FEF3C7',
+  blue: '#3B82F6', blueSoft: '#EFF6FF',
+  purple: '#8B5CF6', purpleSoft: '#F5F3FF',
+  shadow: '0 6px 18px rgba(84,62,32,.08)',
+}
+const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const UI = "'Inter', -apple-system, system-ui, sans-serif"
+
 interface WorthCardProps {
   purchasePrice: number | null | undefined
   purchaseDate: string | null | undefined
@@ -13,12 +26,12 @@ function fmt(n: number): string {
   return n.toLocaleString('id-ID', { maximumFractionDigits: 2 })
 }
 
-const STATUS_META: Record<WPStatus, { label: string; icon: string; bar: string; text: string }> = {
-  'not-worth':    { label: 'Not Worth',    icon: '🌱', bar: 'bg-muted-foreground/40', text: 'text-muted-foreground' },
-  'almost-worth': { label: 'Almost Worth', icon: '⚡', bar: 'bg-yellow-500',          text: 'text-yellow-500' },
-  'worth':        { label: 'Worth It',     icon: '✅', bar: 'bg-green-500',            text: 'text-green-500' },
-  'great':        { label: 'Great',        icon: '🔥', bar: 'bg-blue-500',             text: 'text-blue-500' },
-  'excellent':    { label: 'Excellent',    icon: '💎', bar: 'bg-purple-500',           text: 'text-purple-500' },
+const STATUS_META: Record<WPStatus, { label: string; icon: string; bar: string; textColor: string; softBg: string }> = {
+  'not-worth':    { label: 'Not Worth',    icon: '🌱', bar: C.faint,   textColor: C.muted,  softBg: '#F5F0E8' },
+  'almost-worth': { label: 'Almost Worth', icon: '⚡', bar: C.yellow,  textColor: '#B45309', softBg: C.yellowSoft },
+  'worth':        { label: 'Worth It',     icon: '✅', bar: C.mint,    textColor: '#059669', softBg: C.mintSoft },
+  'great':        { label: 'Great',        icon: '🔥', bar: C.blue,    textColor: C.blue,   softBg: C.blueSoft },
+  'excellent':    { label: 'Excellent',    icon: '💎', bar: C.purple,  textColor: C.purple, softBg: C.purpleSoft },
 }
 
 export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardProps) {
@@ -40,47 +53,59 @@ export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardP
   const wpAchieved = remainingToWP === 0
 
   return (
-    <div className="rounded-xl overflow-hidden border border-border">
-      {/* Header */}
-      <div className="px-4 pt-4 pb-3 bg-muted/50">
-        <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider mb-3">Worth Score</p>
+    <div style={{
+      background: C.card, borderRadius: 22, overflow: 'hidden',
+      boxShadow: C.shadow, fontFamily: UI, marginBottom: 12,
+    }}>
+      {/* Main body */}
+      <div style={{ padding: '16px 16px 14px' }}>
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: C.faint, marginBottom: 14 }}>
+          Worth Score
+        </p>
 
         {hasCPU && meta && (
           <>
-            {/* Status */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl leading-none">{meta.icon}</span>
+            {/* Status row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 14, fontSize: 20,
+                  background: meta.softBg, display: 'grid', placeItems: 'center', flexShrink: 0,
+                }}>
+                  {meta.icon}
+                </div>
                 <div>
-                  <p className={`text-base font-bold leading-tight ${meta.text}`}>{meta.label}</p>
+                  <p style={{ fontFamily: DP, fontSize: 15, fontWeight: 800, color: meta.textColor, lineHeight: 1.1, margin: 0 }}>
+                    {meta.label}
+                  </p>
                   {cpu !== null && (
-                    <p className="text-muted-foreground text-[11px]">
+                    <p style={{ fontSize: 11, fontWeight: 600, color: C.muted, margin: '2px 0 0' }}>
                       Rp {fmt(cpu)} / use
                     </p>
                   )}
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-foreground font-bold text-lg leading-tight">{uses}</p>
-                <p className="text-muted-foreground text-[10px]">uses</p>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontFamily: DP, fontSize: 22, fontWeight: 800, color: C.ink, lineHeight: 1, margin: 0 }}>{uses}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, color: C.faint, marginTop: 1 }}>uses</p>
               </div>
             </div>
 
             {/* Progress bar */}
-            <div className="space-y-1.5">
-              <div className="h-2 bg-border rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${meta.bar}`}
-                  style={{ width: `${progressPct}%` }}
-                />
+            <div>
+              <div style={{ height: 7, background: C.line, borderRadius: 99, overflow: 'hidden', marginBottom: 6 }}>
+                <div style={{
+                  height: '100%', borderRadius: 99,
+                  background: meta.bar,
+                  width: `${progressPct}%`,
+                  transition: 'width 0.5s ease',
+                }} />
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-muted-foreground text-[10px]">
-                  {wpAchieved
-                    ? '🎉 Worth Point achieved!'
-                    : `${remainingToWP} more uses to Worth Point`}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, margin: 0 }}>
+                  {wpAchieved ? '🎉 Worth Point achieved!' : `${remainingToWP} more uses to Worth Point`}
                 </p>
-                <p className="text-muted-foreground text-[10px]">
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: C.faint, margin: 0 }}>
                   {uses}/{wpTarget}
                 </p>
               </div>
@@ -91,13 +116,17 @@ export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardP
 
       {/* CPD footer */}
       {hasCPD && (
-        <div className="px-4 py-3 flex items-center justify-between border-t border-border bg-muted/30">
+        <div style={{
+          padding: '11px 16px', borderTop: `1px solid ${C.line}`,
+          background: '#FAF4EB',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
           <div>
-            <p className="text-foreground text-xs font-semibold">Rp {fmt(cpd!)}/hari</p>
-            <p className="text-muted-foreground text-[10px]">Cost per day</p>
+            <p style={{ fontSize: 13, fontWeight: 800, color: C.ink, margin: 0 }}>Rp {fmt(cpd!)}/hari</p>
+            <p style={{ fontSize: 10, fontWeight: 600, color: C.faint, margin: '1px 0 0' }}>Cost per day</p>
           </div>
           {daysOwned !== null && (
-            <p className="text-muted-foreground text-[10px]">{daysOwned} hari dimiliki</p>
+            <p style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, margin: 0 }}>{daysOwned} hari dimiliki</p>
           )}
         </div>
       )}

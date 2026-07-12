@@ -1,20 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Sun, Moon, Type } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { ActivitiesTab } from '@/components/gear/ActivitiesTab'
 import { MomentsTab } from '@/components/gear/MomentsTab'
-import { GoogleSignInButton } from '@/components/ui/GoogleSignInButton'
-import { useTheme } from '@/components/ThemeProvider'
+
+const C = {
+  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
+  ink: '#22190F', muted: '#8D8271',
+  shadow: '0 6px 18px rgba(84,62,32,.08)',
+}
+const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 type Tab = 'items' | 'activities' | 'moments'
-
-const FASHION_HOBBY = { value: 'fashion', label: 'Fashion', icon: '👔', category: 'lifestyle' }
 
 interface FashionClientProps {
   user: User | null
@@ -24,8 +26,7 @@ interface FashionClientProps {
 
 export function FashionClient({ user, activities, photos }: FashionClientProps) {
   const router = useRouter()
-  const { theme, toggle } = useTheme()
-  const [tab, setTab] = useState<Tab>('items')
+  const [tab, setTab]     = useState<Tab>('items')
   const [items, setItems] = useState<WardrobeItem[] | null>(null)
   const [showNames, setShowNames] = useState(true)
 
@@ -40,111 +41,136 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
   const tabs: { key: Tab; label: string; count: number }[] = [
     { key: 'items',      label: 'Items',      count: items?.length ?? 0 },
-    { key: 'activities', label: 'Activities', count: activities.length },
-    { key: 'moments',    label: 'Moments',    count: photos.length },
+    { key: 'activities', label: 'Activities', count: activities.length  },
+    { key: 'moments',    label: 'Moments',    count: photos.length      },
   ]
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background">
-        <div className="flex items-center justify-between px-5 pt-14 pb-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push('/')}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
-            >
-              <ArrowLeft size={16} className="text-foreground" />
-            </button>
-            <h1 className="text-foreground font-bold text-xl tracking-tight">Fashion</h1>
-          </div>
+    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
 
-          <div className="flex items-center gap-2">
-            {/* Toggle names */}
-            <button
-              onClick={() => setShowNames(v => !v)}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                showNames ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground'
-              }`}
-              title={showNames ? 'Hide names' : 'Show names'}
-            >
-              <Type size={14} />
-            </button>
+      {/* ── Subhead ── */}
+      <div style={{
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        position: 'sticky', top: 0, zIndex: 10,
+        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+      }}>
+        <IconBtn onClick={() => router.push('/')}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </IconBtn>
 
-            {/* Dark/light mode */}
-            <button
-              onClick={toggle}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark'
-                ? <Sun size={14} className="text-foreground" />
-                : <Moon size={14} className="text-foreground" />}
-            </button>
-
-            <Link
-              href="/ofit"
-              className="h-8 px-4 rounded-full bg-foreground text-background text-[11px] font-bold flex items-center"
-            >
-              Wardrobe
-            </Link>
-          </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            👔 Fashion
+          </h1>
+          <span style={{ fontSize: 11.5, fontWeight: 600, color: C.muted }}>
+            {items?.length ?? 0} items
+          </span>
         </div>
 
-        {/* Tab bar */}
-        <div className="flex px-5 pb-0 border-b border-border">
-          {tabs.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex-1 pb-3 text-xs font-semibold tracking-wide transition-colors border-b-2 ${
-                tab === t.key
-                  ? 'text-foreground border-foreground'
-                  : 'text-muted-foreground/40 border-transparent'
-              }`}
-            >
-              {t.label}
-              {t.count > 0 && (
-                <span className="ml-1.5 text-[10px] opacity-50">{t.count}</span>
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Show/hide names toggle */}
+        <IconBtn
+          onClick={() => setShowNames(v => !v)}
+          active={showNames}
+          title={showNames ? 'Hide names' : 'Show names'}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 6h16M4 12h16M4 18h10"/>
+          </svg>
+        </IconBtn>
+
+        {/* Wardrobe link */}
+        <a
+          href="/ofit"
+          style={{
+            display: 'flex', alignItems: 'center', height: 42,
+            padding: '0 16px', borderRadius: 16, border: 'none',
+            background: C.ink, color: '#FFF7EC',
+            fontFamily: UI, fontSize: 12, fontWeight: 800,
+            textDecoration: 'none', whiteSpace: 'nowrap',
+            boxShadow: C.shadow,
+          }}
+        >
+          Wardrobe
+        </a>
       </div>
 
-      {/* Content */}
+      {/* ── Segmented tabs ── */}
+      <div style={{ display: 'flex', gap: 6, padding: '6px 18px 12px' }}>
+        {tabs.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            style={{
+              flex: 1, border: 'none', cursor: 'pointer', fontFamily: UI,
+              fontSize: 13, fontWeight: 700, padding: '11px 0', borderRadius: 99,
+              background: tab === t.key ? C.ink : C.card,
+              color: tab === t.key ? '#FFF7EC' : C.muted,
+              boxShadow: C.shadow,
+            }}
+          >
+            {t.label}
+            {t.count > 0 && (
+              <b style={{ fontWeight: 700, fontSize: 11, marginLeft: 4, opacity: 0.6 }}>{t.count}</b>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Items tab ── */}
       {tab === 'items' && (
-        items === null ? (
-          <div className="grid grid-cols-2 gap-2.5 p-5">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white animate-pulse aspect-square border border-border/30" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 px-8 text-center gap-3">
-            <span className="text-5xl">👔</span>
-            <p className="text-foreground font-semibold">No verified items yet</p>
-            <p className="text-muted-foreground text-sm">Check back soon</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2.5 p-5">
-            {items.map(item => (
-              <div key={item.id} className="flex flex-col gap-1.5">
-                <div className="rounded-2xl overflow-hidden bg-white aspect-square">
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+        <div style={{ padding: '0 18px 40px' }}>
+          {items === null ? (
+            /* Skeleton */
+            <div style={{ columns: 2, columnGap: 11 }}>
+              {[...Array(6)].map((_, i) => (
+                <div key={i} style={{
+                  background: C.card, borderRadius: 22, marginBottom: 11,
+                  breakInside: 'avoid', aspectRatio: '1',
+                  boxShadow: C.shadow, opacity: 0.5,
+                }} />
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            <div style={{ padding: '50px 24px', textAlign: 'center', color: C.muted }}>
+              <div style={{ width: 60, height: 60, borderRadius: 22, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>👔</div>
+              <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No verified items yet</b>
+              <p style={{ fontSize: 13, lineHeight: 1.5 }}>Check back soon</p>
+            </div>
+          ) : (
+            <div style={{ columns: 2, columnGap: 11 }}>
+              {items.map(item => (
+                <div
+                  key={item.id}
+                  style={{
+                    background: C.card, borderRadius: 22, boxShadow: C.shadow,
+                    overflow: 'hidden', marginBottom: 11, breakInside: 'avoid',
+                  }}
+                >
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    style={{ width: '100%', display: 'block', objectFit: 'contain' }}
+                  />
+                  {showNames && (
+                    <div style={{ padding: '10px 13px 13px' }}>
+                      <b style={{ display: 'block', fontFamily: DP, fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.name}
+                      </b>
+                      {item.brand && (
+                        <span style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.brand}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {showNames && (
-                  <div className="px-0.5">
-                    <p className="text-foreground text-xs font-semibold leading-tight truncate">{item.name}</p>
-                    {item.brand && (
-                      <p className="text-muted-foreground text-[10px] mt-0.5 truncate uppercase tracking-wide">{item.brand}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {tab === 'activities' && (
@@ -155,5 +181,19 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         <MomentsTab hobby="fashion" photos={photos} user={user} />
       )}
     </div>
+  )
+}
+
+function IconBtn({ onClick, children, active, title }: { onClick: () => void; children: React.ReactNode; active?: boolean; title?: string }) {
+  return (
+    <button onClick={onClick} title={title} style={{
+      width: 42, height: 42, borderRadius: 16, border: 'none',
+      background: active ? '#22190F' : '#FFFFFF',
+      color: active ? '#FFF7EC' : '#22190F',
+      cursor: 'pointer', display: 'grid', placeItems: 'center',
+      boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
+    }}>
+      {children}
+    </button>
   )
 }

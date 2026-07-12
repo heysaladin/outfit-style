@@ -2,48 +2,64 @@
 
 import { useTransition, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Pencil, Trash2, Upload, Link, History, X, Plus } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyItem, HobbyItemUse } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
 import { WorthCard } from '@/components/worth/WorthCard'
 import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses } from '@/app/actions'
 
-interface HobbyItemDetailClientProps {
+const C = {
+  bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
+  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
+  mint: '#3FBF8F',
+  danger: '#E9573F',
+  shadow: '0 6px 18px rgba(84,62,32,.08)',
+  shadowLg: '0 14px 34px rgba(84,62,32,.14)',
+}
+const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const UI = "'Inter', -apple-system, system-ui, sans-serif"
+
+const HERO_TINTS = [
+  'radial-gradient(120% 100% at 30% 20%,#FFF0DC,#FFDFC2)',
+  'radial-gradient(120% 100% at 30% 20%,#EAEFFB,#C9D6EE)',
+  'radial-gradient(120% 100% at 30% 20%,#DFF2E4,#B7DFC3)',
+  'radial-gradient(120% 100% at 30% 20%,#EDE6FD,#D3C4F6)',
+  'radial-gradient(120% 100% at 30% 20%,#FBE0DC,#F2BBB2)',
+]
+
+const today = new Date().toISOString().split('T')[0]
+
+interface Props {
   item: HobbyItem
   hobby: string
   user: User | null
 }
 
-const today = new Date().toISOString().split('T')[0]
-
-export function HobbyItemDetailClient({ item, hobby, user }: HobbyItemDetailClientProps) {
-  const router                        = useRouter()
-  const [isPending, startTransition]  = useTransition()
-  const [mode, setMode]               = useState<'view' | 'edit'>('view')
-  const [error, setError]             = useState<string | null>(null)
-  const [preview, setPreview]         = useState<string | null>(null)
-  const [useUrl, setUseUrl]           = useState(false)
-  const [imageUrl, setImageUrl]       = useState('')
-  const fileRef                       = useRef<HTMLInputElement>(null)
-
-  // Use form sheet
+export function HobbyItemDetailClient({ item, hobby, user }: Props) {
+  const router                       = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [editOpen, setEditOpen]      = useState(false)
+  const [deleteOpen, setDeleteOpen]  = useState(false)
   const [useSheetOpen, setUseSheetOpen] = useState(false)
-  const [useDate, setUseDate]           = useState(today)
-  const [useNote, setUseNote]           = useState('')
-
-  // Uses history sheet
-  const [listOpen, setListOpen]     = useState(false)
-  const [uses, setUses]             = useState<HobbyItemUse[]>([])
+  const [listOpen, setListOpen]      = useState(false)
+  const [uses, setUses]              = useState<HobbyItemUse[]>([])
   const [listLoading, setListLoading] = useState(false)
+  const [useDate, setUseDate]        = useState(today)
+  const [useNote, setUseNote]        = useState('')
+  const [error, setError]            = useState<string | null>(null)
 
-  const hobbyDef = HOBBIES.find(h => h.value === hobby)
+  // Edit state
+  const [preview, setPreview]   = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState(item.image_url ?? '')
+  const fileRef                 = useRef<HTMLInputElement>(null)
 
-  function openUseSheet() {
-    setUseDate(today)
-    setUseNote('')
-    setUseSheetOpen(true)
-  }
+  const hobbyDef   = HOBBIES.find(h => h.value === hobby)
+  const hobbyIdx   = HOBBIES.findIndex(h => h.value === hobby)
+  const heroBg     = item.image_url ? undefined : HERO_TINTS[hobbyIdx % HERO_TINTS.length]
+  const displayImg = preview ?? item.image_url
+
+  function openUseSheet() { setUseDate(today); setUseNote(''); setUseSheetOpen(true) }
 
   function handleUseSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,19 +71,16 @@ export function HobbyItemDetailClient({ item, hobby, user }: HobbyItemDetailClie
     })
   }
 
-  async function openList() {
-    setListOpen(true)
-    setListLoading(true)
+  async function openHistory() {
+    setListOpen(true); setListLoading(true)
     const res = await getHobbyItemUses(item.id)
-    setUses(res.data ?? [])
-    setListLoading(false)
+    setUses(res.data ?? []); setListLoading(false)
   }
 
   function handleDelete() {
-    if (!confirm('Delete this item?')) return
     startTransition(async () => {
       const res = await deleteHobbyItem(item.id, hobby)
-      if (res.error) { setError(res.error); return }
+      if (res.error) { setError(res.error); setDeleteOpen(false); return }
       router.push(`/${hobby}`)
     })
   }
@@ -76,370 +89,431 @@ export function HobbyItemDetailClient({ item, hobby, user }: HobbyItemDetailClie
     e.preventDefault()
     setError(null)
     const fd = new FormData(e.currentTarget)
-    if (useUrl && imageUrl.trim()) fd.set('image_url_direct', imageUrl.trim())
+    if (imageUrl.trim() && !fileRef.current?.files?.[0]) fd.set('image_url_direct', imageUrl.trim())
     startTransition(async () => {
       const res = await updateHobbyItem(item.id, fd)
       if (res.error) { setError(res.error); return }
-      router.refresh()
-      setMode('view')
-      setPreview(null)
+      router.refresh(); setEditOpen(false); setPreview(null)
     })
   }
 
-  const displayImage = preview ?? item.image_url
+  const priceStr = item.purchase_price
+    ? item.purchase_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })
+    : null
+  const dateStr = item.purchase_date
+    ? new Date(item.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null
+  const lastUsedStr = item.last_used
+    ? new Date(item.last_used).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'never used'
+  const addedStr = new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
   return (
-    <div className="min-h-screen bg-background pb-10">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40 px-4 pt-12 pb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => mode === 'edit' ? setMode('view') : router.push(`/${hobby}`)}
-            className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-accent transition-colors"
-          >
-            <ArrowLeft size={16} className="text-muted-foreground" />
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-xl">{hobbyDef?.icon}</span>
-            <h1 className="text-foreground font-bold text-lg tracking-tight truncate max-w-[180px]">
-              {mode === 'edit' ? 'Edit Item' : item.name}
-            </h1>
-          </div>
+    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
+
+      {/* ── Subhead ── */}
+      <div style={{
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
+        display: 'flex', alignItems: 'center', gap: 8,
+        position: 'sticky', top: 0, zIndex: 10,
+        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+      }}>
+        <IconBtn onClick={() => router.push(`/${hobby}`)}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </IconBtn>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontFamily: DP, fontSize: 18, fontWeight: 800, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
+            {item.name}
+          </h1>
+          <span style={{ fontSize: 11.5, fontWeight: 600, color: C.muted }}>{hobbyDef?.label}</span>
         </div>
 
-        {user && mode === 'view' && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setMode('edit')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium transition-colors"
-            >
-              <Pencil size={12} />
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={isPending}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive text-xs font-medium transition-colors disabled:opacity-40"
-            >
-              <Trash2 size={12} />
-              Delete
-            </button>
-          </div>
+        {user && (
+          <>
+            <IconBtn onClick={() => setEditOpen(true)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/>
+              </svg>
+            </IconBtn>
+            <IconBtn onClick={() => setDeleteOpen(true)} danger>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
+              </svg>
+            </IconBtn>
+          </>
         )}
       </div>
 
-      {/* VIEW MODE */}
-      {mode === 'view' && (
-        <>
-          {displayImage ? (
-            <div className="aspect-square w-full bg-muted">
-              <img src={displayImage} alt={item.name} className="w-full h-full object-cover" />
-            </div>
+      {/* ── Scrollable content ── */}
+      <div style={{ overflowY: 'auto', paddingBottom: 48 }}>
+
+        {/* Hero */}
+        <div style={{
+          margin: '4px 18px 0', borderRadius: 28, overflow: 'hidden',
+          display: 'grid', placeItems: 'center',
+          fontSize: 120, position: 'relative',
+          background: heroBg,
+          boxShadow: C.shadow,
+          aspectRatio: displayImg ? undefined : '1/.9',
+        }}>
+          {displayImg ? (
+            <img src={displayImg} alt={item.name} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} />
           ) : (
-            <div className="aspect-square w-full bg-muted flex items-center justify-center text-8xl">
-              {hobbyDef?.icon}
+            <div style={{ aspectRatio: '1/.9', width: '100%', display: 'grid', placeItems: 'center' }}>
+              <span>{hobbyDef?.icon}</span>
             </div>
           )}
+        </div>
 
-          <div className="p-5 space-y-4">
-            <div>
-              <h2 className="text-foreground font-bold text-2xl">{item.name}</h2>
-              <p className="text-muted-foreground text-sm mt-0.5 capitalize">{hobbyDef?.label}</p>
-            </div>
+        {/* Detail */}
+        <div style={{ padding: '18px 18px 0' }}>
 
-            {item.description && (
-              <p className="text-foreground/80 text-sm leading-relaxed">{item.description}</p>
+          {/* Name */}
+          <h1 style={{ fontFamily: DP, fontSize: 23, fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.015em', margin: '0 0 10px' }}>
+            {item.name}
+          </h1>
+
+          {/* Chips */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.orange, background: C.orangeSoft, borderRadius: 99, padding: '6px 12px' }}>
+              {hobbyDef?.icon} {hobbyDef?.label}
+            </span>
+            {item.description && item.description.split(' ').slice(0, 2).join(' ') !== item.description && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, background: C.card, boxShadow: C.shadow, borderRadius: 99, padding: '6px 12px' }}>
+                {item.status === 'verified' ? 'Verified' : 'Draft'}
+              </span>
             )}
+          </div>
 
-            {/* Purchase */}
-            <div className="bg-muted rounded-xl p-3.5 space-y-2">
-              <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">Purchase</p>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-xs">Price</span>
-                <span className="text-foreground text-xs font-semibold">
-                  {item.purchase_price
-                    ? item.purchase_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })
-                    : <span className="text-muted-foreground/50">Not set</span>}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-xs">Date</span>
-                <span className="text-foreground text-xs">
-                  {item.purchase_date
-                    ? new Date(item.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                    : <span className="text-muted-foreground/50">Not set</span>}
-                </span>
-              </div>
-            </div>
-
-            {/* Use stats */}
-            <div className="flex items-center justify-between bg-muted rounded-xl p-3.5">
-              <div>
-                <p className="text-foreground text-sm font-semibold">{item.use_count} uses</p>
-                <p className="text-muted-foreground text-[10px] mt-0.5">
-                  {item.last_used
-                    ? `Last ${new Date(item.last_used).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                    : 'Never used'}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={openList}
-                  className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center hover:bg-accent transition-colors"
-                  title="Use history"
-                >
-                  <History size={14} className="text-muted-foreground" />
-                </button>
-                {user && (
-                  <button
-                    onClick={openUseSheet}
-                    disabled={isPending}
-                    className="flex items-center gap-1.5 bg-foreground text-background text-xs font-semibold px-3 py-2 rounded-lg disabled:opacity-40 hover:opacity-80 transition-opacity"
-                  >
-                    <Plus size={12} />
-                    Use
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Worth */}
-            <WorthCard
-              purchasePrice={item.purchase_price}
-              purchaseDate={item.purchase_date}
-              totalUses={item.use_count}
-            />
-
-            {error && (
-              <p className="text-destructive text-xs bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
-            )}
-
-            <p className="text-muted-foreground/40 text-[10px]">
-              Added {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          {/* Notes/description */}
+          {item.description && (
+            <p style={{ fontSize: 14, lineHeight: 1.55, color: C.muted, marginBottom: 14 }}>
+              {item.description}
             </p>
+          )}
+
+          {/* Use bar */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
+            background: C.card, boxShadow: C.shadow, borderRadius: 22, padding: 15,
+          }}>
+            <div style={{ fontFamily: DP, fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{item.use_count}</div>
+            <div style={{ flex: 1 }}>
+              <b style={{ fontSize: 14, display: 'block' }}>uses</b>
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.muted, marginTop: 2 }}>{lastUsedStr}</span>
+            </div>
+            <button
+              onClick={openHistory}
+              style={{ background: C.card2, border: 'none', borderRadius: 12, padding: '8px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: C.muted, marginRight: 6 }}
+            >
+              History
+            </button>
+            {user && (
+              <button
+                onClick={openUseSheet}
+                disabled={isPending}
+                style={{ border: 'none', borderRadius: 99, padding: '12px 22px', cursor: 'pointer', background: C.orange, color: '#fff', fontFamily: UI, fontSize: 14, fontWeight: 800, boxShadow: '0 8px 18px rgba(255,122,47,.35)', opacity: isPending ? 0.6 : 1 }}
+              >
+                ＋ Use
+              </button>
+            )}
+          </div>
+
+          {/* KV table */}
+          <div style={{ background: C.card, boxShadow: C.shadow, borderRadius: 22, padding: '4px 15px', marginBottom: 12 }}>
+            <KVRow label="Purchase price" value={priceStr} unset="＋ Add price" />
+            <KVRow label="Purchase date" value={dateStr} unset="＋ Add date" divider />
+            {item.status && <KVRow label="Status" value={item.status === 'verified' ? 'Verified' : 'Draft'} divider />}
+          </div>
+
+          {/* Worth card */}
+          <WorthCard purchasePrice={item.purchase_price} purchaseDate={item.purchase_date} totalUses={item.use_count} />
+
+          {error && (
+            <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginTop: 12, background: '#FEE2E2', borderRadius: 12, padding: '10px 14px' }}>{error}</p>
+          )}
+
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.faint, marginTop: 16 }}>
+            Added {addedStr}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Edit sheet ── */}
+      {editOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => setEditOpen(false)} />
+          <div style={{
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+            background: C.bg, borderRadius: '30px 30px 0 0',
+            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+            maxHeight: '90dvh', display: 'flex', flexDirection: 'column',
+            paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          }}>
+            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px', flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px', flexShrink: 0 }}>
+              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Edit item</h2>
+              <IconBtn onClick={() => setEditOpen(false)}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </IconBtn>
+            </div>
+            <form onSubmit={handleEditSubmit} style={{ overflowY: 'auto', padding: '0 18px 18px', flex: 1 }}>
+
+              {/* Photo */}
+              <Field label="Photo">
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  style={{
+                    border: displayImg ? 'none' : '2px dashed #EFE6D6',
+                    borderRadius: 16, background: C.card,
+                    display: 'grid', placeItems: 'center', cursor: 'pointer',
+                    overflow: 'hidden', marginBottom: 8,
+                    minHeight: displayImg ? 'auto' : 100,
+                    padding: displayImg ? 0 : 20,
+                    color: C.muted, textAlign: 'center',
+                  }}
+                >
+                  {displayImg ? (
+                    <img src={displayImg} alt={item.name} style={{ width: '100%', display: 'block', borderRadius: 14, objectFit: 'cover' }} onError={() => { setPreview(null); setImageUrl('') }} />
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 22 }}>📷</div>
+                      <b style={{ fontSize: 13, fontWeight: 700 }}>Tap to change photo</b>
+                    </>
+                  )}
+                </div>
+                <input ref={fileRef} type="file" name="image" accept="image/*" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) { setPreview(URL.createObjectURL(f)); setImageUrl('') } }} />
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={e => { setImageUrl(e.target.value); setPreview(null) }}
+                  placeholder="or paste image URL…"
+                  style={inputStyle}
+                />
+              </Field>
+
+              {/* Name */}
+              <Field label="Name *">
+                <input name="name" required defaultValue={item.name} style={inputStyle} />
+              </Field>
+
+              {/* Price + Date */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Field label="Price (Rp)" style={{ flex: 1 }}>
+                  <input name="purchase_price" type="number" min="0" inputMode="numeric" defaultValue={item.purchase_price ?? ''} placeholder="0" style={inputStyle} />
+                </Field>
+                <Field label="Purchase date" style={{ flex: 1 }}>
+                  <input name="purchase_date" type="date" defaultValue={item.purchase_date ?? ''} style={inputStyle} />
+                </Field>
+              </div>
+
+              {/* Notes */}
+              <Field label="Notes">
+                <textarea name="description" rows={3} defaultValue={item.description ?? ''} placeholder="Anything worth remembering…" style={{ ...inputStyle, resize: 'none', minHeight: 76 }} />
+              </Field>
+
+              {error && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{error}</p>}
+
+              <BigBtn type="submit" disabled={isPending}>{isPending ? 'Saving…' : 'Save changes'}</BigBtn>
+              <BigBtn type="button" danger onClick={() => { setEditOpen(false); setDeleteOpen(true) }} disabled={isPending}>Delete item</BigBtn>
+            </form>
           </div>
         </>
       )}
 
-      {/* EDIT MODE */}
-      {mode === 'edit' && (
-        <form onSubmit={handleEditSubmit} className="p-5 space-y-4">
-          {/* Image */}
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Photo</label>
-            {!useUrl && (
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="relative aspect-video rounded-xl overflow-hidden bg-muted border border-dashed border-border hover:border-foreground/40 transition-colors cursor-pointer flex items-center justify-center"
-              >
-                {preview || item.image_url ? (
-                  <img
-                    src={preview ?? item.image_url ?? ''}
-                    alt={item.name}
-                    className="absolute inset-0 w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Upload size={20} />
-                    <span className="text-xs">Tap to upload</span>
-                  </div>
-                )}
-              </div>
-            )}
-            <input
-              ref={fileRef} type="file" name="image" accept="image/*" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) setPreview(URL.createObjectURL(f)) }}
-            />
-            <button
-              type="button"
-              onClick={() => { setUseUrl(v => !v); setPreview(null); setImageUrl('') }}
-              className="flex items-center justify-between w-full px-3.5 py-2.5 bg-muted rounded-xl mt-2"
-            >
-              <div className="flex items-center gap-2 text-foreground text-xs font-medium">
-                <Link size={13} className="text-muted-foreground" />
-                Use image URL
-              </div>
-              <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${useUrl ? 'bg-primary' : 'bg-border'}`}>
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200 ${useUrl ? 'left-4 bg-white' : 'left-0.5 bg-muted-foreground'}`} />
-              </div>
-            </button>
-            {useUrl && (
-              <div className="mt-2 space-y-2">
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={e => { setImageUrl(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                />
-                {preview && (
-                  <div className="aspect-video rounded-xl overflow-hidden bg-muted border border-border">
-                    <img src={preview} alt="preview" className="w-full h-full object-contain" onError={() => setPreview(null)} />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Name *</label>
-            <input
-              name="name" required defaultValue={item.name}
-              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Purchase Price</label>
-              <input
-                name="purchase_price" type="number" min="0" step="0.01"
-                defaultValue={item.purchase_price ?? ''}
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Purchase Date</label>
-              <input
-                name="purchase_date" type="date"
-                defaultValue={item.purchase_date ?? ''}
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Notes</label>
-            <textarea
-              name="description" rows={3} defaultValue={item.description ?? ''}
-              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20 resize-none"
-              placeholder="Notes about this item…"
-            />
-          </div>
-
-          {error && (
-            <p className="text-destructive text-xs bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
-          )}
-
-          <button
-            type="submit" disabled={isPending}
-            className="w-full bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
-          >
-            {isPending ? 'Saving…' : 'Save Changes'}
-          </button>
-
-          <button
-            type="button" onClick={handleDelete} disabled={isPending}
-            className="w-full flex items-center justify-center gap-2 text-destructive font-medium py-3 rounded-xl text-sm border border-destructive/20 bg-destructive/5 disabled:opacity-40 hover:bg-destructive/10 transition-colors"
-          >
-            <Trash2 size={14} />
-            {isPending ? 'Deleting…' : 'Delete Item'}
-          </button>
-        </form>
-      )}
-
-      {/* USE FORM SHEET */}
+      {/* ── Use sheet ── */}
       {useSheetOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60" onClick={() => setUseSheetOpen(false)}>
-          <div
-            className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl p-5 pb-10 space-y-4"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="w-8 h-1 bg-border rounded-full mx-auto -mt-1 mb-3" />
-            <div className="flex items-center justify-between">
-              <h3 className="text-foreground font-bold text-base">Log a Use</h3>
-              <button onClick={() => setUseSheetOpen(false)} className="text-muted-foreground hover:text-foreground">
-                <X size={18} />
-              </button>
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => setUseSheetOpen(false)} />
+          <div style={{
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+            background: C.bg, borderRadius: '30px 30px 0 0',
+            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+            paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          }}>
+            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
+              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Log a use</h2>
+              <IconBtn onClick={() => setUseSheetOpen(false)}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </IconBtn>
             </div>
-
-            <form onSubmit={handleUseSubmit} className="space-y-4">
-              <div>
-                <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Date</label>
-                <input
-                  type="date"
-                  value={useDate}
-                  onChange={e => setUseDate(e.target.value)}
-                  max={today}
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
-                />
-              </div>
-
-              <div>
-                <label className="text-muted-foreground text-xs font-medium mb-1.5 block">
-                  Note <span className="text-muted-foreground/50">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={useNote}
-                  onChange={e => setUseNote(e.target.value)}
-                  placeholder={`Leave blank to use day name (${new Date(useDate).toLocaleDateString('en-US', { weekday: 'long' })})`}
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-foreground/20"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
-              >
-                {isPending ? 'Saving…' : 'Save'}
-              </button>
+            <form onSubmit={handleUseSubmit} style={{ padding: '0 18px 18px' }}>
+              <Field label="Date">
+                <input type="date" value={useDate} max={today} onChange={e => setUseDate(e.target.value)} style={inputStyle} />
+              </Field>
+              <Field label="Note (optional)">
+                <input type="text" value={useNote} onChange={e => setUseNote(e.target.value)} placeholder="e.g. Office day, casual outing" style={inputStyle} />
+              </Field>
+              <BigBtn type="submit" disabled={isPending}>{isPending ? 'Saving…' : 'Save'}</BigBtn>
             </form>
           </div>
-        </div>
+        </>
       )}
 
-      {/* USE HISTORY SHEET */}
-      {listOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60" onClick={() => setListOpen(false)}>
-          <div
-            className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[70vh] flex flex-col"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="px-5 pt-4 pb-3 border-b border-border flex-shrink-0">
-              <div className="w-8 h-1 bg-border rounded-full mx-auto mb-3" />
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-foreground font-bold text-base">Use History</h3>
-                  <p className="text-muted-foreground text-xs mt-0.5">{item.use_count} total uses</p>
-                </div>
-                <button onClick={() => setListOpen(false)} className="text-muted-foreground hover:text-foreground">
-                  <X size={18} />
-                </button>
-              </div>
+      {/* ── Delete confirmation ── */}
+      {deleteOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.45)', zIndex: 60 }} onClick={() => setDeleteOpen(false)} />
+          <div style={{
+            position: 'fixed', left: '50%', top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'calc(100% - 48px)', maxWidth: 340, zIndex: 70,
+            background: C.bg, borderRadius: 28,
+            boxShadow: '0 24px 60px rgba(60,40,15,.22)',
+            padding: '28px 22px 20px',
+            textAlign: 'center',
+          }}>
+            <div style={{ width: 56, height: 56, borderRadius: 20, background: '#FEE2E2', display: 'grid', placeItems: 'center', margin: '0 auto 16px', fontSize: 24 }}>
+              🗑️
             </div>
+            <h2 style={{ fontFamily: DP, fontSize: 19, fontWeight: 800, letterSpacing: '-0.01em', margin: '0 0 8px', color: C.ink }}>
+              Delete item?
+            </h2>
+            <p style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.5, margin: '0 0 22px' }}>
+              <b style={{ color: C.ink }}>{item.name}</b> will be permanently removed. This can&apos;t be undone.
+            </p>
+            <button
+              onClick={handleDelete}
+              disabled={isPending}
+              style={{
+                width: '100%', border: 'none', borderRadius: 16, padding: '14px 0',
+                background: C.danger, color: '#fff',
+                fontFamily: UI, fontSize: 15, fontWeight: 800,
+                cursor: 'pointer', marginBottom: 10,
+                opacity: isPending ? 0.6 : 1,
+                boxShadow: '0 8px 20px rgba(233,87,63,.3)',
+              }}
+            >
+              {isPending ? 'Deleting…' : 'Yes, delete'}
+            </button>
+            <button
+              onClick={() => setDeleteOpen(false)}
+              disabled={isPending}
+              style={{
+                width: '100%', border: '1.5px solid #EFE6D6', borderRadius: 16, padding: '13px 0',
+                background: C.card, color: C.ink,
+                fontFamily: UI, fontSize: 15, fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      )}
 
-            <div className="overflow-y-auto flex-1 pb-10">
+      {/* ── History sheet ── */}
+      {listOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => setListOpen(false)} />
+          <div style={{
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+            background: C.bg, borderRadius: '30px 30px 0 0',
+            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+            maxHeight: '70dvh', display: 'flex', flexDirection: 'column',
+            paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          }}>
+            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px', flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px', flexShrink: 0 }}>
+              <div>
+                <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Use history</h2>
+                <span style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>{item.use_count} total uses</span>
+              </div>
+              <IconBtn onClick={() => setListOpen(false)}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </IconBtn>
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1, padding: '0 18px 18px' }}>
               {listLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-muted-foreground text-sm">Loading…</p>
-                </div>
+                <p style={{ color: C.muted, textAlign: 'center', padding: '32px 0', fontSize: 14 }}>Loading…</p>
               ) : uses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-2">
-                  <History size={24} className="text-border" />
-                  <p className="text-muted-foreground text-sm">No uses logged yet</p>
-                </div>
+                <p style={{ color: C.muted, textAlign: 'center', padding: '32px 0', fontSize: 14 }}>No uses logged yet</p>
               ) : (
-                <div className="divide-y divide-border/40">
-                  {uses.map((u, i) => (
-                    <div key={u.id} className="px-5 py-3.5 flex items-center justify-between">
-                      <div>
-                        <p className="text-foreground text-sm font-medium">{u.note}</p>
-                        <p className="text-muted-foreground text-[11px] mt-0.5">
-                          {new Date(u.used_at).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
-                        </p>
-                      </div>
-                      <span className="text-muted-foreground/40 text-xs font-mono">#{item.use_count - i}</span>
+                uses.map((u, i) => (
+                  <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: i > 0 ? `1px solid ${C.line}` : 'none' }}>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{u.note ?? 'Use logged'}</p>
+                      <p style={{ fontSize: 11.5, color: C.muted, margin: '2px 0 0' }}>{new Date(u.used_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</p>
                     </div>
-                  ))}
-                </div>
+                    <span style={{ fontSize: 11, color: C.faint, fontWeight: 700 }}>#{item.use_count - i}</span>
+                  </div>
+                ))
               )}
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )
+}
+
+function IconBtn({ onClick, children, danger }: { onClick: () => void; children: React.ReactNode; danger?: boolean }) {
+  return (
+    <button onClick={onClick} style={{
+      width: 42, height: 42, borderRadius: 16, border: 'none',
+      background: '#FFFFFF', color: danger ? '#E9573F' : '#22190F',
+      cursor: 'pointer', display: 'grid', placeItems: 'center',
+      boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
+    }}>
+      {children}
+    </button>
+  )
+}
+
+function KVRow({ label, value, unset, divider }: { label: string; value: string | null; unset?: string; divider?: boolean }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid #EFE6D6' : 'none' }}>
+      <span style={{ color: '#8D8271', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontWeight: 700, color: value ? '#22190F' : '#FF7A2F' }}>{value ?? unset}</span>
+    </div>
+  )
+}
+
+function Field({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{ marginBottom: 16, ...style }}>
+      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#8D8271', marginBottom: 8 }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+function BigBtn({ children, danger, type = 'button', disabled, onClick }: { children: React.ReactNode; danger?: boolean; type?: 'button' | 'submit'; disabled?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        width: '100%', border: danger ? '1.5px solid #F4CFC7' : 'none',
+        borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: danger ? 10 : 0,
+        background: danger ? 'none' : '#FF7A2F',
+        color: danger ? '#E9573F' : '#fff',
+        fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+        fontSize: 15, fontWeight: 800,
+        boxShadow: danger ? 'none' : '0 10px 22px rgba(255,122,47,.35)',
+        opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
+  borderRadius: 16, color: '#22190F',
+  fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+  fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
+  boxSizing: 'border-box',
 }

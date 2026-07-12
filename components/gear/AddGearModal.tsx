@@ -2,8 +2,16 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { X, Upload, Link } from 'lucide-react'
 import { HOBBIES } from '@/lib/types'
+
+const C = {
+  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
+  ink: '#22190F', muted: '#8D8271',
+  orange: '#FF7A2F',
+  shadow: '0 6px 18px rgba(84,62,32,.08)',
+}
+const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface AddGearModalProps {
   onClose: () => void
@@ -11,19 +19,21 @@ interface AddGearModalProps {
   returnTo?: string
 }
 
-export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalProps) {
-  const router                        = useRouter()
-  const [hobby, setHobby]             = useState(defaultHobby ?? HOBBIES[0].value)
-  const [preview, setPreview]         = useState<string | null>(null)
-  const [useUrlInput, setUseUrlInput] = useState(false)
-  const [imageUrl, setImageUrl]       = useState('')
-  const [loading, setLoading]         = useState(false)
-  const fileRef                       = useRef<HTMLInputElement>(null)
-  const nameRef                       = useRef<HTMLInputElement>(null)
+export function AddGearModal({ onClose, defaultHobby }: AddGearModalProps) {
+  const router                    = useRouter()
+  const [hobby, setHobby]         = useState(defaultHobby ?? HOBBIES[0].value)
+  const [preview, setPreview]     = useState<string | null>(null)
+  const [imageUrl, setImageUrl]   = useState('')
+  const [loading, setLoading]     = useState(false)
+  const fileRef                   = useRef<HTMLInputElement>(null)
+  const nameRef                   = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
-    if (f) setPreview(URL.createObjectURL(f))
+    if (f) {
+      setImageUrl('')
+      setPreview(URL.createObjectURL(f))
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,7 +45,7 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
     const fd = new FormData()
     fd.append('name', name)
     fd.append('category', hobby)
-    if (useUrlInput) fd.append('image_url', imageUrl)
+    if (imageUrl.trim()) fd.append('image_url', imageUrl.trim())
     else if (fileRef.current?.files?.[0]) fd.append('image', fileRef.current.files[0])
     const notesEl = form.querySelector('textarea[name="notes"]') as HTMLTextAreaElement | null
     if (notesEl?.value) fd.append('notes', notesEl.value)
@@ -45,8 +55,7 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
     if (dateEl?.value) fd.append('purchase_date', dateEl.value)
     const res = await fetch('/api/hobby-items', { method: 'POST', body: fd })
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      console.error('hobby-items error:', err)
+      console.error('hobby-items error:', await res.json().catch(() => ({})))
       setLoading(false)
       return
     }
@@ -54,155 +63,161 @@ export function AddGearModal({ onClose, defaultHobby, returnTo }: AddGearModalPr
     onClose()
   }
 
+  const hobbyDef = HOBBIES.find(h => h.value === hobby)
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[95vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background pt-3 pb-2 px-4 border-b border-border/40">
-          <div className="w-8 h-1 bg-border rounded-full mx-auto mb-3" />
-          <div className="flex items-center justify-between">
-            <h2 className="text-foreground font-semibold text-base">Add Item</h2>
-            <button type="button" onClick={onClose} className="w-8 h-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center transition-colors">
-              <X size={16} />
-            </button>
-          </div>
+    <>
+      {/* Scrim */}
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={onClose} />
+
+      {/* Sheet */}
+      <div style={{
+        position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+        bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+        background: C.bg, borderRadius: '30px 30px 0 0',
+        boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+        maxHeight: '92dvh', display: 'flex', flexDirection: 'column',
+        paddingBottom: 'env(safe-area-inset-bottom,0px)',
+      }}>
+        {/* Grab */}
+        <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px', flexShrink: 0 }} />
+
+        {/* Sheet head */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px', flexShrink: 0 }}>
+          <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em', margin: 0 }}>Add item</h2>
+          <button onClick={onClose} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, color: C.ink, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 py-4 space-y-4 pb-10">
+        {/* Body */}
+        <form onSubmit={handleSubmit} style={{ overflowY: 'auto', padding: '0 18px 18px', flex: 1 }}>
 
-          {/* Hobby picker */}
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-2 block">Hobby</label>
-            <div className="grid grid-cols-4 gap-1.5">
+          {/* Hobby chips */}
+          <Field label="Hobby">
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
               {HOBBIES.map(h => (
                 <button
                   key={h.value}
                   type="button"
                   onClick={() => setHobby(h.value)}
-                  className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl text-center transition-all border ${
-                    hobby === h.value
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-muted text-muted-foreground border-transparent hover:border-border'
-                  }`}
+                  style={{
+                    flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
+                    border: 'none', borderRadius: 99, padding: '10px 15px',
+                    fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    background: hobby === h.value ? C.ink : C.card,
+                    color: hobby === h.value ? '#FFF7EC' : C.muted,
+                    boxShadow: C.shadow,
+                  }}
                 >
-                  <span className="text-xl leading-none">{h.icon}</span>
-                  <span className="text-[9px] font-medium leading-tight">{h.label}</span>
+                  {h.icon} {h.label}
                 </button>
               ))}
             </div>
-          </div>
+          </Field>
 
-          {/* Image */}
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-2 block">Photo</label>
-            {!useUrlInput && (
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="relative aspect-video rounded-xl overflow-hidden bg-white border border-dashed border-border hover:border-foreground/40 transition-colors cursor-pointer flex items-center justify-center"
-              >
-                {preview ? (
-                  <img src={preview} alt="preview" className="absolute inset-0 w-full h-full object-contain" />
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Upload size={20} />
-                    <span className="text-xs">Tap to upload photo</span>
-                  </div>
-                )}
-              </div>
-            )}
-            <input ref={fileRef} name="image" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-
-            <button
-              type="button"
-              onClick={() => { setUseUrlInput(v => !v); setPreview(null); setImageUrl('') }}
-              className="flex items-center justify-between w-full px-3.5 py-2.5 bg-muted rounded-xl mt-2"
+          {/* Photo */}
+          <Field label="Photo">
+            <div
+              onClick={() => fileRef.current?.click()}
+              style={{
+                border: preview ? 'none' : '2px dashed #EFE6D6',
+                borderRadius: 16, background: C.card,
+                padding: preview ? 0 : 26,
+                display: 'grid', placeItems: 'center', gap: 6,
+                textAlign: 'center', color: C.muted, cursor: 'pointer',
+                overflow: 'hidden',
+              }}
             >
-              <div className="flex items-center gap-2 text-foreground text-xs font-medium">
-                <Link size={13} className="text-muted-foreground" />
-                Add image from URL
-              </div>
-              <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${useUrlInput ? 'bg-primary' : 'bg-border'}`}>
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200 ${useUrlInput ? 'left-4 bg-white' : 'left-0.5 bg-muted-foreground'}`} />
-              </div>
-            </button>
-
-            {useUrlInput && (
-              <div className="mt-2 space-y-2">
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={e => { setImageUrl(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                />
-                {preview && (
-                  <div className="aspect-video rounded-xl overflow-hidden bg-white border border-border">
-                    <img src={preview} alt="preview" className="w-full h-full object-contain" onError={() => setPreview(null)} />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              {preview ? (
+                <img src={preview} alt="preview" style={{ width: '100%', display: 'block', borderRadius: 14, objectFit: 'cover' }} onError={() => setPreview(null)} />
+              ) : (
+                <>
+                  <div style={{ fontSize: 22 }}>📷</div>
+                  <b style={{ color: C.muted, fontSize: 13, fontWeight: 700 }}>Tap to add photo</b>
+                  <span style={{ fontSize: 11, fontWeight: 500 }}>or paste an image URL below</span>
+                </>
+              )}
+            </div>
+            <input ref={fileRef} name="image" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={e => { setImageUrl(e.target.value); setPreview(e.target.value.startsWith('http') ? e.target.value : null) }}
+              placeholder="https://…"
+              style={{ ...inputStyle, marginTop: 8 }}
+            />
+          </Field>
 
           {/* Name */}
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Name *</label>
+          <Field label="Name *">
             <input
               name="name"
               type="text"
               required
               ref={nameRef}
-              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-              placeholder={`e.g. My ${HOBBIES.find(h => h.value === hobby)?.label} item`}
+              placeholder={`e.g. My ${hobbyDef?.label ?? ''} item`}
+              style={inputStyle}
             />
-          </div>
+          </Field>
 
           {/* Price + Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Harga Beli</label>
-              <input
-                name="purchase_price"
-                type="number"
-                min="0"
-                step="0.01"
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Tanggal Beli</label>
-              <input
-                name="purchase_date"
-                type="date"
-                className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
-              />
-            </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Field label="Price (Rp)" style={{ flex: 1 }}>
+              <input name="purchase_price" type="number" min="0" inputMode="numeric" placeholder="0" style={inputStyle} />
+            </Field>
+            <Field label="Purchase date" style={{ flex: 1 }}>
+              <input name="purchase_date" type="date" style={inputStyle} />
+            </Field>
           </div>
 
           {/* Notes */}
-          <div>
-            <label className="text-muted-foreground text-xs font-medium mb-1.5 block">Notes</label>
+          <Field label="Notes">
             <textarea
               name="notes"
               rows={3}
-              className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20 resize-none"
-              placeholder="Any notes about this item…"
+              placeholder="Anything worth remembering about this item…"
+              style={{ ...inputStyle, resize: 'none', minHeight: 76 }}
             />
-          </div>
+          </Field>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            style={{
+              width: '100%', border: 'none', borderRadius: 18, padding: 17,
+              cursor: 'pointer', background: C.orange, color: '#fff',
+              fontFamily: UI, fontSize: 15, fontWeight: 800,
+              boxShadow: '0 10px 22px rgba(255,122,47,.35)',
+              opacity: loading ? 0.6 : 1,
+            }}
           >
-            {loading ? 'Saving…' : 'Add Item'}
+            {loading ? 'Saving…' : `Add item`}
           </button>
         </form>
       </div>
+    </>
+  )
+}
+
+function Field({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{ marginBottom: 16, ...style }}>
+      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#8D8271', marginBottom: 8 }}>
+        {label}
+      </label>
+      {children}
     </div>
   )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
+  borderRadius: 16, color: '#22190F',
+  fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+  fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
+  boxSizing: 'border-box',
 }

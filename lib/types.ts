@@ -223,9 +223,9 @@ export const HOBBIES = [
   { value: '3d_modelling', label: '3D Modelling', icon: '🧊',  category: 'creative'  },
   { value: 'reading',      label: 'Reading',      icon: '📚',  category: 'wellness'  },
   { value: 'grooming',     label: 'Grooming',     icon: '💈',  category: 'lifestyle' },
-  { value: 'coding',       label: 'Coding',       icon: '💻',  category: 'technical' },
-  { value: 'car',          label: 'Car',          icon: '🚗',  category: 'hands_on'  },
-  { value: 'plant',        label: 'Plant',        icon: '🪴',  category: 'wellness'  },
+  { value: 'coding',        label: 'Coding',        icon: '💻',  category: 'technical' },
+  { value: 'designing',    label: 'Designing',    icon: '🎨',  category: 'creative'  },
+  { value: 'architecture', label: 'Architecture', icon: '🏛️',  category: 'creative'  },
 ] as const
 
 export type HobbyValue = typeof HOBBIES[number]['value']
@@ -328,18 +328,16 @@ export const HOBBY_META_FIELDS: Record<string, GearMetaField[]> = {
     { key: 'specs',            label: 'Specs/Version',   type: 'text'   },
     { key: 'license_key',      label: 'License Key',     type: 'text'   },
   ],
-  car: [
-    { key: 'model',            label: 'Model',           type: 'text',   placeholder: 'e.g. Toyota GR86' },
-    { key: 'year',             label: 'Year',            type: 'number', placeholder: 'e.g. 2023' },
-    { key: 'plate',            label: 'Plate Number',    type: 'text'   },
-    { key: 'last_service',     label: 'Last Service',    type: 'date'   },
-    { key: 'mileage_km',       label: 'Mileage (km)',    type: 'number' },
+  designing: [
+    { key: 'type',             label: 'Type',            type: 'select', options: ['Graphic Design', 'UI/UX', 'Industrial Design', 'Fashion Design', 'Interior Design', 'Motion Design'] },
+    { key: 'software',         label: 'Software',        type: 'text',   placeholder: 'e.g. Figma, Illustrator, Photoshop' },
+    { key: 'medium',           label: 'Medium',          type: 'select', options: ['Digital', 'Print', 'Physical', 'Mixed'] },
   ],
-  plant: [
-    { key: 'species',          label: 'Species',         type: 'text',   placeholder: 'e.g. Monstera deliciosa' },
-    { key: 'pot_size_cm',      label: 'Pot Size (cm)',   type: 'number' },
-    { key: 'light',            label: 'Light Needs',     type: 'select', options: ['Full Sun', 'Partial Sun', 'Indirect Light', 'Low Light'] },
-    { key: 'watering',         label: 'Watering',        type: 'select', options: ['Daily', 'Every 2-3 days', 'Weekly', 'Bi-weekly', 'Monthly'] },
+  architecture: [
+    { key: 'type',             label: 'Type',            type: 'select', options: ['Residential', 'Commercial', 'Urban Planning', 'Landscape', 'Interior', 'Industrial'] },
+    { key: 'software',         label: 'Software',        type: 'text',   placeholder: 'e.g. AutoCAD, Revit, SketchUp' },
+    { key: 'scale',            label: 'Scale',           type: 'text',   placeholder: 'e.g. 1:100' },
+    { key: 'project_stage',    label: 'Project Stage',   type: 'select', options: ['Concept', 'Schematic', 'Design Development', 'Construction Docs', 'Built'] },
   ],
 }
 
