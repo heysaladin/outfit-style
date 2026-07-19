@@ -12,12 +12,12 @@ const bricolage = Bricolage_Grotesque({
 })
 
 export const metadata: Metadata = {
-  title: 'Outfit Style',
-  description: 'Your smart wardrobe planner',
-  applicationName: 'Outfit Style',
+  title: 'Interestory',
+  description: 'Your interest story',
+  applicationName: 'Interestory',
   appleWebApp: {
     capable: true,
-    title: 'Outfit Style',
+    title: 'Interestory',
     statusBarStyle: 'black-translucent',
     startupImage: [
       // iPhone 15 Pro Max / 14 Pro Max
