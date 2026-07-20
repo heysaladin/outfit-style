@@ -838,43 +838,97 @@ export default function Home() {
                 <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
                   <Link href="/login" style={{ color: C.orange, fontWeight: 700, fontSize: 14, marginTop: 12, display: 'inline-block' }}>Login</Link>
                 </EmptyState>
-              ) : photos.length === 0 ? (
-                <EmptyState icon="📸" title="No photos yet" desc="Capture moments from your hobbies" />
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
-                  {photos.map(p => {
-                    const h = HOBBIES.find(x => x.value === p.hobby)
-                    const linkedActivity = activities.find(a => a.hobby === p.hobby && a.note === p.note)
-                      ?? activities.find(a => a.hobby === p.hobby)
-                    return (
-                      <div key={p.id} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', boxShadow: C.shadow, background: C.card }}>
-                        <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>
-                          <img src={p.image_url} alt={p.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 420 }} />
-                        </div>
-                        <div style={{ padding: '12px 14px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-                          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-                            <span style={{ fontSize: 22, flexShrink: 0 }}>{h?.icon ?? '📷'}</span>
-                            <div style={{ minWidth: 0 }}>
-                              <b style={{ fontFamily: DP, fontSize: 14, fontWeight: 700, display: 'block' }}>{h?.label ?? p.hobby}</b>
-                              {p.note && <p style={{ fontSize: 13, color: C.muted, margin: '2px 0 0', lineHeight: 1.4 }}>{p.note}</p>}
+              ) : (() => {
+                // Activities that have no linked photo
+                const noPhotoActs = activities.filter(act =>
+                  !photos.some(p => p.hobby === act.hobby && p.note === act.note)
+                )
+                // Combined feed: photos + no-photo activities, sorted newest first
+                const feed: Array<
+                  | { type: 'photo'; date: string; photo: HobbyPhoto }
+                  | { type: 'activity'; date: string; act: HobbyActivity }
+                > = [
+                  ...photos.map(p => ({ type: 'photo' as const, date: p.created_at, photo: p })),
+                  ...noPhotoActs.map(a => ({ type: 'activity' as const, date: a.activity_at, act: a })),
+                ].sort((a, b) => b.date.localeCompare(a.date))
+
+                if (feed.length === 0) {
+                  return <EmptyState icon="📸" title="No activity yet" desc="Capture moments or log activities from your hobbies" />
+                }
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
+                    {feed.map(item => {
+                      if (item.type === 'photo') {
+                        const p = item.photo
+                        const h = HOBBIES.find(x => x.value === p.hobby)
+                        const linkedActivity = activities.find(a => a.hobby === p.hobby && a.note === p.note)
+                          ?? activities.find(a => a.hobby === p.hobby)
+                        return (
+                          <div key={`p-${p.id}`} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', boxShadow: C.shadow, background: C.card }}>
+                            <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>
+                              <img src={p.image_url} alt={p.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 420 }} />
+                            </div>
+                            <div style={{ padding: '12px 14px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                                <span style={{ fontSize: 22, flexShrink: 0 }}>{h?.icon ?? '📷'}</span>
+                                <div style={{ minWidth: 0 }}>
+                                  <b style={{ fontFamily: DP, fontSize: 14, fontWeight: 700, display: 'block' }}>{h?.label ?? p.hobby}</b>
+                                  {p.note && <p style={{ fontSize: 13, color: C.muted, margin: '2px 0 0', lineHeight: 1.4 }}>{p.note}</p>}
+                                </div>
+                              </div>
+                              {linkedActivity && (
+                                <button
+                                  onClick={() => openActivity(linkedActivity)}
+                                  style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 12, border: `1.5px solid ${C.line}`, background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.ink }}
+                                >
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                  </svg>
+                                </button>
+                              )}
                             </div>
                           </div>
-                          {linkedActivity && (
-                            <button
-                              onClick={() => openActivity(linkedActivity)}
-                              style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 12, border: `1.5px solid ${C.line}`, background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.ink }}
-                            >
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+                        )
+                      } else {
+                        // No-photo activity — dark card with big white text
+                        const act = item.act
+                        const h = HOBBIES.find(x => x.value === act.hobby)
+                        const diff = Math.floor((now.getTime() - new Date(act.activity_at).getTime()) / 86400000)
+                        const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
+                        return (
+                          <div
+                            key={`a-${act.id}`}
+                            onClick={() => openActivity(act)}
+                            style={{
+                              borderRadius: 20, overflow: 'hidden', position: 'relative',
+                              boxShadow: C.shadowLg, background: '#1C130A',
+                              minHeight: 140, display: 'flex', flexDirection: 'column',
+                              justifyContent: 'space-between', cursor: 'pointer',
+                              WebkitTapHighlightColor: 'transparent',
+                            }}
+                          >
+                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
+                            <div style={{ position: 'relative', padding: '20px 18px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                              <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>
+                                {act.note ?? 'Session logged'}
+                              </p>
+                            </div>
+                            <div style={{ position: 'relative', padding: '0 18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <div style={{ display: 'flex', align: 'center', gap: 8 }}>
+                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>
+                                  {h?.label ?? act.hobby} · {timeAgo}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      }
+                    })}
+                  </div>
+                )
+              })()}
             </div>
           )}
         </div>

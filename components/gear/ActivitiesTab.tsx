@@ -88,35 +88,44 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
           <p style={{ fontSize: 13 }}>{user ? 'Log your first session below' : 'Sign in to log activities'}</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, paddingBottom: 12 }}>
+        <div style={{ columns: 2, columnGap: 11, paddingBottom: 12 }}>
           {activities.map(act => (
             <div key={act.id} style={{
-              display: 'flex', gap: 12, padding: 14,
-              background: C.card, boxShadow: C.shadow, borderRadius: 16,
-              alignItems: 'center',
+              position: 'relative', breakInside: 'avoid', marginBottom: 11,
+              borderRadius: 16, overflow: 'hidden', boxShadow: C.shadowLg,
+              background: '#1C130A',
+              minHeight: 130,
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             }}>
-              <div style={{ width: 42, height: 42, borderRadius: 14, background: C.mintSoft, display: 'grid', placeItems: 'center', fontSize: 19, flexShrink: 0 }}>
-                ✨
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <b style={{ fontSize: 14, fontWeight: 700, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {/* Subtle texture overlay */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
+
+              <div style={{ position: 'relative', padding: '14px 13px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <p style={{
+                  margin: 0, fontSize: 17, fontWeight: 800, lineHeight: 1.3,
+                  color: '#FFFFFF', fontFamily: DP,
+                  wordBreak: 'break-word',
+                }}>
                   {act.note ?? 'Session logged'}
-                </b>
-                <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>
-                  {formatRelative(act.activity_at)}{act.location ? ` · ${act.location}` : ''}
-                </span>
+                </p>
               </div>
-              {user && (
-                <button
-                  onClick={() => handleDelete(act.id)}
-                  disabled={deleting === act.id}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.4 : 1 }}
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
-                  </svg>
-                </button>
-              )}
+
+              <div style={{ position: 'relative', padding: '0 13px 12px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)', lineHeight: 1.3 }}>
+                  {formatRelative(act.activity_at)}{act.location ? `\n${act.location}` : ''}
+                </span>
+                {user && (
+                  <button
+                    onClick={() => handleDelete(act.id)}
+                    disabled={deleting === act.id}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1, flexShrink: 0 }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
