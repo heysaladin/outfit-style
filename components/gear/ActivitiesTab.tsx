@@ -45,10 +45,34 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
   const [isPending, setIsPending] = useState(false)
   const [deleting, setDeleting]   = useState<string | null>(null)
 
+  const [editAct, setEditAct] = useState<HobbyActivity | null>(null)
+  const [editNote, setEditNote] = useState('')
+  const [editLocation, setEditLocation] = useState('')
+  const [editActivityAt, setEditActivityAt] = useState('')
+  const [editPending, setEditPending] = useState(false)
+  const [editError, setEditError] = useState('')
+
   function resetForm() {
     setNote(''); setLocation(''); setError('')
     const now = new Date(); now.setSeconds(0, 0)
     setActivityAt(now.toISOString().slice(0, 16))
+  }
+
+  function openEdit(act: HobbyActivity) {
+    setEditAct(act)
+    setEditNote(act.note ?? '')
+    setEditLocation(act.location ?? '')
+    const d = new Date(act.activity_at)
+    d.setSeconds(0, 0)
+    setEditActivityAt(d.toISOString().slice(0, 16))
+    setEditError('')
+  }
+
+  function closeEdit() {
+    setEditAct(null)
+    setEditNote('')
+    setEditLocation('')
+    setEditError('')
   }
 
   async function handleAdd() {
@@ -68,6 +92,24 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
       setActivities(prev => [data, ...prev])
       resetForm(); setAddOpen(false)
     } finally { setIsPending(false) }
+  }
+
+  async function handleEdit() {
+    if (!editAct) return
+    if (!editNote.trim()) return setEditError('Please add a note')
+    setEditError(''); setEditPending(true)
+    const updated = {
+      note: editNote.trim() || null,
+      location: editLocation.trim() || null,
+      activity_at: new Date(editActivityAt).toISOString(),
+    }
+    try {
+      const supabase = createClient()
+      const { error: err } = await supabase.from('hobby_activities').update(updated).eq('id', editAct.id)
+      if (err) { setEditError(err.message); return }
+      setActivities(prev => prev.map(a => a.id === editAct.id ? { ...a, ...updated } : a))
+      closeEdit()
+    } finally { setEditPending(false) }
   }
 
   async function handleDelete(id: string) {
@@ -115,15 +157,26 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
                   {formatRelative(act.activity_at)}{act.location ? `\n${act.location}` : ''}
                 </span>
                 {user && (
-                  <button
-                    onClick={() => handleDelete(act.id)}
-                    disabled={deleting === act.id}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1, flexShrink: 0 }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
-                    </svg>
-                  </button>
+                  <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+                    <button
+                      onClick={() => openEdit(act)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(act.id)}
+                      disabled={deleting === act.id}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1 }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
+                      </svg>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -191,6 +244,56 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
                 style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: isPending ? 0.6 : 1 }}
               >
                 {isPending ? 'Saving…' : 'Save activity'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Edit activity sheet ── */}
+      {editAct && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={closeEdit} />
+          <div style={{
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+            background: C.bg, borderRadius: '30px 30px 0 0',
+            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+            maxHeight: '88dvh', display: 'flex', flexDirection: 'column',
+            paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          }}>
+            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
+              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Edit activity</h2>
+              <button onClick={closeEdit} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
+              <Field label="What did you do? *">
+                <textarea
+                  value={editNote}
+                  onChange={e => setEditNote(e.target.value)}
+                  placeholder="e.g. Cleaned bracelet, went for a ride"
+                  rows={3}
+                  style={inputStyle}
+                />
+              </Field>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Field label="Location" style={{ flex: 1 }}>
+                  <input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="e.g. Home, Garage" style={inputStyle} />
+                </Field>
+                <Field label="Date & time" style={{ flex: 1 }}>
+                  <input type="datetime-local" value={editActivityAt} onChange={e => setEditActivityAt(e.target.value)} style={inputStyle} />
+                </Field>
+              </div>
+              {editError && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{editError}</p>}
+              <button
+                onClick={handleEdit}
+                disabled={editPending}
+                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: editPending ? 0.6 : 1 }}
+              >
+                {editPending ? 'Saving…' : 'Save changes'}
               </button>
             </div>
           </div>

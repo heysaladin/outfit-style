@@ -301,8 +301,15 @@ export default function Home() {
     const { data: { user: u } } = await supabase.auth.getUser()
     await supabase.from('hobby_activities').delete().eq('id', act.id)
     if (photo) {
+      const storagePath = photo.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
+      if (storagePath) await supabase.storage.from('wardrobe').remove([storagePath])
       await supabase.from('hobby_photos').delete().eq('id', photo.id)
     } else if (act.note) {
+      const { data: matchedPhotos } = await supabase.from('hobby_photos').select('id, image_url').eq('hobby', act.hobby).eq('note', act.note)
+      if (matchedPhotos?.length) {
+        const paths = matchedPhotos.map(p => p.image_url.match(/\/wardrobe\/(.+)$/)?.[1]).filter(Boolean) as string[]
+        if (paths.length) await supabase.storage.from('wardrobe').remove(paths)
+      }
       await supabase.from('hobby_photos').delete().eq('hobby', act.hobby).eq('note', act.note)
     }
     if (u) {
@@ -866,7 +873,7 @@ export default function Home() {
                           ?? activities.find(a => a.hobby === p.hobby)
                         return (
                           <div key={`p-${p.id}`} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', boxShadow: C.shadow, background: C.card }}>
-                            <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>
+                            <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent', borderRadius: 20, overflow: 'hidden' }}>
                               <img src={p.image_url} alt={p.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 420 }} />
                             </div>
                             <div style={{ padding: '12px 14px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
@@ -915,12 +922,15 @@ export default function Home() {
                               </p>
                             </div>
                             <div style={{ position: 'relative', padding: '0 18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div style={{ display: 'flex', align: 'center', gap: 8 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
                                 <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>
-                                  {h?.label ?? act.hobby} · {timeAgo}
+                                  {h?.label ?? act.hobby}
                                 </span>
                               </div>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>
+                                {timeAgo}
+                              </span>
                             </div>
                           </div>
                         )
