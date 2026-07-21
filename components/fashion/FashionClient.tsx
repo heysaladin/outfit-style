@@ -174,7 +174,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
       )}
 
       {tab === 'activities' && (
-        <ActivitiesTab hobby="fashion" activities={activities} user={user} />
+        <ActivitiesTab hobby="fashion" activities={activities} photos={photos} user={user} />
       )}
 
       {tab === 'moments' && (

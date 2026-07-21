@@ -90,6 +90,7 @@ export default function Home() {
   const [actPhoto, setActPhoto] = useState<HobbyPhoto | null>(null)
   const [actNewPhotoPreview, setActNewPhotoPreview] = useState<string | null>(null)
   const [actNewPhotoFile, setActNewPhotoFile] = useState<File | null>(null)
+  const [actDeletePhoto, setActDeletePhoto] = useState(false)
   const actPhotoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -235,7 +236,7 @@ export default function Home() {
       location: act.location ?? '',
       at: new Date(act.activity_at).toISOString().slice(0, 16),
     })
-    const linked = photo ?? photos.find(p => p.hobby === act.hobby && p.note === act.note) ?? photos.find(p => p.hobby === act.hobby) ?? null
+    const linked = photo ?? photos.find(p => p.hobby === act.hobby && p.note === act.note) ?? null
     setActPhoto(linked)
   }
 
@@ -245,8 +246,18 @@ export default function Home() {
     const supabase = createClient()
     const { data: { user: u } } = await supabase.auth.getUser()
 
+    // Delete photo if requested
+    if (actDeletePhoto && actPhoto) {
+      const oldPath = actPhoto.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
+      if (oldPath) await supabase.storage.from('wardrobe').remove([oldPath])
+      await supabase.from('hobby_photos').delete().eq('id', actPhoto.id)
+      setPhotos(prev => prev.filter(p => p.id !== actPhoto.id))
+      setActPhoto(null)
+      setActDeletePhoto(false)
+    }
+
     // Upload new photo if selected
-    if (actNewPhotoFile && u) {
+    if (!actDeletePhoto && actNewPhotoFile && u) {
       const ext = actNewPhotoFile.name.split('.').pop() ?? 'jpg'
       const path = `${u.id}/hobby/${actEditForm.hobby}/${Date.now()}.${ext}`
       const { error: upErr } = await supabase.storage.from('wardrobe').upload(path, actNewPhotoFile, { upsert: false })
@@ -281,6 +292,7 @@ export default function Home() {
     }
     setActNewPhotoPreview(null)
     setActNewPhotoFile(null)
+    setActDeletePhoto(false)
     setActEditMode(false)
     setActSavePending(false)
   }
@@ -487,7 +499,7 @@ export default function Home() {
                       ? '"Great start! Keep logging today \uD83C\uDFAF"'
                       : '"Start logging to build your story \uD83C\uDFAF"'}
                   </b>
-                  <span style={{ fontSize: 12, color: C.muted, display: 'block', marginTop: 3 }}>Momo · your interest pal</span>
+                  <span style={{ fontSize: 12, color: C.muted, display: 'block', marginTop: 3 }}>Momo · your interest friend</span>
                 </div>
               </div>
 
@@ -876,24 +888,28 @@ export default function Home() {
                             <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent', borderRadius: 20, overflow: 'hidden' }}>
                               <img src={p.image_url} alt={p.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 420 }} />
                             </div>
-                            <div style={{ padding: '12px 14px 14px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-                              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                            <div style={{ padding: '12px 14px 14px' }}>
+                              {p.note && <p style={{ fontSize: 15, color: C.ink, margin: '0 0 10px', lineHeight: 1.4, fontWeight: 600 }}>{p.note}</p>}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flex: 1, minWidth: 0 }}>
                                 <span style={{ fontSize: 22, flexShrink: 0 }}>{h?.icon ?? '📷'}</span>
                                 <div style={{ minWidth: 0 }}>
                                   <b style={{ fontFamily: DP, fontSize: 14, fontWeight: 700, display: 'block' }}>{h?.label ?? p.hobby}</b>
-                                  {p.note && <p style={{ fontSize: 13, color: C.muted, margin: '2px 0 0', lineHeight: 1.4 }}>{p.note}</p>}
                                 </div>
                               </div>
-                              {linkedActivity && (
-                                <button
-                                  onClick={() => openActivity(linkedActivity)}
-                                  style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 12, border: `1.5px solid ${C.line}`, background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.ink }}
-                                >
-                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                  </svg>
-                                </button>
-                              )}
+                              {(() => {
+                                const ts = linkedActivity?.activity_at ?? p.created_at
+                                const d = new Date(ts)
+                                const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
+                                const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                                const label = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                                return (
+                                  <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 600, color: C.faint }}>
+                                    {label} · {timeStr}
+                                  </span>
+                                )
+                              })()}
+                              </div>
                             </div>
                           </div>
                         )
@@ -901,8 +917,11 @@ export default function Home() {
                         // No-photo activity — dark card with big white text
                         const act = item.act
                         const h = HOBBIES.find(x => x.value === act.hobby)
-                        const diff = Math.floor((now.getTime() - new Date(act.activity_at).getTime()) / 86400000)
-                        const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
+                        const actD = new Date(act.activity_at)
+                        const diff = Math.floor((now.getTime() - actD.getTime()) / 86400000)
+                        const actTimeStr = actD.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                        const actLabel = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : actD.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        const timeAgo = `${actLabel} · ${actTimeStr}`
                         return (
                           <div
                             key={`a-${act.id}`}
@@ -1027,6 +1046,9 @@ export default function Home() {
                 </button>
               </div>
               <div style={{ padding: '16px 20px calc(24px + env(safe-area-inset-bottom,0px))', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }} onClick={e => e.stopPropagation()}>
+                {fullscreenPhoto.note && (
+                  <p style={{ color: 'rgba(255,255,255,.9)', fontSize: 15, margin: '0 0 12px', lineHeight: 1.4, fontWeight: 600 }}>{fullscreenPhoto.note}</p>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 20 }}>{h?.icon ?? '📷'}</span>
@@ -1041,9 +1063,6 @@ export default function Home() {
                     </button>
                   )}
                 </div>
-                {fullscreenPhoto.note && (
-                  <p style={{ color: 'rgba(255,255,255,.8)', fontSize: 13, margin: '6px 0 0', lineHeight: 1.4 }}>{fullscreenPhoto.note}</p>
-                )}
               </div>
             </div>
           )
@@ -1094,21 +1113,31 @@ export default function Home() {
                         reader.readAsDataURL(file)
                       }} />
                       <CField label="Photo">
-                        <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', marginBottom: 4, cursor: 'pointer' }} onClick={() => actPhotoInputRef.current?.click()}>
-                          {actNewPhotoPreview || actPhoto ? (
-                            <>
-                              <img src={actNewPhotoPreview ?? actPhoto!.image_url} alt="" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 200 }} />
-                              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <span style={{ color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 700, background: 'rgba(0,0,0,.4)', padding: '6px 14px', borderRadius: 20 }}>Change photo</span>
+                        {actDeletePhoto ? (
+                          <div style={{ borderRadius: 14, border: `2px dashed ${C.line}`, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.card }}>
+                            <span style={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>Photo will be deleted</span>
+                            <button onClick={() => setActDeletePhoto(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: C.muted }}>Undo</button>
+                          </div>
+                        ) : (
+                          <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', marginBottom: 4, cursor: 'pointer' }} onClick={() => actPhotoInputRef.current?.click()}>
+                            {actNewPhotoPreview || actPhoto ? (
+                              <>
+                                <img src={actNewPhotoPreview ?? actPhoto!.image_url} alt="" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 200 }} />
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <span style={{ color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 700, background: 'rgba(0,0,0,.4)', padding: '6px 14px', borderRadius: 20 }}>Change photo</span>
+                                </div>
+                                <button onClick={e => { e.stopPropagation(); setActDeletePhoto(true); setActNewPhotoPreview(null); setActNewPhotoFile(null) }} style={{ position: 'absolute', top: 8, right: 8, zIndex: 1, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(34,25,15,.7)', color: '#F87171', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                                </button>
+                              </>
+                            ) : (
+                              <div style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 14, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: C.muted, fontFamily: UI, fontSize: 13, fontWeight: 700, background: C.card }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                Add photo
                               </div>
-                            </>
-                          ) : (
-                            <div style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 14, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: C.muted, fontFamily: UI, fontSize: 13, fontWeight: 700, background: C.card }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                              Add photo
-                            </div>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )}
                       </CField>
                       <CField label="Interest">
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>

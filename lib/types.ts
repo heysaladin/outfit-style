@@ -227,7 +227,7 @@ export const HOBBIES = [
   { value: 'designing',    label: 'Designing',    icon: '🎨',  category: 'creative'  },
   { value: 'architecture', label: 'Architecture', icon: '🏛️',  category: 'creative'  },
   { value: 'music',        label: 'Music',        icon: '🎵',  category: 'creative'  },
-  { value: 'social',       label: 'Social',       icon: '👥',  category: 'lifestyle' },
+  { value: 'social',       label: 'Life',         icon: '👥',  category: 'lifestyle' },
 ] as const
 
 export type HobbyValue = typeof HOBBIES[number]['value']

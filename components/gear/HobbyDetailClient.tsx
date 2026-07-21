@@ -61,7 +61,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user }: Pr
   ]
 
   return (
-    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
+    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink, maxWidth: 430, margin: '0 auto' }}>
 
       {/* ── Subhead ── */}
       <div style={{
@@ -171,7 +171,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user }: Pr
       )}
 
       {tab === 'activities' && (
-        <ActivitiesTab hobby={hobby.value} activities={activities} user={user} />
+        <ActivitiesTab hobby={hobby.value} activities={activities} photos={photos} user={user} />
       )}
 
       {tab === 'moments' && (
