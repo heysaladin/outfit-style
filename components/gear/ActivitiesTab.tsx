@@ -100,7 +100,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, user }: Pr
               {/* Subtle texture overlay */}
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
 
-              <div style={{ position: 'relative', padding: '14px 13px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', padding: '14px 13px 10px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                 <p style={{
                   margin: 0, fontSize: 17, fontWeight: 800, lineHeight: 1.3,
                   color: '#FFFFFF', fontFamily: DP,

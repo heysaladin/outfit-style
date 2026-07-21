@@ -471,7 +471,7 @@ export default function Home() {
                 position: 'relative', overflow: 'hidden',
               }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/momo.png" alt="Momo" style={{ width: 86, height: 86, flexShrink: 0, objectFit: 'cover', background: '#fff', position: 'relative', zIndex: 1, borderRadius: 16 }} />
+                <img src="/momo.png" alt="Momo" style={{ width: 86, height: 86, flexShrink: 0, objectFit: 'contain', background: '#fff', position: 'relative', zIndex: 1, borderRadius: 16 }} />
                 <div style={{ flex: 1, zIndex: 1, position: 'relative' }}>
                   <b style={{ fontFamily: DP, fontWeight: 700, fontSize: 15.5, display: 'block', lineHeight: 1.25 }}>
                     {streak > 1
@@ -909,7 +909,7 @@ export default function Home() {
                             }}
                           >
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
-                            <div style={{ position: 'relative', padding: '20px 18px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <div style={{ position: 'relative', padding: '20px 18px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                               <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>
                                 {act.note ?? 'Session logged'}
                               </p>
