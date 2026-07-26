@@ -182,7 +182,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
                   </div>
                 )}
               </button>
-              <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={{ display: 'none' }} />
+              <input ref={fileRef} type="file" accept="image/*"  onChange={handleFileChange} style={{ display: 'none' }} />
 
               {photos.length >= MAX_PHOTOS && (
                 <p style={{ fontSize: 12, color: '#D97706', background: '#FEF3C7', borderRadius: 12, padding: '10px 14px', marginBottom: 12 }}>

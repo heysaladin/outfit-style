@@ -104,7 +104,7 @@ export default function Home() {
         supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at').eq('user_id', u.id).order('activity_at', { ascending: false }),
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
         supabase.from('hobby_items').select('category'),
-        supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id),
+        supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
       ])
       setActivities(acts ?? [])
       setPhotos(pics ?? [])
@@ -420,7 +420,7 @@ export default function Home() {
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, marginTop: 4 }}>
             <h1 style={{ fontFamily: DP, fontWeight: 800, fontSize: 28, lineHeight: 1.06, letterSpacing: '-0.02em', margin: 0 }}>
-              Hi {firstName},<br />let&apos;s add to your{' '}
+              Hey Saladin,<br />let&apos;s add to your{' '}
               <em style={{ fontStyle: 'normal', color: C.orange }}>story</em>
             </h1>
             <button
@@ -1342,7 +1342,7 @@ export default function Home() {
                     ref={photoInputRef}
                     type="file"
                     accept="image/*"
-                    capture="environment"
+                    
                     onChange={handlePhotoChange}
                     style={{ display: 'none' }}
                   />

@@ -14,15 +14,14 @@ export function calcWorth({
   purchasePrice,
   purchaseDate,
   totalUses,
-  wpTargetPercent = 5,
 }: {
   purchasePrice: number | null | undefined
   purchaseDate: string | null | undefined
   totalUses?: number | null
-  wpTargetPercent?: number
 }): WorthResult {
   const price = purchasePrice ?? null
-  const wpTarget = Math.ceil(100 / wpTargetPercent)
+  // Worth point = when cpu drops to 1% of purchase price → always 100 uses
+  const wpTarget = 100
 
   // CPD
   let cpd: number | null = null

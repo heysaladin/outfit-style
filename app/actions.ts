@@ -230,6 +230,18 @@ export async function wearItem(itemId: string): Promise<{ error?: string }> {
   return {}
 }
 
+export async function setWardrobeItemWearCount(id: string, count: number): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+  const { error } = await supabase
+    .from('wardrobe_items')
+    .update({ wear_count: count, updated_at: new Date().toISOString() })
+    .eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  return {}
+}
+
 export async function flagDeclutter(
   itemId: string, status: 'donate' | 'sell' | 'giveaway' | null, note?: string
 ): Promise<{ error?: string }> {
@@ -835,6 +847,18 @@ export async function getHobbyItemUses(itemId: string): Promise<{ data?: import(
     .order('created_at', { ascending: false })
   if (error) return { error: error.message }
   return { data: data as import('@/lib/types').HobbyItemUse[] }
+}
+
+export async function setHobbyItemUseCount(id: string, count: number): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+  const { error } = await supabase
+    .from('hobby_items')
+    .update({ use_count: count, updated_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) return { error: error.message }
+  return {}
 }
 
 export async function deleteHobbyItem(id: string, hobby: string): Promise<{ error?: string }> {

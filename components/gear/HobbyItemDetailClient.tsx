@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js'
 import type { HobbyItem, HobbyItemUse } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
 import { WorthCard } from '@/components/worth/WorthCard'
-import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses } from '@/app/actions'
+import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses, setHobbyItemUseCount } from '@/app/actions'
 
 const C = {
   bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
@@ -45,6 +45,8 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
   const [listOpen, setListOpen]      = useState(false)
   const [uses, setUses]              = useState<HobbyItemUse[]>([])
   const [listLoading, setListLoading] = useState(false)
+  const [editUsesOpen, setEditUsesOpen] = useState(false)
+  const [editUsesCount, setEditUsesCount] = useState(item.use_count)
   const [useDate, setUseDate]        = useState(today)
   const [useNote, setUseNote]        = useState('')
   const [error, setError]            = useState<string | null>(null)
@@ -75,6 +77,18 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
     setListOpen(true); setListLoading(true)
     const res = await getHobbyItemUses(item.id)
     setUses(res.data ?? []); setListLoading(false)
+  }
+
+  function openEditUses() {
+    setEditUsesCount(item.use_count)
+    setEditUsesOpen(true)
+  }
+
+  async function handleSaveUses() {
+    const res = await setHobbyItemUseCount(item.id, editUsesCount)
+    if (res.error) { setError(res.error); return }
+    setEditUsesOpen(false)
+    router.refresh()
   }
 
   function handleDelete() {
@@ -206,10 +220,12 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
               <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: C.muted, marginTop: 2 }}>{lastUsedStr}</span>
             </div>
             <button
-              onClick={openHistory}
-              style={{ background: C.card2, border: 'none', borderRadius: 12, padding: '8px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: C.muted, marginRight: 6 }}
+              onClick={openEditUses}
+              style={{ background: C.card2, border: 'none', borderRadius: 12, width: 36, height: 36, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.muted, flexShrink: 0, marginRight: 6 }}
             >
-              History
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/>
+              </svg>
             </button>
             {user && (
               <button
@@ -405,6 +421,43 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
             >
               Cancel
             </button>
+          </div>
+        </>
+      )}
+
+      {/* ── Edit use count sheet ── */}
+      {editUsesOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => setEditUsesOpen(false)} />
+          <div style={{
+            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
+            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
+            background: C.bg, borderRadius: '30px 30px 0 0',
+            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
+            paddingBottom: 'env(safe-area-inset-bottom,0px)',
+          }}>
+            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
+              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Edit use count</h2>
+              <IconBtn onClick={() => setEditUsesOpen(false)}>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </IconBtn>
+            </div>
+            <div style={{ padding: '0 18px 18px' }}>
+              <Field label="Total uses">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  value={editUsesCount}
+                  onChange={e => setEditUsesCount(Math.max(0, parseInt(e.target.value) || 0))}
+                  style={inputStyle}
+                />
+              </Field>
+              <BigBtn type="button" onClick={handleSaveUses} disabled={isPending}>
+                {isPending ? 'Saving…' : 'Save'}
+              </BigBtn>
+            </div>
           </div>
         </>
       )}

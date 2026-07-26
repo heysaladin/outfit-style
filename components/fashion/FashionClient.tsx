@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
@@ -26,8 +27,9 @@ interface FashionClientProps {
 
 export function FashionClient({ user, activities, photos }: FashionClientProps) {
   const router = useRouter()
-  const [tab, setTab]     = useState<Tab>('items')
-  const [items, setItems] = useState<WardrobeItem[] | null>(null)
+  const [tab, setTab]
+           = useState<Tab>('items')
+  const [items, setItems]       = useState<WardrobeItem[] | null>(null)
   const [showNames, setShowNames] = useState(true)
 
   useEffect(() => {
@@ -142,11 +144,13 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           ) : (
             <div style={{ columns: 2, columnGap: 11 }}>
               {items.map(item => (
-                <div
+                <Link
                   key={item.id}
+                  href={`/fashion/${item.id}`}
                   style={{
-                    background: C.card, borderRadius: 22, boxShadow: C.shadow,
+                    display: 'block', background: C.card, borderRadius: 22, boxShadow: C.shadow,
                     overflow: 'hidden', marginBottom: 11, breakInside: 'avoid',
+                    textDecoration: 'none', WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   <img
@@ -166,7 +170,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                       )}
                     </div>
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -183,6 +187,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
     </div>
   )
 }
+
 
 function IconBtn({ onClick, children, active, title }: { onClick: () => void; children: React.ReactNode; active?: boolean; title?: string }) {
   return (

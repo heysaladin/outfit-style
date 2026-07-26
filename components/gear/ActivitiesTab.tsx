@@ -125,7 +125,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
         activity_at: new Date(activityAt).toISOString(),
       }).select().single()
       if (err) { setError(err.message); return }
-      setActivities(prev => [data, ...prev])
+      setActivities(prev => [...prev, data].sort((a, b) => b.activity_at.localeCompare(a.activity_at)))
       if (addPhotoFile) {
         const ext = addPhotoFile.name.split('.').pop() || 'jpg'
         const path = `${u.id}/hobby/${hobby}/${Date.now()}.${ext}`
@@ -150,7 +150,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
       const supabase = createClient()
       const { error: err } = await supabase.from('hobby_activities').update(updated).eq('id', editAct.id)
       if (err) { setEditError(err.message); return }
-      setActivities(prev => prev.map(a => a.id === editAct.id ? { ...a, ...updated } : a))
+      setActivities(prev => prev.map(a => a.id === editAct.id ? { ...a, ...updated } : a).sort((a, b) => b.activity_at.localeCompare(a.activity_at)))
 
       if (editDeletePhoto && editPhoto) {
         const oldPath = editPhoto.image_url.match(/\/wardrobe\/(.+)$/)?.[1]
@@ -346,7 +346,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                 </Field>
               </div>
               <Field label="Photo (optional)">
-                <input ref={addFileRef} type="file" accept="image/*" capture="environment" onChange={handleAddFileChange} style={{ display: 'none' }} />
+                <input ref={addFileRef} type="file" accept="image/*"  onChange={handleAddFileChange} style={{ display: 'none' }} />
                 {addPhoto ? (
                   <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
                     <img src={addPhoto} alt="captured" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 160 }} />
@@ -415,7 +415,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                 </Field>
               </div>
               <Field label="Photo (optional)">
-                <input ref={editFileRef} type="file" accept="image/*" capture="environment" onChange={handleEditFileChange} style={{ display: 'none' }} />
+                <input ref={editFileRef} type="file" accept="image/*"  onChange={handleEditFileChange} style={{ display: 'none' }} />
                 {editDeletePhoto ? (
                   <div style={{ borderRadius: 16, border: `2px dashed ${C.line}`, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.card }}>
                     <span style={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>Photo will be deleted</span>

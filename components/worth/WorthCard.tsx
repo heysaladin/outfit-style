@@ -30,14 +30,25 @@ const STATUS_META: Record<WPStatus, { label: string; icon: string; bar: string; 
   'not-worth':    { label: 'Not Worth',    icon: '🌱', bar: C.faint,   textColor: C.muted,  softBg: '#F5F0E8' },
   'almost-worth': { label: 'Almost Worth', icon: '⚡', bar: C.yellow,  textColor: '#B45309', softBg: C.yellowSoft },
   'worth':        { label: 'Worth It',     icon: '✅', bar: C.mint,    textColor: '#059669', softBg: C.mintSoft },
-  'great':        { label: 'Great',        icon: '🔥', bar: C.blue,    textColor: C.blue,   softBg: C.blueSoft },
+  'great':        { label: 'Great Value',  icon: '🔥', bar: C.blue,    textColor: C.blue,   softBg: C.blueSoft },
   'excellent':    { label: 'Excellent',    icon: '💎', bar: C.purple,  textColor: C.purple, softBg: C.purpleSoft },
 }
 
 export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardProps) {
-  if (!purchasePrice) return null
+  if (!purchasePrice) return (
+    <div style={{
+      background: '#FFFFFF', borderRadius: 22, overflow: 'hidden',
+      boxShadow: '0 6px 18px rgba(84,62,32,.08)', fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+      marginBottom: 12, padding: '16px 16px 14px',
+    }}>
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#B8AD9A', marginBottom: 10 }}>
+        Worth Score
+      </p>
+      <p style={{ fontSize: 13, color: '#8D8271', margin: 0 }}>No purchase price — add one to see the worth score.</p>
+    </div>
+  )
 
-  const { cpu, cpd, daysOwned, wpStatus, remainingToWP, wpTarget } = calcWorth({
+  const { cpu, cpuPercent, cpd, daysOwned, wpStatus, remainingToWP, wpTarget } = calcWorth({
     purchasePrice,
     purchaseDate,
     totalUses,
@@ -81,6 +92,11 @@ export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardP
                   {cpu !== null && (
                     <p style={{ fontSize: 11, fontWeight: 600, color: C.muted, margin: '2px 0 0' }}>
                       Rp {fmt(cpu)} / use
+                      {cpuPercent !== null && (
+                        <span style={{ marginLeft: 4, color: meta.textColor, fontWeight: 700 }}>
+                          ({cpuPercent < 1 ? '<1' : fmt(cpuPercent)}% of price)
+                        </span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -122,11 +138,11 @@ export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardP
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div>
-            <p style={{ fontSize: 13, fontWeight: 800, color: C.ink, margin: 0 }}>Rp {fmt(cpd!)}/hari</p>
+            <p style={{ fontSize: 13, fontWeight: 800, color: C.ink, margin: 0 }}>Rp {fmt(cpd!)}/day</p>
             <p style={{ fontSize: 10, fontWeight: 600, color: C.faint, margin: '1px 0 0' }}>Cost per day</p>
           </div>
           {daysOwned !== null && (
-            <p style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, margin: 0 }}>{daysOwned} hari dimiliki</p>
+            <p style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, margin: 0 }}>{daysOwned} days owned</p>
           )}
         </div>
       )}
