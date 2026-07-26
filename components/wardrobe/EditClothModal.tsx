@@ -167,14 +167,17 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
 
         <form ref={formRef} onSubmit={handleSubmit} className="p-5 space-y-5 pb-8">
           {/* Name */}
-          <input
-            type="text"
-            name="name"
-            placeholder="Item name"
-            defaultValue={item.name}
-            required
-            className={inputCls}
-          />
+          <div>
+            <label className="block text-muted-foreground text-xs font-bold uppercase tracking-wide mb-2">Name *</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="Item name"
+              defaultValue={item.name}
+              required
+              className={inputCls}
+            />
+          </div>
 
           {/* Category */}
           <div>
@@ -240,6 +243,21 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
             </div>
           </div>
 
+          {/* Price + Purchase date (always visible) */}
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-muted-foreground text-xs font-bold uppercase tracking-wide mb-2">Price (Rp)</label>
+              <input type="number" name="price" placeholder="0" min="0" inputMode="numeric"
+                defaultValue={item.price ?? ''}
+                className={inputCls} />
+            </div>
+            <div className="flex-1">
+              <label className="block text-muted-foreground text-xs font-bold uppercase tracking-wide mb-2">Purchase date</label>
+              <input type="date" name="purchase_date" defaultValue={item.purchase_date ?? ''}
+                className={inputCls} />
+            </div>
+          </div>
+
           {/* More details toggle */}
           <button type="button" onClick={() => setMoreOpen(v => !v)}
             className="flex items-center gap-2 text-muted-foreground text-xs font-medium hover:text-foreground transition-colors">
@@ -279,19 +297,9 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
                 </div>
               </div>
 
-              {/* Brand + Price */}
-              <div className="grid grid-cols-2 gap-3">
-                <input type="text" name="brand" placeholder="Brand (optional)" defaultValue={item.brand ?? ''}
-                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
-                <input type="number" name="price" placeholder="Harga beli" min="0" step="0.01"
-                  defaultValue={item.price ?? ''}
-                  className="bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
-              </div>
-
-              {/* Purchase Date */}
+              {/* Brand */}
               <div>
-                <p className="text-muted-foreground text-xs font-medium mb-2">Tanggal Beli</p>
-                <input type="date" name="purchase_date" defaultValue={item.purchase_date ?? ''}
+                <input type="text" name="brand" placeholder="Brand (optional)" defaultValue={item.brand ?? ''}
                   className={inputCls} />
               </div>
 
