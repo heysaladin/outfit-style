@@ -16,34 +16,46 @@ interface ItemCardProps {
   onDelete?: () => void
 }
 
+type ItemStatus = WardrobeItem['status']
+
+const STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
+  draft:     { label: 'Draft',     badge: 'bg-background/90 text-foreground' },
+  trashed:   { label: 'Trash',     badge: 'bg-destructive/90 text-white' },
+  donated:   { label: 'Donated',   badge: 'bg-purple-500/90 text-white' },
+  sell:      { label: 'Sell',      badge: 'bg-orange-500/90 text-white' },
+  give_away: { label: 'Give Away', badge: 'bg-blue-500/90 text-white' },
+}
+
 export function ItemCard({ item, onClick, selected, selectable, onVerify, onTrash, onRestoreDraft, onDelete }: ItemCardProps) {
   const hasOriginal = !!item.original_image_url && item.original_image_url !== item.image_url
   const [showOriginal, setShowOriginal] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const src = showOriginal && item.original_image_url ? item.original_image_url : item.image_url
   const declutterColor = DECLUTTER_STATUSES.find(d => d.value === item.declutter_status)?.color
-  const isDraft = !item.status || item.status === 'draft'
-  const isTrashed = item.status === 'trashed'
+
+  const status = item.status ?? 'draft'
+  const isDraft    = status === 'draft'
+  const isTrashed  = status === 'trashed'
+  const isDeclutter = status === 'donated' || status === 'sell' || status === 'give_away'
+  const showBadge  = status !== 'verified'
+  const statusCfg  = STATUS_CONFIG[status]
+  const dimmed     = isTrashed || isDeclutter
 
   return (
     <div className={`group relative flex flex-col gap-1.5 ${selected ? 'opacity-90' : ''}`}>
       {/* Image */}
       <div className={`relative aspect-square rounded-2xl overflow-hidden bg-muted transition-all ${
-        isTrashed ? 'opacity-50' : ''
+        dimmed ? 'opacity-50' : ''
       } ${selected ? 'ring-2 ring-foreground ring-offset-2 ring-offset-background' : ''}`}>
         <button onClick={onClick} className="absolute inset-0 w-full h-full">
           <img src={src} alt={item.name} className="w-full h-full object-contain" />
         </button>
 
         {/* Status badge */}
-        {(isDraft || isTrashed) && (
+        {showBadge && statusCfg && (
           <div className="absolute top-2 left-2">
-            <span className={`text-[8px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded-full ${
-              isTrashed
-                ? 'bg-destructive/90 text-destructive-foreground'
-                : 'bg-background/90 text-foreground'
-            }`}>
-              {isTrashed ? 'Trash' : 'Draft'}
+            <span className={`text-[8px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded-full ${statusCfg.badge}`}>
+              {statusCfg.label}
             </span>
           </div>
         )}
@@ -79,71 +91,57 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
 
       {/* Text below image */}
       <button onClick={onClick} className="text-left px-0.5">
-        <p className={`text-xs font-semibold truncate leading-tight ${isTrashed ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</p>
+        <p className={`text-xs font-semibold truncate leading-tight ${dimmed ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</p>
         <p className="text-muted-foreground text-[10px] mt-0.5">
           {item.brand ? item.brand : item.wear_count > 0 ? `${item.wear_count}× worn` : 'Never worn'}
         </p>
       </button>
 
-      {/* Draft actions */}
+      {/* Draft actions: Verify + Trash */}
       {isDraft && (onVerify || onTrash) && (
         <div className="flex gap-1.5 px-0.5">
           {onVerify && (
-            <button
-              type="button"
-              onClick={e => { e.stopPropagation(); onVerify() }}
-              className="flex-1 bg-foreground text-background text-[10px] font-semibold h-8 rounded-lg"
-            >
+            <button type="button" onClick={e => { e.stopPropagation(); onVerify() }}
+              className="flex-1 bg-foreground text-background text-[10px] font-semibold h-8 rounded-lg">
               Verify
             </button>
           )}
           {onTrash && (
-            <button
-              type="button"
-              onClick={e => { e.stopPropagation(); onTrash() }}
-              className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-            >
+            <button type="button" onClick={e => { e.stopPropagation(); onTrash() }}
+              className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
               <Trash2 size={12} />
             </button>
           )}
         </div>
       )}
 
-      {/* Trashed actions */}
-      {isTrashed && (onRestoreDraft || onDelete) && (
+      {/* Declutter / Trashed actions: Restore + Delete */}
+      {(isTrashed || isDeclutter) && (onRestoreDraft || onDelete) && (
         <div className="flex gap-1.5 px-0.5">
-          {onRestoreDraft && (
-            <button
-              onClick={e => { e.stopPropagation(); onRestoreDraft() }}
-              className="flex-1 flex items-center justify-center gap-1 bg-muted text-foreground text-[10px] font-semibold py-1.5 rounded-lg"
-            >
+          {onRestoreDraft && !confirmDelete && (
+            <button type="button" onClick={e => { e.stopPropagation(); onRestoreDraft() }}
+              className="flex-1 flex items-center justify-center gap-1 bg-muted text-foreground text-[10px] font-semibold h-8 rounded-lg">
               <RotateCcw size={10} />
               Restore
             </button>
           )}
           {onDelete && !confirmDelete && (
-            <button
-              onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
-              className="flex items-center justify-center w-8 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-            >
+            <button type="button" onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
+              className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
               <Trash2 size={12} />
             </button>
           )}
-          {onDelete && confirmDelete && (
-            <div className="flex gap-1">
-              <button
-                onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
-                className="flex-1 bg-muted text-muted-foreground text-[10px] font-semibold py-1.5 px-2 rounded-lg"
-              >
+          {confirmDelete && (
+            <>
+              <button type="button" onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
+                className="flex-1 bg-muted text-muted-foreground text-[10px] font-semibold h-8 rounded-lg">
                 Cancel
               </button>
-              <button
-                onClick={e => { e.stopPropagation(); onDelete() }}
-                className="flex-1 bg-destructive text-destructive-foreground text-[10px] font-semibold py-1.5 px-2 rounded-lg"
-              >
+              <button type="button" onClick={e => { e.stopPropagation(); onDelete?.() }}
+                className="flex-1 bg-destructive text-destructive-foreground text-[10px] font-semibold h-8 rounded-lg">
                 Delete
               </button>
-            </div>
+            </>
           )}
         </div>
       )}

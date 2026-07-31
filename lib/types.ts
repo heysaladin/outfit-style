@@ -170,7 +170,7 @@ export interface WardrobeItem {
   original_image_url: string | null
   declutter_status: DeclutterStatus | null
   declutter_note: string | null
-  status: 'draft' | 'verified' | 'trashed'
+  status: 'draft' | 'verified' | 'trashed' | 'donated' | 'sell' | 'give_away'
   created_at: string
   updated_at: string
 }

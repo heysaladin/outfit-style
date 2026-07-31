@@ -36,7 +36,13 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [search,            setSearch]            = useState('')
 
   const q = search.toLowerCase().trim()
-  const statusRank = (s: string) => s === 'verified' ? 0 : s === 'draft' ? 1 : 2
+  const statusRank = (s: string) => {
+    if (s === 'verified')  return 0
+    if (s === 'draft')     return 1
+    if (s === 'donated' || s === 'sell' || s === 'give_away') return 2
+    if (s === 'trashed')   return 3
+    return 1
+  }
 
   const filtered = items.filter(item => {
     if (activeCategory    && item.category    !== activeCategory)    return false
@@ -44,9 +50,9 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (activeColor       && item.color       !== activeColor)       return false
     if (activeSeason      && !(item.seasons ?? []).includes(activeSeason))   return false
     if (activeOccasion    && !(item.occasions ?? []).includes(activeOccasion)) return false
-    const isDraft = !item.status || item.status === 'draft'
-    if (isDraft && !showDraft)     return false
-    if (!isDraft && item.status !== 'trashed' && !showVerified) return false
+    const s = item.status ?? 'draft'
+    if (s === 'draft'     && !showDraft)    return false
+    if (s === 'verified'  && !showVerified) return false
     if (q) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q)) return false

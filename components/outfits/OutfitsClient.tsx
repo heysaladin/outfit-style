@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X, Trash2 } from 'lucide-react'
-import { createOutfit, deleteOutfit } from '@/app/actions'
+import { Plus, X, Trash2, Shirt } from 'lucide-react'
+import { createOutfit, deleteOutfit, useOutfit } from '@/app/actions'
 import type { Outfit, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
@@ -42,6 +42,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isPending, startTransition]  = useTransition()
   const [error, setError]             = useState('')
+  const [confirmUse, setConfirmUse]   = useState(false)
 
   function toggleItem(id: string) {
     setSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -62,6 +63,10 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
 
   function handleDelete(id: string) {
     startTransition(async () => { await deleteOutfit(id); setDetail(null) })
+  }
+
+  function handleUse(id: string) {
+    startTransition(async () => { await useOutfit(id); setConfirmUse(false) })
   }
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
@@ -171,11 +176,11 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
 
       {/* Outfit detail modal */}
       {detail && (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setDetail(null)}>
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setDetail(null); setConfirmUse(false) }}>
           <div className="absolute inset-x-0 bottom-0 bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
-            <button onClick={() => setDetail(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => { setDetail(null); setConfirmUse(false) }} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
               <X size={20} />
             </button>
             <div className="p-5 space-y-4">
@@ -190,6 +195,30 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                   </div>
                 ))}
               </div>
+              {!confirmUse ? (
+                <button onClick={() => setConfirmUse(true)} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40">
+                  <Shirt size={15} />
+                  Use This Outfit
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-center text-muted-foreground">
+                    Ini akan menambah <span className="font-semibold text-foreground">+1 worn</span> untuk semua {detailItems.length} item. Lanjut?
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setConfirmUse(false)} disabled={isPending}
+                      className="flex-1 bg-muted text-muted-foreground font-semibold py-3 rounded-xl text-sm">
+                      Batal
+                    </button>
+                    <button onClick={() => handleUse(detail.id)} disabled={isPending}
+                      className="flex-1 bg-foreground text-background font-semibold py-3 rounded-xl text-sm disabled:opacity-40">
+                      {isPending ? 'Saving...' : 'Ya, Pakai'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button onClick={() => handleDelete(detail.id)} disabled={isPending}
                 className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
                 <Trash2 size={15} />

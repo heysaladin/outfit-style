@@ -260,7 +260,7 @@ export async function flagDeclutter(
 }
 
 export async function setItemStatus(
-  itemId: string, status: 'draft' | 'verified' | 'trashed'
+  itemId: string, status: 'draft' | 'verified' | 'trashed' | 'donated' | 'sell' | 'give_away'
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -272,6 +272,28 @@ export async function setItemStatus(
 
   if (error) return { error: error.message }
   revalidatePath('/')
+  revalidatePath('/stats')
+  return {}
+}
+
+export async function useOutfit(outfitId: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: outfitItems } = await supabase
+    .from('outfit_items').select('item_id').eq('outfit_id', outfitId)
+
+  for (const oi of outfitItems ?? []) {
+    const { data: item } = await supabase.from('wardrobe_items')
+      .select('wear_count').eq('id', oi.item_id).single()
+    await supabase.from('wardrobe_items').update({
+      wear_count: (item?.wear_count ?? 0) + 1,
+      last_worn: new Date().toISOString().split('T')[0],
+    }).eq('id', oi.item_id).eq('user_id', user.id)
+  }
+
+  revalidatePath('/ofit')
   revalidatePath('/stats')
   return {}
 }
