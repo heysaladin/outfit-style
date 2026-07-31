@@ -260,7 +260,7 @@ export async function flagDeclutter(
 }
 
 export async function setItemStatus(
-  itemId: string, status: 'draft' | 'verified'
+  itemId: string, status: 'draft' | 'verified' | 'trashed'
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

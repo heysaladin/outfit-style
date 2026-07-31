@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, X, Search } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
+import { setItemStatus, deleteItem } from '@/app/actions'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
@@ -18,6 +20,7 @@ interface WardrobeClientProps {
 }
 
 export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) {
+  const router = useRouter()
   const [uploadOpen, setUploadOpen]     = useState(false)
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null)
   const [selectMode, setSelectMode]     = useState(false)
@@ -33,6 +36,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [search,            setSearch]            = useState('')
 
   const q = search.toLowerCase().trim()
+  const statusRank = (s: string) => s === 'verified' ? 0 : s === 'draft' ? 1 : 2
+
   const filtered = items.filter(item => {
     if (activeCategory    && item.category    !== activeCategory)    return false
     if (activeSubcategory && item.subcategory !== activeSubcategory) return false
@@ -41,12 +46,16 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (activeOccasion    && !(item.occasions ?? []).includes(activeOccasion)) return false
     const isDraft = !item.status || item.status === 'draft'
     if (isDraft && !showDraft)     return false
-    if (!isDraft && !showVerified) return false
+    if (!isDraft && item.status !== 'trashed' && !showVerified) return false
     if (q) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q)) return false
     }
     return true
+  }).sort((a, b) => {
+    const rankDiff = statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
+    if (rankDiff !== 0) return rankDiff
+    return b.wear_count - a.wear_count
   })
 
   function toggleSelect(id: string) {
@@ -58,6 +67,26 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   }
 
   function exitSelectMode() { setSelectMode(false); setSelected(new Set()) }
+
+  async function handleVerify(id: string) {
+    await setItemStatus(id, 'verified')
+    router.refresh()
+  }
+
+  async function handleTrash(id: string) {
+    await setItemStatus(id, 'trashed')
+    router.refresh()
+  }
+
+  async function handleRestoreDraft(id: string) {
+    await setItemStatus(id, 'draft')
+    router.refresh()
+  }
+
+  async function handleDelete(id: string) {
+    await deleteItem(id)
+    router.refresh()
+  }
 
   function handleItemClick(item: WardrobeItem) {
     if (selectMode) toggleSelect(item.id)
@@ -113,6 +142,10 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
               onClick={() => handleItemClick(item)}
               selected={selected.has(item.id)}
               selectable={selectMode}
+              onVerify={user ? () => handleVerify(item.id) : undefined}
+              onTrash={user ? () => handleTrash(item.id) : undefined}
+              onRestoreDraft={user ? () => handleRestoreDraft(item.id) : undefined}
+              onDelete={user ? () => handleDelete(item.id) : undefined}
             />
           ))}
         </div>
