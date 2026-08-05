@@ -139,7 +139,7 @@ export function HomeClient({ user }: { user: User | null }) {
         {tab === 'home' && (
           <>
             <h2 className="text-foreground font-bold text-base mb-3">Interests</h2>
-            <div className="grid grid-cols-2 gap-2.5 pb-6">
+            <div className="grid grid-cols-2 gap-2.5 mb-8">
               {hobbyLinks.map(({ label, icon, href }) => (
                 <Link
                   key={label}
@@ -151,6 +151,19 @@ export function HomeClient({ user }: { user: User | null }) {
                   <span className="text-foreground text-sm font-semibold">{label}</span>
                 </Link>
               ))}
+            </div>
+
+            <h2 className="text-foreground font-bold text-base mb-3">Calendar</h2>
+            <div className="rounded-2xl overflow-hidden mb-8">
+              <iframe
+                src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
+                style={{ border: 0 }}
+                width="100%"
+                height="500"
+                frameBorder="0"
+                scrolling="no"
+                allowFullScreen
+              />
             </div>
           </>
         )}

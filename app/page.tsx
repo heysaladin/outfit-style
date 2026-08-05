@@ -80,6 +80,7 @@ export default function Home() {
 
   // Gallery fullscreen
   const [fullscreenPhoto, setFullscreenPhoto] = useState<HobbyPhoto | null>(null)
+  const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
 
   // Activity detail / edit
   const [viewActivity, setViewActivity] = useState<HobbyActivity | null>(null)
@@ -660,6 +661,21 @@ export default function Home() {
                   })}
                 </div>
               )}
+
+              {/* Calendar */}
+              <div style={{ margin: '22px 0 8px' }}>
+                <h2 style={{ fontFamily: DP, fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', margin: '0 4px 12px' }}>Calendar</h2>
+                <div style={{ borderRadius: 22, overflow: 'hidden' }}>
+                  <iframe
+                    src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
+                    style={{ border: 0, display: 'block', filter: 'hue-rotate(171deg) saturate(1.2)' }}
+                    width="100%"
+                    height="500"
+                    frameBorder={0}
+                    scrolling="no"
+                  />
+                </div>
+              </div>
             </>
           )}
 
@@ -914,7 +930,7 @@ export default function Home() {
                           </div>
                         )
                       } else {
-                        // No-photo activity — dark card with big white text
+                        // Text-only activity — white card, collapsible
                         const act = item.act
                         const h = HOBBIES.find(x => x.value === act.hobby)
                         const actD = new Date(act.activity_at)
@@ -922,6 +938,82 @@ export default function Home() {
                         const actTimeStr = actD.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                         const actLabel = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : actD.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                         const timeAgo = `${actLabel} · ${actTimeStr}`
+                        const text = act.note ?? 'Session logged'
+                        const SHORT = 120   // dark big card
+                        const LONG  = 400   // white small card + collapse
+                        const isShort = text.length <= SHORT
+                        const isVeryLong = text.length > LONG
+                        const isExpanded = expandedPosts.has(act.id)
+                        const toggleExpand = (e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          setExpandedPosts(prev => {
+                            const next = new Set(prev)
+                            isExpanded ? next.delete(act.id) : next.add(act.id)
+                            return next
+                          })
+                        }
+                        if (isVeryLong) return (
+                          <div
+                            key={`a-${act.id}`}
+                            style={{
+                              borderRadius: 20, overflow: 'hidden', position: 'relative',
+                              boxShadow: C.shadow, background: '#FFFFFF',
+                              display: 'flex', flexDirection: 'column',
+                              WebkitTapHighlightColor: 'transparent',
+                            }}
+                          >
+                            <div style={{ padding: '16px 16px 12px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
+                                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{timeAgo}</span>
+                              </div>
+                              <p
+                                onClick={() => openActivity(act)}
+                                style={{
+                                  margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6,
+                                  color: C.ink, textAlign: 'left', wordBreak: 'break-word',
+                                  display: '-webkit-box', WebkitBoxOrient: 'vertical',
+                                  WebkitLineClamp: isExpanded ? 'unset' : 5,
+                                  overflow: 'hidden', cursor: 'pointer',
+                                }}
+                              >
+                                {text}
+                              </p>
+                              <button
+                                onClick={toggleExpand}
+                                style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.orange, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}
+                              >
+                                {isExpanded ? 'Show less' : 'Read more'}
+                              </button>
+                            </div>
+                          </div>
+                        )
+                        if (!isShort) return (
+                          <div
+                            key={`a-${act.id}`}
+                            style={{
+                              borderRadius: 20, overflow: 'hidden', position: 'relative',
+                              boxShadow: C.shadow, background: '#FFFFFF',
+                              display: 'flex', flexDirection: 'column',
+                              WebkitTapHighlightColor: 'transparent',
+                            }}
+                          >
+                            <div style={{ padding: '16px 16px 14px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
+                                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{timeAgo}</span>
+                              </div>
+                              <p
+                                onClick={() => openActivity(act)}
+                                style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word', cursor: 'pointer' }}
+                              >
+                                {text}
+                              </p>
+                            </div>
+                          </div>
+                        )
                         return (
                           <div
                             key={`a-${act.id}`}
@@ -937,19 +1029,15 @@ export default function Home() {
                             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
                             <div style={{ position: 'relative', padding: '20px 18px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                               <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>
-                                {act.note ?? 'Session logged'}
+                                {text}
                               </p>
                             </div>
                             <div style={{ position: 'relative', padding: '0 18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>
-                                  {h?.label ?? act.hobby}
-                                </span>
+                                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
                               </div>
-                              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>
-                                {timeAgo}
-                              </span>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{timeAgo}</span>
                             </div>
                           </div>
                         )

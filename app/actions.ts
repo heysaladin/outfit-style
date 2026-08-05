@@ -402,6 +402,31 @@ export async function deleteOutfit(id: string): Promise<{ error?: string }> {
   return {}
 }
 
+export async function updateOutfit(
+  id: string, name: string, itemIds: string[], occasion?: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase
+    .from('outfits')
+    .update({ name, occasion: occasion || null })
+    .eq('id', id).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+
+  await supabase.from('outfit_items').delete().eq('outfit_id', id)
+  if (itemIds.length > 0) {
+    await supabase.from('outfit_items').insert(
+      itemIds.map(item_id => ({ outfit_id: id, item_id }))
+    )
+  }
+
+  revalidatePath('/outfits')
+  return {}
+}
+
 // ─── Calendar / Outfit Logs ───────────────────────────────────────────────
 
 export async function logOutfit(

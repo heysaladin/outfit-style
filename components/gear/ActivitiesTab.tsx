@@ -48,6 +48,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
   const [error, setError]     = useState('')
   const [isPending, setIsPending] = useState(false)
   const [deleting, setDeleting]   = useState<string | null>(null)
+  const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
   const addFileRef = useRef<HTMLInputElement>(null)
 
   const [editAct, setEditAct] = useState<HobbyActivity | null>(null)
@@ -247,47 +248,98 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
             }
 
-            return (
-              <div key={act.id} style={{
-                position: 'relative',                 borderRadius: 16, overflow: 'hidden', boxShadow: C.shadowLg,
-                background: '#1C130A', minHeight: 130,
-                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
+            {
+              const text = act.note ?? 'Session logged'
+              const SHORT = 120
+              const LONG = 400
+              const isShort = text.length <= SHORT
+              const isVeryLong = text.length > LONG
+              const isExpanded = expandedPosts.has(act.id)
+              const toggleExpand = (e: React.MouseEvent) => {
+                e.stopPropagation()
+                setExpandedPosts(prev => {
+                  const next = new Set(prev)
+                  isExpanded ? next.delete(act.id) : next.add(act.id)
+                  return next
+                })
+              }
 
-                <div style={{ position: 'relative', padding: '20px 13px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                  <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>
-                    {act.note ?? 'Session logged'}
-                  </p>
-                </div>
+              const editBtn = user && (
+                <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+              )
+              const deleteBtn = user && (
+                <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.3 : 1 }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
+                  </svg>
+                </button>
+              )
 
-                <div style={{ position: 'relative', padding: '0 13px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
+              if (isVeryLong) return (
+                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '14px 14px 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel} · {timeStr}</span>
+                      {editBtn}{deleteBtn}
+                    </div>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: isExpanded ? 'unset' as any : 5, overflow: 'hidden' }}>
+                      {text}
+                    </p>
+                    <button onClick={toggleExpand} style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.orange, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}>
+                      {isExpanded ? 'Show less' : 'Read more'}
+                    </button>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)' }}>{dateLabel} · {timeStr}</span>
-                    {user && (
-                      <>
-                        <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)' }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
+                </div>
+              )
 
-                        <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1 }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
-                          </svg>
-                        </button>
-                      </>
-                    )}
+              if (!isShort) return (
+                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '14px 14px 14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel} · {timeStr}</span>
+                      {editBtn}{deleteBtn}
+                    </div>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word' }}>{text}</p>
                   </div>
                 </div>
-              </div>
-            )
+              )
+
+              return (
+                <div key={act.id} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: C.shadowLg, background: '#1C130A', minHeight: 130, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
+                  <div style={{ position: 'relative', padding: '20px 13px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>{text}</p>
+                  </div>
+                  <div style={{ position: 'relative', padding: '0 13px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)' }}>{dateLabel} · {timeStr}</span>
+                      {user && (
+                        <>
+                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)' }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            }
           })}
         </div>
       )}

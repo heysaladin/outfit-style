@@ -21,7 +21,7 @@ export default async function OutfitsPage() {
   return (
     <OutfitsClient
       outfits={(outfits ?? []) as Outfit[]}
-      allItems={(items ?? []) as WardrobeItem[]}
+      allItems={(items ?? []).sort((a, b) => (a.status === 'verified' ? -1 : 1) - (b.status === 'verified' ? -1 : 1)) as WardrobeItem[]}
     />
   )
 }

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X, Trash2, Shirt } from 'lucide-react'
-import { createOutfit, deleteOutfit, useOutfit } from '@/app/actions'
+import { Plus, X, Trash2, Shirt, Pencil } from 'lucide-react'
+import { createOutfit, deleteOutfit, useOutfit, updateOutfit } from '@/app/actions'
 import type { Outfit, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
@@ -43,9 +43,33 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const [isPending, startTransition]  = useTransition()
   const [error, setError]             = useState('')
   const [confirmUse, setConfirmUse]   = useState(false)
+  const [editing, setEditing]         = useState(false)
+  const [editName, setEditName]       = useState('')
+  const [editOccasion, setEditOccasion] = useState('')
+  const [editIds, setEditIds]         = useState<Set<string>>(new Set())
 
   function toggleItem(id: string) {
     setSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  function toggleEditItem(id: string) {
+    setEditIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  function openEdit() {
+    if (!detail) return
+    setEditName(detail.name)
+    setEditOccasion(detail.occasion ?? '')
+    setEditIds(new Set(detail.outfit_items?.map(oi => (oi.wardrobe_items as WardrobeItem)?.id).filter(Boolean) ?? []))
+    setEditing(true)
+  }
+
+  function handleUpdate() {
+    if (!detail || !editName.trim()) return
+    startTransition(async () => {
+      const res = await updateOutfit(detail.id, editName.trim(), [...editIds], editOccasion || undefined)
+      if (!res.error) setEditing(false)
+    })
   }
 
   function resetCreate() { setName(''); setOccasion(''); setSelectedIds(new Set()); setError('') }
@@ -112,49 +136,37 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
       {/* Create outfit modal */}
       {creating && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-end" onClick={() => { setCreating(false); resetCreate() }}>
-          <div className="w-full bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto border-t border-border"
+          <div className="w-full bg-background rounded-t-3xl max-h-[92vh] flex flex-col border-t border-border"
             onClick={e => e.stopPropagation()}>
-            <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1" />
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+            <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-bold text-base">New Outfit</h2>
               <button onClick={() => { setCreating(false); resetCreate() }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <div className="p-5 space-y-5 pb-8">
+            <div className="p-5 space-y-5 overflow-y-auto flex-1">
               <input value={name} onChange={e => setName(e.target.value)} placeholder="Outfit name"
                 className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
-
-              {/* Occasion */}
               <div className="flex gap-2 flex-wrap">
                 {OCCASIONS.map(o => (
                   <button type="button" key={o.value} onClick={() => setOccasion(occasion === o.value ? '' : o.value)}
                     className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
-                      occasion === o.value
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground border border-border'
+                      occasion === o.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground border border-border'
                     }`}>{o.label}</button>
                 ))}
               </div>
-
-              {/* Item picker */}
               <div>
-                <p className="text-muted-foreground text-xs font-medium mb-2">
-                  Select items ({selectedIds.size} selected)
-                </p>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Select items ({selectedIds.size} selected)</p>
                 <div className="grid grid-cols-3 gap-2">
                   {allItems.map(item => (
                     <button key={item.id} onClick={() => toggleItem(item.id)}
-                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedIds.has(item.id) ? 'border-primary' : 'border-border'
-                      }`}>
+                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedIds.has(item.id) ? 'border-primary' : 'border-border'}`}>
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                       {selectedIds.has(item.id) && (
                         <div className="absolute inset-0 bg-primary/15 flex items-end justify-center pb-1">
                           <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                            <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                              <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                            </svg>
+                            <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
                           </div>
                         </div>
                       )}
@@ -162,9 +174,9 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                   ))}
                 </div>
               </div>
-
               {error && <p className="text-destructive text-xs font-medium">{error}</p>}
-
+            </div>
+            <div className="px-5 pb-8 pt-3 border-t border-border flex-shrink-0">
               <button onClick={handleCreate} disabled={isPending}
                 className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
                 {isPending ? 'Saving...' : 'Save Outfit'}
@@ -180,9 +192,14 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
           <div className="absolute inset-x-0 bottom-0 bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
-            <button onClick={() => { setDetail(null); setConfirmUse(false) }} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
-              <X size={20} />
-            </button>
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              <button onClick={openEdit} className="text-muted-foreground hover:text-foreground transition-colors">
+                <Pencil size={17} />
+              </button>
+              <button onClick={() => { setDetail(null); setConfirmUse(false) }} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X size={20} />
+              </button>
+            </div>
             <div className="p-5 space-y-4">
               <div>
                 <h2 className="text-foreground font-bold text-xl">{detail.name}</h2>
@@ -218,11 +235,62 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                   </div>
                 </div>
               )}
-
               <button onClick={() => handleDelete(detail.id)} disabled={isPending}
                 className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
                 <Trash2 size={15} />
                 {isPending ? 'Deleting...' : 'Delete Outfit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit outfit modal */}
+      {editing && detail && (
+        <div className="fixed inset-0 z-[60] bg-black/70 flex items-end" onClick={() => setEditing(false)}>
+          <div className="w-full bg-background rounded-t-3xl max-h-[92vh] flex flex-col border-t border-border"
+            onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
+              <h2 className="text-foreground font-bold text-base">Edit Outfit</h2>
+              <button onClick={() => setEditing(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-5 space-y-5 overflow-y-auto flex-1">
+              <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Outfit name"
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-base outline-none focus:border-primary transition-colors" />
+              <div className="flex gap-2 flex-wrap">
+                {OCCASIONS.map(o => (
+                  <button type="button" key={o.value} onClick={() => setEditOccasion(editOccasion === o.value ? '' : o.value)}
+                    className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                      editOccasion === o.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground border border-border'
+                    }`}>{o.label}</button>
+                ))}
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs font-medium mb-2">Items ({editIds.size} selected)</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {allItems.map(item => (
+                    <button key={item.id} onClick={() => toggleEditItem(item.id)}
+                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${editIds.has(item.id) ? 'border-primary' : 'border-border'}`}>
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      {editIds.has(item.id) && (
+                        <div className="absolute inset-0 bg-primary/15 flex items-end justify-center pb-1">
+                          <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                            <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="px-5 pb-8 pt-3 border-t border-border flex-shrink-0">
+              <button onClick={handleUpdate} disabled={isPending}
+                className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
+                {isPending ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
