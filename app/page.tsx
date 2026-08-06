@@ -719,7 +719,7 @@ export default function Home() {
                         </span>
                       </div>
                       <div style={{ fontFamily: DP, fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em' }}>
-                        {label}
+                        {value === 'social' ? 'Life (Cleaning)' : label}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{last ?? 'not started'}</span>
