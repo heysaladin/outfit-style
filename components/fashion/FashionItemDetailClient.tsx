@@ -148,7 +148,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
             </div>
             {user && (
               <button
-                onClick={() => { setEditUsesCount(wearCount); setEditUsesOpen(true) }}
+                onClick={() => { setEditUsesCount(String(wearCount)); setEditUsesOpen(true) }}
                 style={{ background: C.card2, border: 'none', borderRadius: 12, width: 36, height: 36, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.muted, flexShrink: 0, marginRight: 6 }}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
