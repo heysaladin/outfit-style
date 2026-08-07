@@ -39,7 +39,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
 
   // Edit use count sheet
   const [editUsesOpen, setEditUsesOpen]   = useState(false)
-  const [editUsesCount, setEditUsesCount] = useState(item.wear_count)
+  const [editUsesCount, setEditUsesCount] = useState<string>(String(item.wear_count))
   const [editUsesPending, setEditUsesPending] = useState(false)
 
   const priceStr = item.price
@@ -63,10 +63,11 @@ export function FashionItemDetailClient({ item, user }: Props) {
 
   async function handleSaveUses() {
     setEditUsesPending(true)
-    const res = await setWardrobeItemWearCount(item.id, editUsesCount)
+    const count = Math.max(0, parseInt(editUsesCount) || 0)
+    const res = await setWardrobeItemWearCount(item.id, count)
     setEditUsesPending(false)
     if (res.error) return
-    setWearCount(editUsesCount)
+    setWearCount(count)
     setEditUsesOpen(false)
     router.refresh()
   }
@@ -222,7 +223,8 @@ export function FashionItemDetailClient({ item, user }: Props) {
                   inputMode="numeric"
                   min="0"
                   value={editUsesCount}
-                  onChange={e => setEditUsesCount(Math.max(0, parseInt(e.target.value) || 0))}
+                  onChange={e => setEditUsesCount(e.target.value.replace(/[^0-9]/g, ''))}
+                  onFocus={e => e.target.select()}
                   style={inputStyle}
                 />
               </div>
