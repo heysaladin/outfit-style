@@ -66,7 +66,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} antialiased`}
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="mx-auto w-full max-w-[430px] relative">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   )

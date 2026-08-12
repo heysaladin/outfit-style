@@ -7,6 +7,19 @@ import type { HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
+import { cn } from '@/lib/utils'
+import { useTheme } from '@/components/ThemeProvider'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Progress } from '@/components/ui/progress'
+import {
+  Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter,
+} from '@/components/ui/drawer'
 
 type Tab = 'home' | 'stats' | 'gallery' | 'search' | 'hobby'
 type MonthlyGoal = { id: string; name: string; narrative: string; deadline: string }
@@ -14,38 +27,51 @@ type GoalTask = { id: string; goal_id: string; task: string; week: 1|2|3|4; done
 
 const TINTS = ['#FFE9DB','#DDF4EA','#FFF3D1','#EDE6FD','#DCE8F5','#FBE0DC']
 
-const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
-  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
-  mint: '#3FBF8F', mintSoft: '#DDF4EA',
-  berry: '#8B5CF6', sun: '#FFC531', sunSoft: '#FFF3D1',
-  danger: '#E9573F',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
-  shadowLg: '0 14px 34px rgba(84,62,32,.14)',
-}
-
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
-const UI = "'Inter', -apple-system, system-ui, sans-serif"
-
 function NavTab({ label, active, onClick, children }: {
   label: string; active: boolean; onClick: () => void; children: React.ReactNode
 }) {
   return (
-    <button onClick={onClick} style={{
-      background: 'none', border: 'none',
-      color: active ? C.orange : C.faint,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-      fontFamily: UI, fontSize: 10, fontWeight: 700, cursor: 'pointer', width: 56, padding: '6px 0',
-    }}>
-      {children}
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center gap-[3px] w-14 py-1.5 bg-transparent border-0 cursor-pointer text-para-xs font-bold',
+        active ? 'text-[var(--app-orange)]' : 'text-muted-foreground/60'
+      )}
+    >
+      <span className={cn(
+        'w-16 h-8 rounded-full flex items-center justify-center transition-all duration-200',
+        active ? 'bg-[var(--app-orange-soft)]' : ''
+      )}>
+        {children}
+      </span>
       {label}
     </button>
   )
 }
 
+function CField({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('space-y-2 mb-4', className)}>
+      <Label className="text-caption font-bold tracking-caption uppercase text-muted-foreground">{label}</Label>
+      {children}
+    </div>
+  )
+}
+
+function EmptyState({ icon, title, desc, children }: { icon: string; title: string; desc: string; children?: React.ReactNode }) {
+  return (
+    <div className="py-7 text-center">
+      <div className="w-13 h-13 rounded-[18px] bg-card border shadow-sm flex items-center justify-center mx-auto mb-2.5 text-[22px] w-[52px] h-[52px]">{icon}</div>
+      <b className="block text-para-sm font-bold mb-1 font-heading">{title}</b>
+      <p className="text-para-xs text-muted-foreground m-0">{desc}</p>
+      {children}
+    </div>
+  )
+}
+
 export default function Home() {
   const [tab, setTab]               = useState<Tab>('home')
+  const { theme, toggle: toggleTheme } = useTheme()
   const [popOpen, setPopOpen]       = useState(false)
   const [reorderOpen, setReorderOpen] = useState(false)
   const [user, setUser]             = useState<User | null>(null)
@@ -407,66 +433,61 @@ export default function Home() {
   ).slice(0, 20) : []
 
   return (
-    <div style={{ background: '#EFE7D9', height: '100dvh', fontFamily: UI, color: C.ink }}>
-      <div style={{
-        width: '100%', maxWidth: 430, height: '100dvh', background: C.bg,
-        margin: '0 auto', position: 'relative', display: 'flex', flexDirection: 'column',
-        overflow: 'hidden',
-      }}>
+    <div className="bg-border h-dvh">
+      <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
 
-        {/* ── Header ── */}
-        <header style={{ padding: 'calc(18px + env(safe-area-inset-top,0px)) 18px 6px' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.faint }}>
-            {dateStr}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, marginTop: 4 }}>
-            <h1 style={{ fontFamily: DP, fontWeight: 800, fontSize: 28, lineHeight: 1.06, letterSpacing: '-0.02em', margin: 0 }}>
-              Hey Saladin,<br />let&apos;s add to your{' '}
-              <em style={{ fontStyle: 'normal', color: C.orange }}>story</em>
-            </h1>
-            <button
-              onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
-              style={{
-                width: 44, height: 44, borderRadius: '50%', border: 'none', cursor: 'pointer', flexShrink: 0,
-                background: 'linear-gradient(135deg,#FFC531,#FF7A2F)',
-                display: 'grid', placeItems: 'center', boxShadow: C.shadow, padding: 0, overflow: 'hidden',
-              }}
-            >
-              <img src="https://heysaladindesign.web.app/pictures/avatar.png" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </button>
-          </div>
+        {/* ── Sticky Header ── */}
+        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 bg-background flex items-center justify-between">
+          <span className="font-heading font-extrabold text-h3 tracking-tight" style={{ color: 'var(--app-orange)' }}>
+            Interestory
+          </span>
+          <Avatar
+            className="w-10 h-10 flex-shrink-0 cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
+          >
+            <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt="avatar" />
+            <AvatarFallback>{avatarLetter}</AvatarFallback>
+          </Avatar>
         </header>
 
         {/* ── Popup menu ── */}
         {popOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 55 }} onClick={() => setPopOpen(false)}>
+          <div className="fixed inset-0 z-[55]" onClick={() => setPopOpen(false)}>
             <div
-              style={{
-                position: 'absolute', top: 'calc(78px + env(safe-area-inset-top,0px))', right: 16,
-                background: C.card, borderRadius: 20, minWidth: 240, maxWidth: 'calc(100vw - 32px)',
-                boxShadow: C.shadowLg, overflow: 'hidden',
-              }}
+              className="absolute bg-card rounded-[20px] min-w-[240px] max-w-[calc(100vw-32px)] shadow-lg border overflow-hidden"
+              style={{ top: 'calc(70px + env(safe-area-inset-top,0px))', right: 16 }}
               onClick={e => e.stopPropagation()}
             >
               {user ? (
                 <>
-                  <div style={{ padding: '14px 16px', fontSize: 12, fontWeight: 600, color: C.muted, borderBottom: `1px solid ${C.line}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="px-4 py-3.5 text-para-xs font-semibold text-muted-foreground border-b overflow-hidden text-ellipsis whitespace-nowrap">
                     {user.email}
                   </div>
                   <button
-                    style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, background: 'none', border: 'none', color: C.ink, fontFamily: UI, fontSize: 14, fontWeight: 600, padding: '13px 16px', cursor: 'pointer', textAlign: 'left' }}
+                    className="flex w-full items-center gap-2.5 bg-transparent border-0 text-foreground text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-foreground/[0.08] transition-colors"
+                    onClick={() => { toggleTheme(); setPopOpen(false) }}
+                  >
+                    {theme === 'dark' ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                    )}
+                    {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                  </button>
+                  <button
+                    className="flex w-full items-center gap-2.5 bg-transparent border-0 text-foreground text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-foreground/[0.08] transition-colors"
                     onClick={() => { setPopOpen(false); setReorderOpen(true) }}
                   >
                     ⇅ &nbsp;Reorder interests
                   </button>
-                  <form action="/auth/signout" method="post" style={{ margin: 0 }}>
-                    <button style={{ display: 'flex', width: '100%', alignItems: 'center', background: 'none', border: 'none', color: C.danger, fontFamily: UI, fontSize: 14, fontWeight: 600, padding: '13px 16px', cursor: 'pointer', textAlign: 'left' }}>
+                  <form action="/auth/signout" method="post" className="m-0">
+                    <button className="flex w-full items-center bg-transparent border-0 text-destructive text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-accent transition-colors">
                       Sign out
                     </button>
                   </form>
                 </>
               ) : (
-                <Link href="/login" style={{ display: 'block', padding: '13px 16px', color: C.ink, fontWeight: 600, fontSize: 14, textDecoration: 'none' }} onClick={() => setPopOpen(false)}>
+                <Link href="/login" className="block px-4 py-3.5 text-foreground font-semibold text-para-sm no-underline hover:bg-accent transition-colors" onClick={() => setPopOpen(false)}>
                   Login
                 </Link>
               )}
@@ -475,89 +496,90 @@ export default function Home() {
         )}
 
         {/* ── Scrollable content ── */}
-        <div style={{
-          flex: 1, overflowY: 'auto', overscrollBehavior: 'contain',
-          padding: '0 18px calc(100px + env(safe-area-inset-bottom,0px))',
-        }}>
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain px-[18px]"
+          style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom,0px))' }}
+        >
 
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* Momo mascot card */}
-              <div style={{
-                margin: '16px 0 4px', padding: 16, borderRadius: 28,
-                background: C.card, boxShadow: C.shadow,
-                display: 'flex', alignItems: 'center', gap: 14,
-                position: 'relative', overflow: 'hidden',
-              }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/momo.png" alt="Momo" style={{ width: 86, height: 86, flexShrink: 0, objectFit: 'contain', background: '#fff', position: 'relative', zIndex: 1, borderRadius: 16 }} />
-                <div style={{ flex: 1, zIndex: 1, position: 'relative' }}>
-                  <b style={{ fontFamily: DP, fontWeight: 700, fontSize: 15.5, display: 'block', lineHeight: 1.25 }}>
-                    {streak > 1
-                      ? `"${streak}-day streak! You're on fire \uD83D\uDD25"`
-                      : streak === 1
-                      ? '"Great start! Keep logging today \uD83C\uDFAF"'
-                      : '"Start logging to build your story \uD83C\uDFAF"'}
-                  </b>
-                  <span style={{ fontSize: 12, color: C.muted, display: 'block', marginTop: 3 }}>Momo · your interest friend</span>
-                </div>
+              {/* Date + greeting — scrolls with content */}
+              <div className="pt-3 pb-1 mx-1">
+                <p className="text-caption font-semibold tracking-caption uppercase text-muted-foreground">{dateStr}</p>
+                <h1 className="text-h2 font-extrabold leading-[1.06] tracking-h2 m-0 mt-1 font-heading">
+                  Hey {firstName},<br />let&apos;s add to your{' '}
+                  <em className="not-italic" style={{ color: 'var(--app-orange)' }}>story</em>
+                </h1>
               </div>
 
+              {/* Momo mascot card */}
+              <Card className="mt-4">
+                <CardContent className="flex items-center gap-4 p-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/momo.png" alt="Momo" className="w-[86px] h-[86px] flex-shrink-0 object-contain rounded-2xl" />
+                  <div>
+                    <p className="font-bold text-para-md leading-snug m-0 font-heading">
+                      {streak > 1
+                        ? `"${streak}-day streak! You're on fire \uD83D\uDD25"`
+                        : streak === 1
+                        ? '"Great start! Keep logging today \uD83C\uDFAF"'
+                        : '"Start logging to build your story \uD83C\uDFAF"'}
+                    </p>
+                    <span className="text-para-xs text-muted-foreground mt-1 block">Momo · your interest friend</span>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Week streak dots */}
-              <div style={{
-                margin: '12px 0 4px', padding: '13px 16px', borderRadius: 22,
-                background: C.card, boxShadow: C.shadow,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <b style={{ fontFamily: DP, fontSize: 22, fontWeight: 800 }}>🔥 {streak}</b>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.muted, lineHeight: 1.3 }}>day<br />streak</span>
-                </div>
-                <div style={{ display: 'flex', gap: 9 }}>
-                  {weekDots.map((d, i) => (
-                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: C.faint }}>{d.label}</span>
-                      <div style={{
-                        width: 10, height: 10, borderRadius: '50%',
-                        background: d.active ? C.orange : C.line,
-                        outline: d.isToday ? `2px solid ${C.orange}` : 'none',
-                        outlineOffset: 2,
-                      }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Card className="mt-3">
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-h3 font-extrabold font-heading">🔥 {streak}</span>
+                    <span className="text-para-xs font-semibold text-muted-foreground leading-[1.3]">day<br />streak</span>
+                  </div>
+                  <div className="flex gap-[9px]">
+                    {weekDots.map((d, i) => (
+                      <div key={i} className="flex flex-col items-center gap-[5px]">
+                        <span className="text-para-xs font-bold text-muted-foreground/60">{d.label}</span>
+                        <div className="w-2.5 h-2.5 rounded-full" style={{
+                          background: d.active ? 'var(--app-orange)' : 'var(--border)',
+                          outline: d.isToday ? '2px solid var(--app-orange)' : 'none',
+                          outlineOffset: '2px',
+                        }} />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Recent Activities */}
               {activities.length > 0 && (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '22px 4px 10px' }}>
-                    <h2 style={{ fontFamily: DP, fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', margin: 0 }}>Recent</h2>
+                  <div className="flex items-baseline justify-between mt-[22px] mb-2.5 mx-1">
+                    <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">Recent</h2>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="flex flex-col gap-2">
                     {activities.slice(0, 3).map(act => {
                       const h = HOBBIES.find(x => x.value === act.hobby)
                       const diff = Math.floor((now.getTime() - new Date(act.activity_at).getTime()) / 86400000)
                       const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
                       return (
-                        <div key={act.id} onClick={() => openActivity(act)} style={{
-                          display: 'flex', alignItems: 'center', gap: 12,
-                          background: C.card, borderRadius: 18, padding: '12px 14px',
-                          boxShadow: C.shadow, cursor: 'pointer', WebkitTapHighlightColor: 'transparent',
-                        }}>
-                          <div style={{ width: 40, height: 40, borderRadius: 14, background: C.orangeSoft, display: 'grid', placeItems: 'center', fontSize: 19, flexShrink: 0 }}>
-                            {h?.icon ?? '✨'}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <b style={{ fontFamily: DP, fontSize: 13, fontWeight: 700 }}>{h?.label ?? act.hobby}</b>
-                              <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{timeAgo}</span>
+                        <Card key={act.id} className="cursor-pointer" onClick={() => openActivity(act)}>
+                          <CardContent className="flex items-center gap-3 p-3">
+                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--app-orange-soft)' }}>
+                              {h?.icon ?? '✨'}
                             </div>
-                            <p style={{ fontSize: 12, color: C.muted, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{act.note}</p>
-                          </div>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.faint} strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
-                        </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-center">
+                                <span className="font-bold text-para-sm font-heading">{h?.label ?? act.hobby}</span>
+                                <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                              </div>
+                              <p className="text-para-xs text-muted-foreground m-0 overflow-hidden text-ellipsis whitespace-nowrap">{act.note}</p>
+                            </div>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-muted-foreground/40"><path d="M9 18l6-6-6-6"/></svg>
+                          </CardContent>
+                        </Card>
                       )
                     })}
                   </div>
@@ -565,26 +587,23 @@ export default function Home() {
               )}
 
               {/* Monthly Goals */}
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '22px 4px 12px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', margin: 0 }}>
+              <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
+                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">
                   Monthly Goals
                 </h2>
                 <button
                   onClick={() => setGoalSheetOpen(true)}
-                  style={{ background: 'none', border: 'none', color: C.orange, fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+                  className="bg-transparent border-0 cursor-pointer text-para-sm font-bold px-1 py-1"
+                  style={{ color: 'var(--app-orange)' }}
                 >
                   + Add
                 </button>
               </div>
 
               {goals.length === 0 ? (
-                <div style={{ padding: '28px 0 8px', textAlign: 'center' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 18, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 10px', fontSize: 22 }}>🎯</div>
-                  <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 14, fontWeight: 700, marginBottom: 3 }}>No goals yet</b>
-                  <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Set monthly goals to stay on track</p>
-                </div>
+                <EmptyState icon="🎯" title="No goals yet" desc="Set monthly goals to stay on track" />
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                <div className="flex flex-col gap-[11px]">
                   {goals.map(goal => {
                     const tasks = goalTasks.filter(t => t.goal_id === goal.id)
                     const doneCount = tasks.filter(t => t.done).length
@@ -592,80 +611,96 @@ export default function Home() {
                     const deadlineDate = goal.deadline ? new Date(goal.deadline) : null
                     const isOverdue = deadlineDate && deadlineDate < new Date() && pct < 1
                     return (
-                      <div key={goal.id} style={{ background: C.card, borderRadius: 22, boxShadow: C.shadow, padding: '15px 15px 13px' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
-                          <b style={{ fontFamily: DP, fontSize: 15, fontWeight: 700, lineHeight: 1.3, flex: 1 }}>{goal.name}</b>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                            {deadlineDate && (
-                              <span style={{ fontSize: 11, fontWeight: 700, color: isOverdue ? C.danger : C.muted, background: isOverdue ? '#FDE8E4' : C.card2, padding: '4px 9px', borderRadius: 99 }}>
-                                {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </span>
-                            )}
-                            <button onClick={() => { setEditGoalId(goal.id); setGoalForm({ name: goal.name, narrative: goal.narrative ?? '', deadline: goal.deadline ?? '' }); setGoalSheetOpen(true) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.faint, padding: 2, display: 'grid', placeItems: 'center' }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                            </button>
-                            <button onClick={() => deleteGoal(goal.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.faint, padding: 2, display: 'grid', placeItems: 'center' }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                            </button>
-                          </div>
-                        </div>
-
-                        {goal.narrative && (
-                          <p style={{ fontSize: 12, color: C.muted, margin: '0 0 10px', lineHeight: 1.5 }}>{goal.narrative}</p>
-                        )}
-
-                        {tasks.length > 0 && (
-                          <div style={{ marginBottom: 10 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: C.faint, marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              <span>Progress</span>
-                              <span>{doneCount}/{tasks.length} tasks</span>
-                            </div>
-                            <div style={{ height: 5, borderRadius: 99, background: C.line }}>
-                              <div style={{ height: 5, borderRadius: 99, background: pct === 1 ? C.mint : C.orange, width: `${pct * 100}%`, transition: 'width .3s ease' }} />
+                      <Card key={goal.id}>
+                        <CardContent className="p-4 space-y-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-bold text-para-sm leading-snug flex-1 m-0 font-heading">{goal.name}</h3>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {deadlineDate && (
+                                <span
+                                  className="text-para-xs font-bold px-[9px] py-1 rounded-full"
+                                  style={{
+                                    color: isOverdue ? 'var(--destructive)' : 'var(--muted-foreground)',
+                                    background: isOverdue ? '#FDE8E4' : 'var(--secondary)',
+                                  }}
+                                >
+                                  {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                </span>
+                              )}
+                              <button
+                                onClick={() => { setEditGoalId(goal.id); setGoalForm({ name: goal.name, narrative: goal.narrative ?? '', deadline: goal.deadline ?? '' }); setGoalSheetOpen(true) }}
+                                className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                              </button>
+                              <button
+                                onClick={() => deleteGoal(goal.id)}
+                                className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                              </button>
                             </div>
                           </div>
-                        )}
 
-                        {([1,2,3,4] as const).map(week => {
-                          const weekTasks = tasks.filter(t => t.week === week)
-                          if (weekTasks.length === 0) return null
-                          return (
-                            <div key={week} style={{ marginBottom: 4 }}>
-                              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.faint, display: 'block', marginBottom: 2 }}>Week {week}</span>
-                              {weekTasks.map(t => (
-                                <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0' }}>
-                                  <div
-                                    onClick={() => toggleTask(t.id)}
-                                    style={{ width: 20, height: 20, borderRadius: 7, border: `2px solid ${t.done ? C.mint : C.line}`, background: t.done ? C.mint : 'transparent', display: 'grid', placeItems: 'center', flexShrink: 0, cursor: 'pointer' }}
-                                  >
-                                    {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
+                          {goal.narrative && (
+                            <p className="text-para-xs text-muted-foreground m-0 leading-relaxed">{goal.narrative}</p>
+                          )}
+
+                          {tasks.length > 0 && (
+                            <div>
+                              <div className="flex justify-between text-para-xs font-bold text-muted-foreground/60 mb-1.5 uppercase tracking-wider">
+                                <span>Progress</span>
+                                <span>{doneCount}/{tasks.length} tasks</span>
+                              </div>
+                              <Progress value={pct * 100} className="h-[5px]" />
+                            </div>
+                          )}
+
+                          {([1,2,3,4] as const).map(week => {
+                            const weekTasks = tasks.filter(t => t.week === week)
+                            if (weekTasks.length === 0) return null
+                            return (
+                              <div key={week} className="mb-1">
+                                <span className="text-para-xs font-extrabold tracking-[0.06em] uppercase text-muted-foreground/60 block mb-0.5">Week {week}</span>
+                                {weekTasks.map(t => (
+                                  <div key={t.id} className="flex items-center gap-2 py-[5px]">
+                                    <div
+                                      onClick={() => toggleTask(t.id)}
+                                      className="w-5 h-5 rounded-[7px] flex-shrink-0 cursor-pointer flex items-center justify-center"
+                                      style={{
+                                        border: `2px solid ${t.done ? 'var(--app-mint)' : 'var(--border)'}`,
+                                        background: t.done ? 'var(--app-mint)' : 'transparent',
+                                      }}
+                                    >
+                                      {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
+                                    </div>
+                                    <span className={cn('flex-1 text-para-sm font-medium', t.done ? 'text-muted-foreground/60 line-through' : 'text-foreground')}>{t.task}</span>
+                                    <button onClick={() => deleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                                    </button>
                                   </div>
-                                  <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: t.done ? C.faint : C.ink, textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
-                                  <button onClick={() => deleteTask(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.faint, padding: 2, display: 'grid', placeItems: 'center', opacity: 0.6 }}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )
-                        })}
+                                ))}
+                              </div>
+                            )
+                          })}
 
-                        <button
-                          onClick={() => { setTaskSheetGoalId(goal.id); setTaskForm({ task: '', week: 1 }) }}
-                          style={{ marginTop: 8, background: 'none', border: `1.5px dashed ${C.line}`, borderRadius: 12, padding: '7px 13px', cursor: 'pointer', color: C.muted, fontFamily: UI, fontSize: 12, fontWeight: 700, width: '100%' }}
-                        >
-                          + Add task
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => { setTaskSheetGoalId(goal.id); setTaskForm({ task: '', week: 1 }) }}
+                            className="mt-2 bg-transparent border-dashed border rounded-xl px-3 py-[7px] cursor-pointer text-muted-foreground text-para-xs font-bold w-full"
+                          >
+                            + Add task
+                          </button>
+                        </CardContent>
+                      </Card>
                     )
                   })}
                 </div>
               )}
 
               {/* Calendar */}
-              <div style={{ margin: '22px 0 8px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', margin: '0 4px 12px' }}>Calendar</h2>
-                <div style={{ borderRadius: 22, overflow: 'hidden' }}>
+              <div className="mt-[22px] mb-2">
+                <h2 className="text-para-lg font-bold tracking-h2 mx-1 mb-3 mt-0 font-heading">Calendar</h2>
+                <div className="rounded-[22px] overflow-hidden">
                   <iframe
                     src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
                     style={{ border: 0, display: 'block', filter: 'hue-rotate(171deg) saturate(1.2)' }}
@@ -682,21 +717,20 @@ export default function Home() {
           {/* ════ HOBBY TAB ════ */}
           {tab === 'hobby' && (
             <>
-              {/* Section header */}
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '22px 4px 12px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', margin: 0 }}>
-                  Interests <small style={{ fontSize: 12, color: C.faint, fontWeight: 600, marginLeft: 5 }}>{hobbyLinks.length}</small>
+              <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
+                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">
+                  Interests <small className="text-para-xs text-muted-foreground/60 font-semibold ml-1">{hobbyLinks.length}</small>
                 </h2>
                 <button
-                  style={{ background: 'none', border: 'none', color: C.orange, fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: 4 }}
+                  className="bg-transparent border-0 text-para-sm font-bold cursor-pointer px-1 py-1"
+                  style={{ color: 'var(--app-orange)' }}
                   onClick={() => setReorderOpen(true)}
                 >
                   Reorder
                 </button>
               </div>
 
-              {/* Hobby grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11 }}>
+              <div className="grid grid-cols-2 gap-[11px]">
                 {hobbyLinks.map(({ label, icon, href, value }, i) => {
                   const count = gearCounts[value] ?? 0
                   const last = lastActive[value]
@@ -704,31 +738,28 @@ export default function Home() {
                     activities.some(a => a.hobby === value && new Date(a.activity_at).toDateString() === d.toDateString())
                   )
                   return (
-                    <Link key={label} href={href} prefetch={false} style={{
-                      background: C.card, borderRadius: 22, boxShadow: C.shadow,
-                      padding: '15px 14px 13px', textDecoration: 'none', color: C.ink,
-                      display: 'flex', flexDirection: 'column', gap: 10,
-                      WebkitTapHighlightColor: 'transparent',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ width: 40, height: 40, borderRadius: 14, background: TINTS[i % TINTS.length], display: 'grid', placeItems: 'center', fontSize: 21 }}>
-                          {icon}
-                        </span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, background: C.card2, padding: '4px 9px', borderRadius: 99 }}>
-                          {count} items
-                        </span>
-                      </div>
-                      <div style={{ fontFamily: DP, fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em' }}>
-                        {value === 'social' ? 'Life (Cleaning)' : label}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{last ?? 'not started'}</span>
-                        <span style={{ display: 'flex', gap: 3.5 }}>
-                          {dots.map((on, j) => (
-                            <i key={j} style={{ display: 'block', width: 5, height: 5, borderRadius: '50%', background: on ? C.mint : C.line }} />
-                          ))}
-                        </span>
-                      </div>
+                    <Link key={label} href={href} prefetch={false} className="block no-underline">
+                      <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardContent className="p-[15px_14px_13px] flex flex-col gap-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[21px]" style={{ background: TINTS[i % TINTS.length] }}>
+                              {icon}
+                            </span>
+                            <Badge variant="secondary" className="text-para-xs font-bold">{count} items</Badge>
+                          </div>
+                          <div className="font-bold text-para-sm tracking-tight font-heading">
+                            {value === 'social' ? 'Life (Cleaning)' : label}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-para-xs font-semibold text-muted-foreground/60">{last ?? 'not started'}</span>
+                            <span className="flex gap-[3.5px]">
+                              {dots.map((on, j) => (
+                                <i key={j} className="block w-[5px] h-[5px] rounded-full not-italic" style={{ background: on ? 'var(--app-mint)' : 'var(--border)' }} />
+                              ))}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </Link>
                   )
                 })}
@@ -738,52 +769,56 @@ export default function Home() {
 
           {/* ════ STATS TAB ════ */}
           {tab === 'stats' && (
-            <div style={{ paddingTop: 16 }}>
+            <div className="pt-4">
               {!user ? (
                 <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
-                  <Link href="/login" style={{ color: C.orange, fontWeight: 700, fontSize: 14, marginTop: 12, display: 'inline-block' }}>Login</Link>
+                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block" style={{ color: 'var(--app-orange)' }}>Login</Link>
                 </EmptyState>
               ) : activities.length === 0 ? (
                 <EmptyState icon="📈" title="No activities yet" desc="Start logging activities in your hobbies" />
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11, marginTop: 14 }}>
+                  <div className="grid grid-cols-2 gap-[11px] mt-3.5">
                     {[
                       { v: streak, unit: 'days', l: 'Current streak' },
                       { v: activities.length, unit: '', l: 'Total activities' },
                       { v: Object.keys(lastActive).length, unit: '', l: 'Active hobbies' },
                       { v: Object.values(gearCounts).reduce((a, b) => a + b, 0), unit: '', l: 'Items catalogued' },
                     ].map((s, i) => (
-                      <div key={i} style={{ background: C.card, boxShadow: C.shadow, borderRadius: 22, padding: '16px 15px' }}>
-                        <div style={{ fontFamily: DP, fontSize: 28, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em' }}>
-                          {s.v}{s.unit ? <small style={{ fontSize: 14, color: C.muted, fontWeight: 600 }}> {s.unit}</small> : null}
-                        </div>
-                        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: C.faint, marginTop: 8 }}>{s.l}</div>
-                      </div>
+                      <Card key={i}>
+                        <CardContent className="p-4">
+                          <div className="text-h2 font-extrabold leading-none font-heading">
+                            {s.v}{s.unit ? <small className="text-para-sm text-muted-foreground font-semibold"> {s.unit}</small> : null}
+                          </div>
+                          <div className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mt-2">{s.l}</div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
 
                   {hobbiesByActivity.length > 0 && (
-                    <div style={{ background: C.card, boxShadow: C.shadow, borderRadius: 28, padding: '17px 15px', marginTop: 12 }}>
-                      <h3 style={{ fontFamily: DP, fontSize: 15.5, fontWeight: 700, margin: '0 0 4px' }}>Top hobbies</h3>
-                      {hobbiesByActivity.slice(0, 5).map((h, i) => {
-                        const maxC = hobbiesByActivity[0].count
-                        const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                        const colors = [C.orange, C.mint, C.sun, C.berry, '#0ea5e9']
-                        const bgs = [C.orangeSoft, C.mintSoft, C.sunSoft, '#EDE6FD', '#E0F2FE']
-                        return (
-                          <div key={h.value} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 2px', borderTop: i > 0 ? `1px solid ${C.line}` : 'none' }}>
-                            <span style={{ fontFamily: DP, fontWeight: 800, fontSize: 13, color: C.faint, width: 18 }}>{i + 1}</span>
-                            <span style={{ width: 38, height: 38, borderRadius: 13, background: bgs[i], display: 'grid', placeItems: 'center', fontSize: 19, flexShrink: 0 }}>{h.icon}</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <b style={{ fontSize: 14, fontWeight: 700, display: 'block' }}>{h.label}</b>
-                              <span style={{ fontSize: 11.5, fontWeight: 500, color: C.muted }}>{h.count} activities</span>
-                              <div style={{ height: 5, borderRadius: 99, marginTop: 6, background: colors[i], width: `${pct}%` }} />
+                    <Card className="mt-3">
+                      <CardContent className="p-[17px_15px]">
+                        <h3 className="font-bold text-para-md m-0 mb-1 font-heading">Top hobbies</h3>
+                        {hobbiesByActivity.slice(0, 5).map((h, i) => {
+                          const maxC = hobbiesByActivity[0].count
+                          const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
+                          const colors = ['var(--app-orange)', 'var(--app-mint)', 'var(--app-sun)', 'var(--app-berry)', '#0ea5e9']
+                          const bgs = ['var(--app-orange-soft)', 'var(--app-mint-soft)', 'var(--app-sun-soft)', '#EDE6FD', '#E0F2FE']
+                          return (
+                            <div key={h.value} className={cn('flex items-center gap-3 py-3 px-0.5', i > 0 ? 'border-t' : '')}>
+                              <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-heading">{i + 1}</span>
+                              <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: bgs[i] }}>{h.icon}</span>
+                              <div className="flex-1 min-w-0">
+                                <b className="text-para-sm font-bold block">{h.label}</b>
+                                <span className="text-para-xs font-medium text-muted-foreground">{h.count} activities</span>
+                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: colors[i], width: `${pct}%` }} />
+                              </div>
                             </div>
-                          </div>
-                        )
-                      })}
-                    </div>
+                          )
+                        })}
+                      </CardContent>
+                    </Card>
                   )}
                 </>
               )}
@@ -792,21 +827,21 @@ export default function Home() {
 
           {/* ════ SEARCH TAB ════ */}
           {tab === 'search' && (
-            <div style={{ paddingTop: 16 }}>
-              <div style={{ position: 'relative', marginBottom: 18 }}>
-                <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.faint }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="pt-4">
+              <div className="relative mb-[18px]">
+                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
                 </svg>
-                <input
+                <Input
                   ref={searchRef}
                   autoFocus
                   value={searchQ}
                   onChange={e => setSearchQ(e.target.value)}
                   placeholder="Search hobbies or activities…"
-                  style={{ width: '100%', boxSizing: 'border-box', background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 18, padding: '13px 15px 13px 42px', fontFamily: UI, fontSize: 15, fontWeight: 500, color: C.ink, outline: 'none' }}
+                  className="pl-[42px] pr-10 h-[50px] rounded-full text-para-md font-medium bg-secondary border-0"
                 />
                 {searchQ && (
-                  <button onClick={() => setSearchQ('')} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.faint, padding: 4 }}>
+                  <button onClick={() => setSearchQ('')} className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-muted-foreground/60 p-1">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                   </button>
                 )}
@@ -822,19 +857,23 @@ export default function Home() {
 
               {filteredHobbies.length > 0 && (
                 <>
-                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.faint, margin: '0 0 10px 2px' }}>Interests</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 11, marginBottom: 22 }}>
+                  <p className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mb-2.5 ml-0.5">Interests</p>
+                  <div className="grid grid-cols-2 gap-[11px] mb-[22px]">
                     {filteredHobbies.map(({ label, icon, href, value }, i) => {
                       const count = gearCounts[value] ?? 0
                       const last = lastActive[value]
                       return (
-                        <Link key={value} href={href} prefetch={false} style={{ background: C.card, borderRadius: 22, boxShadow: C.shadow, padding: '15px 14px 13px', textDecoration: 'none', color: C.ink, display: 'flex', flexDirection: 'column', gap: 10, WebkitTapHighlightColor: 'transparent' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ width: 40, height: 40, borderRadius: 14, background: TINTS[i % TINTS.length], display: 'grid', placeItems: 'center', fontSize: 21 }}>{icon}</span>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, background: '#F7F0E4', padding: '4px 9px', borderRadius: 99 }}>{count} items</span>
-                          </div>
-                          <div style={{ fontFamily: DP, fontSize: 15, fontWeight: 700 }}>{label}</div>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{last ?? 'not started'}</span>
+                        <Link key={value} href={href} prefetch={false} className="block no-underline">
+                          <Card className="hover:shadow-md transition-shadow h-full">
+                            <CardContent className="p-[15px_14px_13px] flex flex-col gap-2.5">
+                              <div className="flex items-center justify-between">
+                                <span className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[21px]" style={{ background: TINTS[i % TINTS.length] }}>{icon}</span>
+                                <Badge variant="secondary" className="text-para-xs font-bold">{count} items</Badge>
+                              </div>
+                              <div className="font-bold text-para-sm font-heading">{label}</div>
+                              <span className="text-para-xs font-semibold text-muted-foreground/60">{last ?? 'not started'}</span>
+                            </CardContent>
+                          </Card>
                         </Link>
                       )
                     })}
@@ -844,20 +883,22 @@ export default function Home() {
 
               {filteredActivities.length > 0 && (
                 <>
-                  <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.faint, margin: '0 0 10px 2px' }}>Activities</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                  <p className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mb-2.5 ml-0.5">Activities</p>
+                  <div className="flex flex-col gap-[9px]">
                     {filteredActivities.map(act => {
                       const h = HOBBIES.find(x => x.value === act.hobby)
                       return (
-                        <div key={act.id} style={{ display: 'flex', gap: 12, padding: 14, background: C.card, boxShadow: C.shadow, borderRadius: 16, alignItems: 'center' }}>
-                          <Link href={`/${act.hobby}`} style={{ width: 42, height: 42, borderRadius: 14, background: C.orangeSoft, display: 'grid', placeItems: 'center', fontSize: 19, flexShrink: 0, textDecoration: 'none' }}>
-                            {h?.icon ?? '✨'}
-                          </Link>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <b style={{ fontSize: 14, fontWeight: 700, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{act.note ?? 'Session logged'}</b>
-                            <span style={{ fontSize: 12, color: C.muted }}>{h?.label ?? act.hobby}{act.location ? ` · ${act.location}` : ''}</span>
-                          </div>
-                        </div>
+                        <Card key={act.id}>
+                          <CardContent className="flex gap-3 p-3.5 items-center">
+                            <Link href={`/${act.hobby}`} className="w-[42px] h-[42px] rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0 no-underline" style={{ background: 'var(--app-orange-soft)' }}>
+                              {h?.icon ?? '✨'}
+                            </Link>
+                            <div className="flex-1 min-w-0">
+                              <b className="text-para-sm font-bold block overflow-hidden text-ellipsis whitespace-nowrap">{act.note ?? 'Session logged'}</b>
+                              <span className="text-para-xs text-muted-foreground">{h?.label ?? act.hobby}{act.location ? ` · ${act.location}` : ''}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
                       )
                     })}
                   </div>
@@ -868,17 +909,15 @@ export default function Home() {
 
           {/* ════ GALLERY TAB ════ */}
           {tab === 'gallery' && (
-            <div style={{ paddingTop: 16 }}>
+            <div className="pt-4">
               {!user ? (
                 <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
-                  <Link href="/login" style={{ color: C.orange, fontWeight: 700, fontSize: 14, marginTop: 12, display: 'inline-block' }}>Login</Link>
+                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block" style={{ color: 'var(--app-orange)' }}>Login</Link>
                 </EmptyState>
               ) : (() => {
-                // Activities that have no linked photo
                 const noPhotoActs = activities.filter(act =>
                   !photos.some(p => p.hobby === act.hobby && p.note === act.note)
                 )
-                // Combined feed: photos + no-photo activities, sorted newest first
                 const feed: Array<
                   | { type: 'photo'; date: string; photo: HobbyPhoto }
                   | { type: 'activity'; date: string; act: HobbyActivity }
@@ -892,7 +931,7 @@ export default function Home() {
                 }
 
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
+                  <div className="flex flex-col gap-3 mt-1">
                     {feed.map(item => {
                       if (item.type === 'photo') {
                         const p = item.photo
@@ -900,37 +939,34 @@ export default function Home() {
                         const linkedActivity = activities.find(a => a.hobby === p.hobby && a.note === p.note)
                           ?? activities.find(a => a.hobby === p.hobby)
                         return (
-                          <div key={`p-${p.id}`} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', boxShadow: C.shadow, background: C.card }}>
-                            <div onClick={() => setFullscreenPhoto(p)} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent', borderRadius: 20, overflow: 'hidden' }}>
-                              <img src={p.image_url} alt={p.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 420 }} />
+                          <Card key={`p-${p.id}`} className="overflow-hidden">
+                            <div onClick={() => setFullscreenPhoto(p)} className="cursor-pointer rounded-t-lg overflow-hidden">
+                              <img src={p.image_url} alt={p.hobby} className="w-full block object-cover max-h-[420px]" />
                             </div>
-                            <div style={{ padding: '12px 14px 14px' }}>
-                              {p.note && <p style={{ fontSize: 15, color: C.ink, margin: '0 0 10px', lineHeight: 1.4, fontWeight: 600 }}>{p.note}</p>}
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flex: 1, minWidth: 0 }}>
-                                <span style={{ fontSize: 22, flexShrink: 0 }}>{h?.icon ?? '📷'}</span>
-                                <div style={{ minWidth: 0 }}>
-                                  <b style={{ fontFamily: DP, fontSize: 14, fontWeight: 700, display: 'block' }}>{h?.label ?? p.hobby}</b>
+                            <CardContent className="p-[12px_14px_14px]">
+                              {p.note && <p className="text-para-md font-semibold m-0 mb-2.5 leading-[1.4]">{p.note}</p>}
+                              <div className="flex items-center justify-between gap-2.5">
+                                <div className="flex gap-2.5 items-center flex-1 min-w-0">
+                                  <span className="text-[22px] flex-shrink-0">{h?.icon ?? '📷'}</span>
+                                  <b className="font-bold text-para-sm block font-heading">{h?.label ?? p.hobby}</b>
                                 </div>
+                                {(() => {
+                                  const ts = linkedActivity?.activity_at ?? p.created_at
+                                  const d = new Date(ts)
+                                  const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
+                                  const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                                  const label = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                                  return (
+                                    <span className="flex-shrink-0 text-para-xs font-semibold text-muted-foreground/60">
+                                      {label} · {timeStr}
+                                    </span>
+                                  )
+                                })()}
                               </div>
-                              {(() => {
-                                const ts = linkedActivity?.activity_at ?? p.created_at
-                                const d = new Date(ts)
-                                const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
-                                const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                                const label = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                                return (
-                                  <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 600, color: C.faint }}>
-                                    {label} · {timeStr}
-                                  </span>
-                                )
-                              })()}
-                              </div>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         )
                       } else {
-                        // Text-only activity — white card, collapsible
                         const act = item.act
                         const h = HOBBIES.find(x => x.value === act.hobby)
                         const actD = new Date(act.activity_at)
@@ -939,8 +975,8 @@ export default function Home() {
                         const actLabel = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : actD.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                         const timeAgo = `${actLabel} · ${actTimeStr}`
                         const text = act.note ?? 'Session logged'
-                        const SHORT = 120   // dark big card
-                        const LONG  = 400   // white small card + collapse
+                        const SHORT = 120
+                        const LONG  = 400
                         const isShort = text.length <= SHORT
                         const isVeryLong = text.length > LONG
                         const isExpanded = expandedPosts.has(act.id)
@@ -953,91 +989,71 @@ export default function Home() {
                           })
                         }
                         if (isVeryLong) return (
-                          <div
-                            key={`a-${act.id}`}
-                            style={{
-                              borderRadius: 20, overflow: 'hidden', position: 'relative',
-                              boxShadow: C.shadow, background: '#FFFFFF',
-                              display: 'flex', flexDirection: 'column',
-                              WebkitTapHighlightColor: 'transparent',
-                            }}
-                          >
-                            <div style={{ padding: '16px 16px 12px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{timeAgo}</span>
+                          <Card key={`a-${act.id}`}>
+                            <CardContent className="p-4 pb-3.5">
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                                <span className="text-para-sm font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
+                                <span className="ml-auto text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
+                                className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer overflow-hidden"
                                 style={{
-                                  margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6,
-                                  color: C.ink, textAlign: 'left', wordBreak: 'break-word',
-                                  display: '-webkit-box', WebkitBoxOrient: 'vertical',
+                                  display: '-webkit-box',
+                                  WebkitBoxOrient: 'vertical',
                                   WebkitLineClamp: isExpanded ? 'unset' : 5,
-                                  overflow: 'hidden', cursor: 'pointer',
-                                }}
+                                  overflow: 'hidden',
+                                } as React.CSSProperties}
                               >
                                 {text}
                               </p>
                               <button
                                 onClick={toggleExpand}
-                                style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.orange, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}
+                                className="bg-transparent border-0 pt-1.5 pb-0 px-0 text-para-sm font-bold cursor-pointer"
+                                style={{ color: 'var(--app-orange)' }}
                               >
                                 {isExpanded ? 'Show less' : 'Read more'}
                               </button>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         )
                         if (!isShort) return (
-                          <div
-                            key={`a-${act.id}`}
-                            style={{
-                              borderRadius: 20, overflow: 'hidden', position: 'relative',
-                              boxShadow: C.shadow, background: '#FFFFFF',
-                              display: 'flex', flexDirection: 'column',
-                              WebkitTapHighlightColor: 'transparent',
-                            }}
-                          >
-                            <div style={{ padding: '16px 16px 14px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{timeAgo}</span>
+                          <Card key={`a-${act.id}`}>
+                            <CardContent className="p-4 pb-3.5">
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                                <span className="text-para-sm font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
+                                <span className="ml-auto text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
-                                style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word', cursor: 'pointer' }}
+                                className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer"
                               >
                                 {text}
                               </p>
-                            </div>
-                          </div>
+                            </CardContent>
+                          </Card>
                         )
                         return (
                           <div
                             key={`a-${act.id}`}
                             onClick={() => openActivity(act)}
-                            style={{
-                              borderRadius: 20, overflow: 'hidden', position: 'relative',
-                              boxShadow: C.shadowLg, background: '#1C130A',
-                              minHeight: 140, display: 'flex', flexDirection: 'column',
-                              justifyContent: 'space-between', cursor: 'pointer',
-                              WebkitTapHighlightColor: 'transparent',
-                            }}
+                            className="rounded-[20px] overflow-hidden relative shadow-lg min-h-[140px] flex flex-col justify-between cursor-pointer"
+                            style={{ background: '#1C130A' }}
                           >
-                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
-                            <div style={{ position: 'relative', padding: '20px 18px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                              <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>
+                            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)' }} />
+                            <div className="relative p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
+                              <p className="m-0 text-h3 font-extrabold leading-[1.25] text-white break-words font-heading">
                                 {text}
                               </p>
                             </div>
-                            <div style={{ position: 'relative', padding: '0 18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
+                            <div className="relative p-[0_18px_16px] flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                                <span className="text-para-xs font-semibold" style={{ color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
                               </div>
-                              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{timeAgo}</span>
+                              <span className="text-para-xs font-semibold" style={{ color: 'rgba(255,255,255,.5)' }}>{timeAgo}</span>
                             </div>
                           </div>
                         )
@@ -1059,8 +1075,8 @@ export default function Home() {
           width: 'min(calc(100vw - 24px), 406px)',
           height: 66,
           borderRadius: 26,
-          background: C.card,
-          boxShadow: C.shadowLg,
+          background: 'var(--card)',
+          boxShadow: 'var(--shadow-lg)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -1086,8 +1102,8 @@ export default function Home() {
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(() => { const n = new Date(); n.setSeconds(0,0); return n.toISOString().slice(0,16) }) }}
               style={{
-                width: 58, height: 58, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                background: C.orange, color: '#fff', display: 'grid', placeItems: 'center',
+                width: 58, height: 58, borderRadius: 16, border: 'none', cursor: 'pointer',
+                background: 'var(--app-orange)', color: '#fff', display: 'grid', placeItems: 'center',
                 boxShadow: '0 10px 24px rgba(255,122,47,.45)',
               }}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -1124,28 +1140,29 @@ export default function Home() {
           const h = HOBBIES.find(x => x.value === fullscreenPhoto.hobby)
           const linkedActivity = activities.find(a => a.hobby === fullscreenPhoto.hobby && a.note === fullscreenPhoto.note)
           return (
-            <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 60, display: 'flex', flexDirection: 'column' }} onClick={() => setFullscreenPhoto(null)}>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={fullscreenPhoto.image_url} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+            <div className="fixed inset-0 bg-black z-[60] flex flex-col" onClick={() => setFullscreenPhoto(null)}>
+              <div className="flex-1 flex items-center justify-center">
+                <img src={fullscreenPhoto.image_url} alt="" className="max-w-full max-h-full object-contain" />
               </div>
-              <div style={{ position: 'absolute', top: 'calc(16px + env(safe-area-inset-top,0px))', right: 16 }}>
-                <button onClick={() => setFullscreenPhoto(null)} style={{ width: 36, height: 36, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,.15)', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
+              <div className="absolute" style={{ top: 'calc(16px + env(safe-area-inset-top,0px))', right: 16 }}>
+                <button onClick={() => setFullscreenPhoto(null)} className="w-9 h-9 rounded-full border-0 flex items-center justify-center cursor-pointer" style={{ background: 'rgba(255,255,255,.15)', color: '#fff' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </button>
               </div>
-              <div style={{ padding: '16px 20px calc(24px + env(safe-area-inset-bottom,0px))', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }} onClick={e => e.stopPropagation()}>
+              <div className="p-[16px_20px] pb-[calc(24px+env(safe-area-inset-bottom,0px))]" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }} onClick={e => e.stopPropagation()}>
                 {fullscreenPhoto.note && (
-                  <p style={{ color: 'rgba(255,255,255,.9)', fontSize: 15, margin: '0 0 12px', lineHeight: 1.4, fontWeight: 600 }}>{fullscreenPhoto.note}</p>
+                  <p className="text-para-md font-semibold m-0 mb-3 leading-[1.4]" style={{ color: 'rgba(255,255,255,.9)' }}>{fullscreenPhoto.note}</p>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 20 }}>{h?.icon ?? '📷'}</span>
-                    <b style={{ color: '#fff', fontFamily: DP, fontSize: 15, fontWeight: 700 }}>{h?.label ?? fullscreenPhoto.hobby}</b>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[20px]">{h?.icon ?? '📷'}</span>
+                    <b className="text-white font-bold text-para-md font-heading">{h?.label ?? fullscreenPhoto.hobby}</b>
                   </div>
                   {linkedActivity && (
                     <button
                       onClick={() => { openActivity(linkedActivity); setFullscreenPhoto(null) }}
-                      style={{ background: 'rgba(255,255,255,.2)', border: 'none', borderRadius: 20, padding: '7px 14px', color: '#fff', fontFamily: UI, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                      className="border-0 rounded-[20px] px-3.5 py-[7px] text-white text-para-xs font-bold cursor-pointer"
+                      style={{ background: 'rgba(255,255,255,.2)' }}
                     >
                       View activity →
                     </button>
@@ -1157,345 +1174,354 @@ export default function Home() {
         })()}
 
         {/* ── Activity Detail / Edit Sheet ── */}
-        {viewActivity && (() => {
-          const h = HOBBIES.find(x => x.value === (actEditMode ? actEditForm.hobby : viewActivity.hobby))
-          const hobbyList = [{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(hb => ({ label: hb.label, icon: hb.icon as string, value: hb.value }))]
-          return (
-            <>
-              <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => { setViewActivity(null); setActDeleteConfirm(false) }} />
-              <div style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 0, width: '100%', maxWidth: 430, zIndex: 50, background: C.bg, borderRadius: '30px 30px 0 0', boxShadow: '0 -10px 40px rgba(60,40,15,.18)', maxHeight: '88dvh', display: 'flex', flexDirection: 'column', paddingBottom: 'env(safe-area-inset-bottom,0px)' }}>
-                <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px', flexShrink: 0 }} />
-
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px', flexShrink: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 26 }}>{h?.icon ?? '✨'}</span>
-                    <div>
-                      <b style={{ fontFamily: DP, fontSize: 17, fontWeight: 800, display: 'block' }}>{h?.label ?? viewActivity.hobby}</b>
-                      <span style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>
-                        {new Date(viewActivity.activity_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </span>
+        <Drawer
+          open={!!viewActivity}
+          onOpenChange={(open: boolean) => { if (!open) { setViewActivity(null); setActDeleteConfirm(false) } }}
+        >
+          <DrawerContent className="max-h-[88dvh]">
+            {viewActivity && (() => {
+              const h = HOBBIES.find(x => x.value === (actEditMode ? actEditForm.hobby : viewActivity.hobby))
+              const hobbyList = [{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(hb => ({ label: hb.label, icon: hb.icon as string, value: hb.value }))]
+              return (
+                <>
+                  <DrawerHeader className="flex-row items-center justify-between p-[10px_18px_12px] gap-2.5 text-left">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[26px]">{h?.icon ?? '✨'}</span>
+                      <div>
+                        <DrawerTitle className="text-para-lg font-extrabold block font-heading">{h?.label ?? viewActivity.hobby}</DrawerTitle>
+                        <span className="text-para-xs text-muted-foreground font-semibold">
+                          {new Date(viewActivity.activity_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {!actEditMode && (
-                      <button onClick={() => setActEditMode(true)} style={{ padding: '8px 14px', borderRadius: 13, border: `1.5px solid ${C.line}`, background: C.card, fontFamily: UI, fontSize: 13, fontWeight: 700, color: C.ink, cursor: 'pointer' }}>
-                        Edit
-                      </button>
-                    )}
-                    <button onClick={() => { setViewActivity(null); setActDeleteConfirm(false) }} style={{ width: 38, height: 38, borderRadius: 13, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                    </button>
-                  </div>
-                </div>
+                    <div className="flex gap-2">
+                      {!actEditMode && (
+                        <Button variant="outline" size="sm" onClick={() => setActEditMode(true)} className="rounded-[13px] font-bold">
+                          Edit
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="icon" onClick={() => { setViewActivity(null); setActDeleteConfirm(false) }} className="rounded-[13px] w-[38px] h-[38px]">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                      </Button>
+                    </div>
+                  </DrawerHeader>
 
-                <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
-                  {actEditMode ? (
-                    <>
-                      {/* Photo edit */}
-                      <input ref={actPhotoInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
-                        const file = e.target.files?.[0]; if (!file) return
-                        setActNewPhotoFile(file)
-                        const reader = new FileReader()
-                        reader.onload = ev => setActNewPhotoPreview(ev.target?.result as string)
-                        reader.readAsDataURL(file)
-                      }} />
-                      <CField label="Photo">
-                        {actDeletePhoto ? (
-                          <div style={{ borderRadius: 14, border: `2px dashed ${C.line}`, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.card }}>
-                            <span style={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>Photo will be deleted</span>
-                            <button onClick={() => setActDeletePhoto(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: C.muted }}>Undo</button>
-                          </div>
-                        ) : (
-                          <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', marginBottom: 4, cursor: 'pointer' }} onClick={() => actPhotoInputRef.current?.click()}>
-                            {actNewPhotoPreview || actPhoto ? (
-                              <>
-                                <img src={actNewPhotoPreview ?? actPhoto!.image_url} alt="" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 200 }} />
-                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <span style={{ color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 700, background: 'rgba(0,0,0,.4)', padding: '6px 14px', borderRadius: 20 }}>Change photo</span>
+                  <div className="overflow-y-auto px-[18px] pb-[18px]">
+                    {actEditMode ? (
+                      <>
+                        <input ref={actPhotoInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
+                          const file = e.target.files?.[0]; if (!file) return
+                          setActNewPhotoFile(file)
+                          const reader = new FileReader()
+                          reader.onload = ev => setActNewPhotoPreview(ev.target?.result as string)
+                          reader.readAsDataURL(file)
+                        }} />
+                        <CField label="Photo">
+                          {actDeletePhoto ? (
+                            <div className="rounded-[14px] border-2 border-dashed p-3.5 flex items-center justify-between bg-card">
+                              <span className="text-para-sm font-semibold text-destructive">Photo will be deleted</span>
+                              <button onClick={() => setActDeletePhoto(false)} className="border-0 bg-transparent cursor-pointer text-para-xs font-bold text-muted-foreground">Undo</button>
+                            </div>
+                          ) : (
+                            <div className="relative rounded-[14px] overflow-hidden mb-1 cursor-pointer" onClick={() => actPhotoInputRef.current?.click()}>
+                              {actNewPhotoPreview || actPhoto ? (
+                                <>
+                                  <img src={actNewPhotoPreview ?? actPhoto!.image_url} alt="" className="w-full block object-cover max-h-[200px]" />
+                                  <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+                                    <span className="text-white text-para-sm font-bold bg-black/40 px-3.5 py-1.5 rounded-[20px]">Change photo</span>
+                                  </div>
+                                  <button onClick={e => { e.stopPropagation(); setActDeletePhoto(true); setActNewPhotoPreview(null); setActNewPhotoFile(null) }} className="absolute top-2 right-2 z-[1] w-8 h-8 rounded-full border-0 cursor-pointer flex items-center justify-center" style={{ background: 'rgba(34,25,15,.7)', color: '#F87171' }}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                                  </button>
+                                </>
+                              ) : (
+                                <div className="w-full border-2 border-dashed rounded-[14px] p-5 flex items-center justify-center gap-2 text-muted-foreground text-para-sm font-bold bg-card">
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                  Add photo
                                 </div>
-                                <button onClick={e => { e.stopPropagation(); setActDeletePhoto(true); setActNewPhotoPreview(null); setActNewPhotoFile(null) }} style={{ position: 'absolute', top: 8, right: 8, zIndex: 1, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(34,25,15,.7)', color: '#F87171', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
-                                </button>
-                              </>
-                            ) : (
-                              <div style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 14, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: C.muted, fontFamily: UI, fontSize: 13, fontWeight: 700, background: C.card }}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                                Add photo
-                              </div>
-                            )}
+                              )}
+                            </div>
+                          )}
+                        </CField>
+                        <CField label="Interest">
+                          <div className="flex flex-wrap gap-[7px]">
+                            {hobbyList.map(hb => (
+                              <button
+                                key={hb.value}
+                                onClick={() => setActEditForm(f => ({ ...f, hobby: hb.value }))}
+                                className="px-[13px] py-[7px] rounded-full text-para-sm font-bold cursor-pointer border-2 transition-colors"
+                                style={{
+                                  borderColor: actEditForm.hobby === hb.value ? 'var(--app-orange)' : 'var(--border)',
+                                  background: actEditForm.hobby === hb.value ? 'var(--app-orange-soft)' : 'var(--card)',
+                                  color: actEditForm.hobby === hb.value ? 'var(--app-orange)' : 'var(--foreground)',
+                                }}
+                              >
+                                {hb.icon} {hb.label}
+                              </button>
+                            ))}
+                          </div>
+                        </CField>
+                        <CField label="Note">
+                          <textarea
+                            value={actEditForm.note}
+                            onChange={e => setActEditForm(f => ({ ...f, note: e.target.value }))}
+                            rows={3}
+                            className="w-full bg-card border rounded-2xl text-foreground text-para-md font-medium p-[13px_15px] outline-none resize-none box-border focus-visible:ring-2 focus-visible:ring-ring"
+                          />
+                        </CField>
+                        <div className="flex gap-2.5">
+                          <CField label="Location" className="flex-1">
+                            <Input
+                              value={actEditForm.location}
+                              onChange={e => setActEditForm(f => ({ ...f, location: e.target.value }))}
+                              placeholder="e.g. Home"
+                              className="rounded-2xl h-[50px] text-para-md"
+                            />
+                          </CField>
+                          <CField label="Date & time" className="flex-1">
+                            <Input
+                              type="datetime-local"
+                              value={actEditForm.at}
+                              onChange={e => setActEditForm(f => ({ ...f, at: e.target.value }))}
+                              className="rounded-2xl h-[50px] text-para-md"
+                            />
+                          </CField>
+                        </div>
+                        <div className="flex gap-2.5 mt-1">
+                          <Button variant="outline" onClick={() => setActEditMode(false)} className="flex-1 h-[50px] rounded-2xl text-para-sm font-bold">
+                            Cancel
+                          </Button>
+                          <Button onClick={saveActivityEdit} disabled={actSavePending} className="flex-[2] h-[50px] rounded-2xl text-para-md font-extrabold">
+                            {actSavePending ? 'Saving…' : 'Save changes'}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {actPhoto && (
+                          <div className="rounded-2xl overflow-hidden mb-3 cursor-pointer" onClick={() => setFullscreenPhoto(actPhoto)}>
+                            <img src={actPhoto.image_url} alt="" className="w-full block object-cover max-h-[260px]" />
                           </div>
                         )}
-                      </CField>
-                      <CField label="Interest">
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                          {hobbyList.map(hb => (
-                            <button key={hb.value} onClick={() => setActEditForm(f => ({ ...f, hobby: hb.value }))} style={{ padding: '7px 13px', borderRadius: 99, border: `2px solid ${actEditForm.hobby === hb.value ? C.orange : C.line}`, background: actEditForm.hobby === hb.value ? C.orangeSoft : C.card, fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer', color: actEditForm.hobby === hb.value ? C.orange : C.ink }}>
-                              {hb.icon} {hb.label}
-                            </button>
-                          ))}
-                        </div>
-                      </CField>
-                      <CField label="Note">
-                        <textarea value={actEditForm.note} onChange={e => setActEditForm(f => ({ ...f, note: e.target.value }))} rows={3} style={cInputStyle} />
-                      </CField>
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <CField label="Location" style={{ flex: 1 }}>
-                          <input value={actEditForm.location} onChange={e => setActEditForm(f => ({ ...f, location: e.target.value }))} placeholder="e.g. Home" style={cInputStyle} />
-                        </CField>
-                        <CField label="Date & time" style={{ flex: 1 }}>
-                          <input type="datetime-local" value={actEditForm.at} onChange={e => setActEditForm(f => ({ ...f, at: e.target.value }))} style={cInputStyle} />
-                        </CField>
-                      </div>
-                      <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                        <button onClick={() => setActEditMode(false)} style={{ flex: 1, border: `1.5px solid ${C.line}`, borderRadius: 16, padding: 14, cursor: 'pointer', background: C.card, fontFamily: UI, fontSize: 14, fontWeight: 700, color: C.ink }}>
-                          Cancel
-                        </button>
-                        <button onClick={saveActivityEdit} disabled={actSavePending} style={{ flex: 2, border: 'none', borderRadius: 16, padding: 14, cursor: 'pointer', background: C.orange, color: '#fff', fontFamily: UI, fontSize: 14, fontWeight: 800, opacity: actSavePending ? 0.6 : 1 }}>
-                          {actSavePending ? 'Saving…' : 'Save changes'}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      {actPhoto && (
-                        <div style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 12, cursor: 'pointer' }} onClick={() => setFullscreenPhoto(actPhoto)}>
-                          <img src={actPhoto.image_url} alt="" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 260 }} />
-                        </div>
-                      )}
-                      <div style={{ background: C.card, borderRadius: 18, padding: '14px 16px', marginBottom: 10 }}>
-                        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: C.ink }}>{viewActivity.note}</p>
-                      </div>
-                      {viewActivity.location && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 2px', color: C.muted }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          <span style={{ fontSize: 13, fontWeight: 600 }}>{viewActivity.location}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
+                        <Card className="mb-2.5">
+                          <CardContent className="p-[14px_16px]">
+                            <p className="m-0 text-para-md leading-relaxed">{viewActivity.note}</p>
+                          </CardContent>
+                        </Card>
+                        {viewActivity.location && (
+                          <div className="flex items-center gap-2 py-2.5 px-0.5 text-muted-foreground">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span className="text-para-sm font-semibold">{viewActivity.location}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
 
-                  {/* Delete — hidden at bottom */}
-                  {!actEditMode && (
-                    <div style={{ marginTop: 28, paddingTop: 16, borderTop: `1px solid ${C.line}`, textAlign: 'center' }}>
-                      {actDeleteConfirm ? (
-                        <button
-                          onClick={deleteActivity}
-                          style={{ background: C.danger, border: 'none', borderRadius: 14, padding: '10px 20px', color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
-                        >
-                          ⚠️ Confirm delete
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setActDeleteConfirm(true)}
-                          style={{ background: 'none', border: 'none', color: C.faint, fontFamily: UI, fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px' }}
-                        >
-                          Delete activity
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )
-        })()}
+                    {!actEditMode && (
+                      <div className="mt-7 pt-4 border-t text-center">
+                        {actDeleteConfirm ? (
+                          <Button variant="destructive" onClick={deleteActivity} className="rounded-[14px] px-5 py-2.5 font-extrabold">
+                            ⚠️ Confirm delete
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="sm" onClick={() => setActDeleteConfirm(true)} className="text-muted-foreground/60 text-para-xs font-semibold">
+                            Delete activity
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )
+            })()}
+          </DrawerContent>
+        </Drawer>
 
         {/* ── Add Goal Sheet ── */}
-        {goalSheetOpen && (
-          <>
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => { setGoalSheetOpen(false); setEditGoalId(null); setGoalForm({ name: '', narrative: '', deadline: '' }) }} />
-            <div style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 0, width: '100%', maxWidth: 430, zIndex: 50, background: C.bg, borderRadius: '30px 30px 0 0', boxShadow: '0 -10px 40px rgba(60,40,15,.18)', paddingBottom: 'env(safe-area-inset-bottom,0px)' }}>
-              <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>{editGoalId ? 'Edit Goal' : 'New Goal'}</h2>
-                <button onClick={() => { setGoalSheetOpen(false); setEditGoalId(null); setGoalForm({ name: '', narrative: '', deadline: '' }) }} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                </button>
-              </div>
-              <div style={{ padding: '0 18px 18px' }}>
-                <CField label="Goal name *">
-                  <input value={goalForm.name} onChange={e => setGoalForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Planning for Q3" style={cInputStyle} />
-                </CField>
-                <CField label="Narrative">
-                  <textarea value={goalForm.narrative} onChange={e => setGoalForm(f => ({ ...f, narrative: e.target.value }))} placeholder="What's the purpose of this goal?" rows={3} style={cInputStyle} />
-                </CField>
-                <CField label="Deadline">
-                  <input type="date" value={goalForm.deadline} onChange={e => setGoalForm(f => ({ ...f, deadline: e.target.value }))} style={cInputStyle} />
-                </CField>
-                <button onClick={saveGoal} style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)' }}>
-                  Save Goal
-                </button>
-              </div>
+        <Drawer
+          open={goalSheetOpen}
+          onOpenChange={(open: boolean) => { if (!open) { setGoalSheetOpen(false); setEditGoalId(null); setGoalForm({ name: '', narrative: '', deadline: '' }) } }}
+        >
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle className="font-heading">{editGoalId ? 'Edit Goal' : 'New Goal'}</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-2 space-y-0 overflow-y-auto">
+              <CField label="Goal name *">
+                <Input
+                  value={goalForm.name}
+                  onChange={e => setGoalForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="e.g. Planning for Q3"
+                  className="rounded-2xl h-[50px] text-para-md"
+                />
+              </CField>
+              <CField label="Narrative">
+                <textarea
+                  value={goalForm.narrative}
+                  onChange={e => setGoalForm(f => ({ ...f, narrative: e.target.value }))}
+                  placeholder="What's the purpose of this goal?"
+                  rows={3}
+                  className="w-full bg-card border rounded-2xl text-foreground text-para-md font-medium p-[13px_15px] outline-none resize-none box-border focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </CField>
+              <CField label="Deadline">
+                <Input
+                  type="date"
+                  value={goalForm.deadline}
+                  onChange={e => setGoalForm(f => ({ ...f, deadline: e.target.value }))}
+                  className="rounded-2xl h-[50px] text-para-md"
+                />
+              </CField>
             </div>
-          </>
-        )}
+            <DrawerFooter>
+              <Button onClick={saveGoal} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
+                Save Goal
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
 
         {/* ── Add Task Sheet ── */}
-        {taskSheetGoalId && (
-          <>
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => setTaskSheetGoalId(null)} />
-            <div style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 0, width: '100%', maxWidth: 430, zIndex: 50, background: C.bg, borderRadius: '30px 30px 0 0', boxShadow: '0 -10px 40px rgba(60,40,15,.18)', paddingBottom: 'env(safe-area-inset-bottom,0px)' }}>
-              <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Add Task</h2>
-                <button onClick={() => setTaskSheetGoalId(null)} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                </button>
-              </div>
-              <div style={{ padding: '0 18px 18px' }}>
-                <CField label="Task *">
-                  <input value={taskForm.task} onChange={e => setTaskForm(f => ({ ...f, task: e.target.value }))} placeholder="e.g. Conduct team workshop" style={cInputStyle} />
-                </CField>
-                <CField label="Week">
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {([1,2,3,4] as const).map(w => (
-                      <button key={w} onClick={() => setTaskForm(f => ({ ...f, week: w }))} style={{ flex: 1, padding: '11px 0', borderRadius: 13, border: `2px solid ${taskForm.week === w ? C.orange : C.line}`, background: taskForm.week === w ? C.orangeSoft : C.card, color: taskForm.week === w ? C.orange : C.ink, fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                        W{w}
-                      </button>
-                    ))}
-                  </div>
-                </CField>
-                <button onClick={saveTask} style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)' }}>
-                  Save Task
-                </button>
-              </div>
+        <Drawer
+          open={!!taskSheetGoalId}
+          onOpenChange={(open: boolean) => { if (!open) setTaskSheetGoalId(null) }}
+        >
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle className="font-heading">Add Task</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-2 space-y-0 overflow-y-auto">
+              <CField label="Task *">
+                <Input
+                  value={taskForm.task}
+                  onChange={e => setTaskForm(f => ({ ...f, task: e.target.value }))}
+                  placeholder="e.g. Conduct team workshop"
+                  className="rounded-2xl h-[50px] text-para-md"
+                />
+              </CField>
+              <CField label="Week">
+                <div className="flex gap-2">
+                  {([1,2,3,4] as const).map(w => (
+                    <button
+                      key={w}
+                      onClick={() => setTaskForm(f => ({ ...f, week: w }))}
+                      className="flex-1 py-[11px] rounded-[13px] border-2 text-para-sm font-bold cursor-pointer transition-colors"
+                      style={{
+                        borderColor: taskForm.week === w ? 'var(--app-orange)' : 'var(--border)',
+                        background: taskForm.week === w ? 'var(--app-orange-soft)' : 'var(--card)',
+                        color: taskForm.week === w ? 'var(--app-orange)' : 'var(--foreground)',
+                      }}
+                    >
+                      W{w}
+                    </button>
+                  ))}
+                </div>
+              </CField>
             </div>
-          </>
-        )}
+            <DrawerFooter>
+              <Button onClick={saveTask} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
+                Save Task
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
 
         {/* ── Create Activity Sheet ── */}
-        {createOpen && (
-          <>
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => { setCreateOpen(false); resetCreate() }} />
-            <div style={{
-              position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-              bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
-              background: C.bg, borderRadius: '30px 30px 0 0',
-              boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
-              maxHeight: '92dvh', display: 'flex', flexDirection: 'column',
-              paddingBottom: 'env(safe-area-inset-bottom,0px)',
-            }}>
-              <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-                <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>
-                  Log activity
-                </h2>
-                <button onClick={() => { setCreateOpen(false); resetCreate() }}
-                  style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                </button>
-              </div>
-
-              {/* Main form */}
-              <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
-                {/* Hobby picker */}
-                <CField label="Interest *">
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                    {[{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(h => ({ label: h.label, icon: h.icon as string, value: h.value }))].map(h => (
-                      <button key={h.value} onClick={() => setCreateHobby(h.value)} style={{
-                        padding: '7px 13px', borderRadius: 99, border: `2px solid ${createHobby === h.value ? C.orange : C.line}`,
-                        background: createHobby === h.value ? C.orangeSoft : C.card,
-                        fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                        color: createHobby === h.value ? C.orange : C.ink,
-                      }}>
-                        {h.icon} {h.label}
-                      </button>
-                    ))}
-                  </div>
-                </CField>
-
-                <CField label="What did you do? *">
-                  <textarea
-                    value={createNote}
-                    onChange={e => setCreateNote(e.target.value)}
-                    placeholder="e.g. Went for a ride, cleaned my gear…"
-                    rows={3}
-                    style={cInputStyle}
-                  />
-                </CField>
-
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <CField label="Location" style={{ flex: 1 }}>
-                    <input value={createLocation} onChange={e => setCreateLocation(e.target.value)} placeholder="e.g. Home, Garage" style={cInputStyle} />
-                  </CField>
-                  <CField label="Date & time" style={{ flex: 1 }}>
-                    <input type="datetime-local" value={createAt} onChange={e => setCreateAt(e.target.value)} style={cInputStyle} />
-                  </CField>
-                </div>
-
-                {/* Photo capture */}
-                <CField label="Photo (optional)">
-                  <input
-                    ref={photoInputRef}
-                    type="file"
-                    accept="image/*"
-                    
-                    onChange={handlePhotoChange}
-                    style={{ display: 'none' }}
-                  />
-                  {createPhoto ? (
-                    <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={createPhoto} alt="captured" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 160 }} />
-                      <button onClick={() => { setCreatePhoto(null); setCreatePhotoFile(null) }} style={{ position: 'absolute', top: 8, right: 8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(34,25,15,.7)', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => photoInputRef.current?.click()} style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 16, padding: 20, cursor: 'pointer', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: C.muted, fontFamily: UI, fontSize: 14, fontWeight: 700 }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                        <circle cx="12" cy="13" r="4"/>
-                      </svg>
-                      Take photo
+        <Drawer
+          open={createOpen}
+          onOpenChange={(open: boolean) => { if (!open) { setCreateOpen(false); resetCreate() } }}
+        >
+          <DrawerContent className="max-h-[92dvh]">
+            <DrawerHeader>
+              <DrawerTitle className="font-heading">Log activity</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-2 space-y-0 overflow-y-auto">
+              <CField label="Interest *">
+                <div className="flex flex-wrap gap-[7px]">
+                  {[{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(h => ({ label: h.label, icon: h.icon as string, value: h.value }))].map(h => (
+                    <button
+                      key={h.value}
+                      onClick={() => setCreateHobby(h.value)}
+                      className="px-[13px] py-[7px] rounded-full border-2 text-para-sm font-bold cursor-pointer transition-colors"
+                      style={{
+                        borderColor: createHobby === h.value ? 'var(--app-orange)' : 'var(--border)',
+                        background: createHobby === h.value ? 'var(--app-orange-soft)' : 'var(--card)',
+                        color: createHobby === h.value ? 'var(--app-orange)' : 'var(--foreground)',
+                      }}
+                    >
+                      {h.icon} {h.label}
                     </button>
-                  )}
+                  ))}
+                </div>
+              </CField>
+
+              <CField label="What did you do? *">
+                <textarea
+                  value={createNote}
+                  onChange={e => setCreateNote(e.target.value)}
+                  placeholder="e.g. Went for a ride, cleaned my gear…"
+                  rows={3}
+                  className="w-full bg-card border rounded-2xl text-foreground text-para-md font-medium p-[13px_15px] outline-none resize-none box-border focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </CField>
+
+              <div className="flex gap-2.5">
+                <CField label="Location" className="flex-1">
+                  <Input
+                    value={createLocation}
+                    onChange={e => setCreateLocation(e.target.value)}
+                    placeholder="e.g. Home, Garage"
+                    className="rounded-2xl h-[50px] text-para-md"
+                  />
                 </CField>
-
-                {createError && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{createError}</p>}
-
-                <button
-                  onClick={handleCreateSave}
-                  disabled={createPending}
-                  style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: createPending ? 0.6 : 1 }}
-                >
-                  {createPending ? 'Saving…' : 'Save activity'}
-                </button>
+                <CField label="Date & time" className="flex-1">
+                  <Input
+                    type="datetime-local"
+                    value={createAt}
+                    onChange={e => setCreateAt(e.target.value)}
+                    className="rounded-2xl h-[50px] text-para-md"
+                  />
+                </CField>
               </div>
+
+              <CField label="Photo (optional)">
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+                {createPhoto ? (
+                  <div className="relative rounded-2xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={createPhoto} alt="captured" className="w-full block object-cover max-h-[160px]" />
+                    <button onClick={() => { setCreatePhoto(null); setCreatePhotoFile(null) }} className="absolute top-2 right-2 w-8 h-8 rounded-full border-0 cursor-pointer flex items-center justify-center" style={{ background: 'rgba(34,25,15,.7)', color: '#fff' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => photoInputRef.current?.click()} className="w-full border-2 border-dashed rounded-2xl p-5 cursor-pointer bg-card flex items-center justify-center gap-2.5 text-muted-foreground text-para-sm font-bold">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    Take photo
+                  </button>
+                )}
+              </CField>
+
+              {createError && <p className="text-destructive text-para-xs font-semibold mb-2">{createError}</p>}
             </div>
-          </>
-        )}
+            <DrawerFooter>
+              <Button onClick={handleCreateSave} disabled={createPending} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
+                {createPending ? 'Saving…' : 'Save activity'}
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
 
       </div>
-    </div>
-  )
-}
-
-function CField({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div style={{ marginBottom: 16, ...style }}>
-      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#8D8271', marginBottom: 8 }}>{label}</label>
-      {children}
-    </div>
-  )
-}
-
-const cInputStyle: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
-  borderRadius: 16, color: '#22190F',
-  fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
-  fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
-  boxSizing: 'border-box', resize: 'none' as const,
-}
-
-function EmptyState({ icon, title, desc, children }: { icon: string; title: string; desc: string; children?: React.ReactNode }) {
-  return (
-    <div style={{ padding: '50px 24px', textAlign: 'center', color: C.muted }}>
-      <div style={{ width: 60, height: 60, borderRadius: 22, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
-      <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
-      <p style={{ fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
-      {children}
     </div>
   )
 }

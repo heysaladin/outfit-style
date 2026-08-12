@@ -301,8 +301,8 @@
   --background: var(--color-white);
   --foreground: var(--brand-neutrals-950);
 
-  --primary: var(--brand-neutrals-900);
-  --primary-foreground: var(--brand-neutrals-50);
+  --primary: #FF7A2F;
+  --primary-foreground: var(--color-white);
 
   --secondary: var(--brand-neutrals-100);
   --secondary-foreground: var(--brand-neutrals-900);
@@ -318,7 +318,7 @@
 
   --border: var(--brand-neutrals-200);
   --input: var(--brand-neutrals-200);
-  --ring: var(--brand-neutrals-950);
+  --ring: #FF7A2F;
 
   --card: var(--color-white);
   --card-foreground: var(--brand-neutrals-950);
@@ -350,6 +350,29 @@
   --destructive-text: var(--color-red-600);
   --border-4: var(--brand-neutrals-400);
   --border-5: var(--brand-neutrals-500);
+
+  /* M3 SURFACE CONTAINER TONES — warm tonal hierarchy */
+  --surface-container-lowest: #FFFFFF;
+  --surface-container-low: #FDF7EE;
+  --surface-container: #F7F0E4;
+  --surface-container-high: #F0E9DC;
+  --surface-container-highest: #EAE2D5;
+
+  /* APP BRAND TOKENS — Interestory warm palette */
+  --app-bg: #FDF7EE;
+  --app-card-secondary: #F7F0E4;
+  --app-line: #EFE6D6;
+  --app-ink: #22190F;
+  --app-muted: #8D8271;
+  --app-faint: #B8AD9A;
+  --app-orange: #FF7A2F;
+  --app-orange-soft: #FFE9DB;
+  --app-mint: #3FBF8F;
+  --app-mint-soft: #DDF4EA;
+  --app-berry: #8B5CF6;
+  --app-sun: #FFC531;
+  --app-sun-soft: #FFF3D1;
+  --app-danger: #E9573F;
 }
 
 /* =============================================================================
@@ -414,6 +437,34 @@
   /* Fonts — using Next.js font variables */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Bricolage display font */
+  --font-heading: var(--font-bricolage), system-ui, sans-serif;
+
+  /* Cubicle typography scale — literal values so Tailwind v4 can parse them */
+  --text-h1: 48px;
+  --text-h1--line-height: 1;
+  --text-h2: 30px;
+  --text-h2--line-height: 1;
+  --text-h3: 24px;
+  --text-h3--line-height: 1.2;
+  --text-h4: 20px;
+  --text-h4--line-height: 1.2;
+  --text-para-lg: 18px;
+  --text-para-lg--line-height: 1.5;
+  --text-para-md: 16px;
+  --text-para-md--line-height: 1.5;
+  --text-para-sm: 14px;
+  --text-para-sm--line-height: 1.5;
+  --text-para-xs: 12px;
+  --text-para-xs--line-height: 1.5;
+  --text-caption: 14px;
+  --text-caption--line-height: 1.5;
+
+  /* Letter-spacing */
+  --tracking-h1: -1.5px;
+  --tracking-h2: -1px;
+  --tracking-h3: -1px;
+  --tracking-caption: 1.5px;
 
   /* Semantic colors → Tailwind utilities */
   --color-background: var(--background);
@@ -448,6 +499,29 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Surface container tokens → Tailwind utilities */
+  --color-surface-lowest: var(--surface-container-lowest);
+  --color-surface-low: var(--surface-container-low);
+  --color-surface: var(--surface-container);
+  --color-surface-high: var(--surface-container-high);
+  --color-surface-highest: var(--surface-container-highest);
+
+  /* App brand tokens → Tailwind utilities */
+  --color-app-bg: var(--app-bg);
+  --color-app-card-secondary: var(--app-card-secondary);
+  --color-app-line: var(--app-line);
+  --color-app-ink: var(--app-ink);
+  --color-app-muted: var(--app-muted);
+  --color-app-faint: var(--app-faint);
+  --color-app-orange: var(--app-orange);
+  --color-app-orange-soft: var(--app-orange-soft);
+  --color-app-mint: var(--app-mint);
+  --color-app-mint-soft: var(--app-mint-soft);
+  --color-app-berry: var(--app-berry);
+  --color-app-sun: var(--app-sun);
+  --color-app-sun-soft: var(--app-sun-soft);
+  --color-app-danger: var(--app-danger);
 
   /* Border radii — fixed values from Cubicle */
   --radius-none: 0px;
