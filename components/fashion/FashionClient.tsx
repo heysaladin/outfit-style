@@ -49,7 +49,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   ]
 
   return (
-    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
+    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink }}>
 
       {/* ── Subhead ── */}
       <div style={{

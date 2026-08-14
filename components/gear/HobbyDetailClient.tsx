@@ -61,7 +61,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user }: Pr
   ]
 
   return (
-    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink, maxWidth: 430, margin: '0 auto' }}>
+    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink, maxWidth: 430, margin: '0 auto' }}>
 
       {/* ── Subhead ── */}
       <div style={{

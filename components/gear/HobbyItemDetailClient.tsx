@@ -123,7 +123,7 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
   const addedStr = new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
   return (
-    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
+    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink }}>
 
       {/* ── Subhead ── */}
       <div style={{

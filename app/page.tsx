@@ -721,7 +721,7 @@ export default function Home() {
                 </h2>
                 <button
                   className="bg-transparent border-0 text-para-sm font-bold cursor-pointer px-1 py-1"
-                  style={{ color: 'var(--app-orange)' }}
+                  style={{ color: 'var(--muted-foreground)' }}
                   onClick={() => setReorderOpen(true)}
                 >
                   Reorder

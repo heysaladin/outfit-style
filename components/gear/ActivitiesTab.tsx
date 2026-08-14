@@ -215,8 +215,8 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
 
             if (linkedPhoto) {
               return (
-                <div key={act.id} onClick={() => user && openEdit(act, linkedPhoto)} style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', boxShadow: C.shadow, background: C.card, breakInside: 'avoid', marginBottom: 11, cursor: user ? 'pointer' : 'default' }}>
-                  <img src={linkedPhoto.image_url} alt={act.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 300, borderRadius: 16 }} />
+                <div key={act.id} onClick={() => user && openEdit(act, linkedPhoto)} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, cursor: user ? 'pointer' : 'default' }}>
+                  <img src={linkedPhoto.image_url} alt={act.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 300 }} />
                   <div style={{ padding: '12px 13px 13px' }}>
                     {act.note && <p style={{ fontSize: 15, color: C.ink, margin: '0 0 10px', lineHeight: 1.4, fontWeight: 600 }}>{act.note}</p>}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -280,18 +280,18 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               if (isVeryLong) return (
-                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: C.card, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ padding: '14px 14px 12px' }}>
+                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '14px 16px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
                       <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel} · {timeStr}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
                       {editBtn}{deleteBtn}
                     </div>
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: isExpanded ? 'unset' as any : 5, overflow: 'hidden' }}>
                       {text}
                     </p>
-                    <button onClick={toggleExpand} style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.orange, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}>
+                    <button onClick={toggleExpand} style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.muted, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}>
                       {isExpanded ? 'Show less' : 'Read more'}
                     </button>
                   </div>
@@ -299,12 +299,12 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               if (!isShort) return (
-                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: C.card, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ padding: '14px 14px 14px' }}>
+                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '14px 16px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
                       <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel} · {timeStr}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
                       {editBtn}{deleteBtn}
                     </div>
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word' }}>{text}</p>
@@ -313,24 +313,23 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               return (
-                <div key={act.id} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: C.shadowLg, background: '#1C130A', minHeight: 130, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)', pointerEvents: 'none' }} />
-                  <div style={{ position: 'relative', padding: '20px 13px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF', fontFamily: DP, wordBreak: 'break-word' }}>{text}</p>
+                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, minHeight: 130, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ padding: '20px 16px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: C.ink, fontFamily: DP, wordBreak: 'break-word' }}>{text}</p>
                   </div>
-                  <div style={{ position: 'relative', padding: '0 13px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ padding: '0 16px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,.45)' }}>{dateLabel} · {timeStr}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
                       {user && (
                         <>
-                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)' }}>
+                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.muted }}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
-                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(255,255,255,.35)', opacity: deleting === act.id ? 0.3 : 1 }}>
+                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.muted, opacity: deleting === act.id ? 0.3 : 1 }}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
                           </button>
                         </>
@@ -349,11 +348,10 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
         <button
           onClick={() => setAddOpen(true)}
           style={{
-            width: '100%', border: 'none', borderRadius: 18, padding: 17,
+            width: '100%', border: 'none', borderRadius: 24, padding: 17,
             cursor: 'pointer', marginTop: 6,
-            background: C.orange, color: '#fff',
+            background: C.ink, color: C.bg,
             fontFamily: UI, fontSize: 15, fontWeight: 800,
-            boxShadow: '0 10px 22px rgba(255,122,47,.35)',
           }}
         >
           ＋ Log activity

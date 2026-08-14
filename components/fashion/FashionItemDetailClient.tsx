@@ -73,7 +73,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
   }
 
   return (
-    <div style={{ background: C.bg, minHeight: '100dvh', fontFamily: UI, color: C.ink }}>
+    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink }}>
 
       {/* Sticky header */}
       <div style={{
