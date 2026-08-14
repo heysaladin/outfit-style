@@ -495,7 +495,7 @@ export default function Home() {
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain px-[18px]"
-          style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom,0px))' }}
+          style={{ paddingBottom: 80 }}
         >
 
           {/* ════ HOME TAB ════ */}
