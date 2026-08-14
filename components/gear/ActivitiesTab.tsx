@@ -6,8 +6,8 @@ import { HOBBIES, type HobbyActivity, type HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
   orange: '#FF7A2F', orangeSoft: '#FFE9DB',
   mint: '#3FBF8F', mintSoft: '#DDF4EA',
   danger: '#E9573F',
@@ -280,7 +280,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               if (isVeryLong) return (
-                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: C.card, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ padding: '14px 14px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
@@ -299,7 +299,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               if (!isShort) return (
-                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                <div key={act.id} style={{ borderRadius: 16, overflow: 'hidden', boxShadow: C.shadow, background: C.card, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ padding: '14px 14px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
@@ -512,7 +512,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
 function Field({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{ marginBottom: 16, ...style }}>
-      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#8D8271', marginBottom: 8 }}>
+      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: 'var(--muted-foreground)', marginBottom: 8 }}>
         {label}
       </label>
       {children}
@@ -521,8 +521,8 @@ function Field({ label, children, style }: { label: string; children: React.Reac
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
-  borderRadius: 16, color: '#22190F',
+  width: '100%', background: 'var(--background)', border: '1.5px solid var(--border)',
+  borderRadius: 16, color: 'var(--foreground)',
   fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
   fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
   boxSizing: 'border-box', resize: 'none',

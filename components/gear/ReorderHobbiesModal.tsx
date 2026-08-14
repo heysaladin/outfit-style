@@ -23,8 +23,8 @@ export function getOrderedHobbies() {
 }
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271',
+  bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   orange: '#FF7A2F',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
   shadowLg: '0 14px 34px rgba(84,62,32,.14)',

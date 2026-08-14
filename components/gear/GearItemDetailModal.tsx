@@ -232,7 +232,7 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
                 {!useUrlInput && (
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className="relative aspect-video rounded-xl overflow-hidden bg-white border border-dashed border-border hover:border-foreground/40 transition-colors cursor-pointer flex items-center justify-center"
+                    className="relative aspect-video rounded-xl overflow-hidden bg-card border border-dashed border-border hover:border-foreground/40 transition-colors cursor-pointer flex items-center justify-center"
                   >
                     {preview ? (
                       <img src={preview} alt="preview" className="absolute inset-0 w-full h-full object-contain" />
@@ -260,7 +260,7 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
                     Use image URL instead
                   </div>
                   <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${useUrlInput ? 'bg-primary' : 'bg-border'}`}>
-                    <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200 ${useUrlInput ? 'left-4 bg-white' : 'left-0.5 bg-muted-foreground'}`} />
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all duration-200 ${useUrlInput ? 'left-4 bg-card' : 'left-0.5 bg-muted-foreground'}`} />
                   </div>
                 </button>
                 {useUrlInput && (
@@ -273,7 +273,7 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
                       className="w-full bg-muted rounded-xl px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-foreground/20"
                     />
                     {preview && (
-                      <div className="aspect-video rounded-xl overflow-hidden bg-white border border-border">
+                      <div className="aspect-video rounded-xl overflow-hidden bg-card border border-border">
                         <img src={preview} alt="preview" className="w-full h-full object-contain" onError={() => setPreview(null)} />
                       </div>
                     )}

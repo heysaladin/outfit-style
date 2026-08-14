@@ -9,8 +9,8 @@ import { ActivitiesTab } from './ActivitiesTab'
 import { MomentsTab } from './MomentsTab'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271',
+  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
 const DP = 'var(--font-bricolage), system-ui, sans-serif'
@@ -189,7 +189,7 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
   return (
     <button onClick={onClick} style={{
       width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: '#FFFFFF', color: '#22190F', cursor: 'pointer',
+      background: 'var(--card)', color: 'var(--foreground)', cursor: 'pointer',
       display: 'grid', placeItems: 'center',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
     }}>
@@ -200,9 +200,9 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
 
 function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
-    <div style={{ padding: '50px 24px', textAlign: 'center', color: '#8D8271' }}>
-      <div style={{ width: 60, height: 60, borderRadius: 22, background: '#FFFFFF', boxShadow: '0 6px 18px rgba(84,62,32,.08)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
-      <b style={{ display: 'block', color: '#22190F', fontFamily: 'var(--font-bricolage), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
+    <div style={{ padding: '50px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
+      <div style={{ width: 60, height: 60, borderRadius: 22, background: 'var(--card)', boxShadow: '0 6px 18px rgba(84,62,32,.08)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
+      <b style={{ display: 'block', color: 'var(--foreground)', fontFamily: 'var(--font-bricolage), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
       <p style={{ fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
     </div>
   )

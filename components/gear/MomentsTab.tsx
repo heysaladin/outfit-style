@@ -6,8 +6,8 @@ import type { HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
   orange: '#FF7A2F',
   danger: '#E9573F',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
@@ -167,7 +167,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 style={{
-                  width: '100%', aspectRatio: '16/9', border: preview ? 'none' : '2px dashed #EFE6D6',
+                  width: '100%', aspectRatio: '16/9', border: preview ? 'none' : '2px dashed var(--border)',
                   borderRadius: 16, background: preview ? 'transparent' : C.card,
                   display: 'grid', placeItems: 'center', cursor: 'pointer',
                   overflow: 'hidden', marginBottom: 16, color: C.muted, padding: 0,
@@ -192,7 +192,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: C.muted, marginBottom: 8 }}>Note (optional)</label>
-                <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Add a caption…" rows={2} style={{ width: '100%', background: C.card, border: '1.5px solid #EFE6D6', borderRadius: 16, color: C.ink, fontFamily: UI, fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Add a caption…" rows={2} style={{ width: '100%', background: C.card, border: '1.5px solid var(--border)', borderRadius: 16, color: C.ink, fontFamily: UI, fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
               </div>
 
               {error && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{error}</p>}

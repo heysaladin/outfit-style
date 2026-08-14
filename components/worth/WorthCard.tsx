@@ -3,8 +3,8 @@
 import { calcWorth, type WPStatus } from '@/lib/worth'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
   orange: '#FF7A2F', orangeSoft: '#FFE9DB',
   mint: '#3FBF8F', mintSoft: '#DDF4EA',
   yellow: '#F59E0B', yellowSoft: '#FEF3C7',
@@ -37,14 +37,14 @@ const STATUS_META: Record<WPStatus, { label: string; icon: string; bar: string; 
 export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardProps) {
   if (!purchasePrice) return (
     <div style={{
-      background: '#FFFFFF', borderRadius: 22, overflow: 'hidden',
+      background: 'var(--card)', borderRadius: 22, overflow: 'hidden',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
       marginBottom: 12, padding: '16px 16px 14px',
     }}>
-      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#B8AD9A', marginBottom: 10 }}>
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--muted-foreground)', marginBottom: 10 }}>
         Worth Score
       </p>
-      <p style={{ fontSize: 13, color: '#8D8271', margin: 0 }}>No purchase price — add one to see the worth score.</p>
+      <p style={{ fontSize: 13, color: 'var(--muted-foreground)', margin: 0 }}>No purchase price — add one to see the worth score.</p>
     </div>
   )
 
@@ -134,7 +134,7 @@ export function WorthCard({ purchasePrice, purchaseDate, totalUses }: WorthCardP
       {hasCPD && (
         <div style={{
           padding: '11px 16px', borderTop: `1px solid ${C.line}`,
-          background: '#FAF4EB',
+          background: 'var(--muted)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div>

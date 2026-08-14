@@ -9,8 +9,8 @@ import { WorthCard } from '@/components/worth/WorthCard'
 import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses, setHobbyItemUseCount } from '@/app/actions'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
   orange: '#FF7A2F', orangeSoft: '#FFE9DB',
   mint: '#3FBF8F',
   danger: '#E9573F',
@@ -284,7 +284,7 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
                 <div
                   onClick={() => fileRef.current?.click()}
                   style={{
-                    border: displayImg ? 'none' : '2px dashed #EFE6D6',
+                    border: displayImg ? 'none' : '2px dashed var(--border)',
                     borderRadius: 16, background: C.card,
                     display: 'grid', placeItems: 'center', cursor: 'pointer',
                     overflow: 'hidden', marginBottom: 8,
@@ -413,7 +413,7 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
               onClick={() => setDeleteOpen(false)}
               disabled={isPending}
               style={{
-                width: '100%', border: '1.5px solid #EFE6D6', borderRadius: 16, padding: '13px 0',
+                width: '100%', border: '1.5px solid var(--border)', borderRadius: 16, padding: '13px 0',
                 background: C.card, color: C.ink,
                 fontFamily: UI, fontSize: 15, fontWeight: 700,
                 cursor: 'pointer',
@@ -512,7 +512,7 @@ function IconBtn({ onClick, children, danger }: { onClick: () => void; children:
   return (
     <button onClick={onClick} style={{
       width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: '#FFFFFF', color: danger ? '#E9573F' : '#22190F',
+      background: 'var(--card)', color: danger ? '#E9573F' : 'var(--foreground)',
       cursor: 'pointer', display: 'grid', placeItems: 'center',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
     }}>
@@ -523,9 +523,9 @@ function IconBtn({ onClick, children, danger }: { onClick: () => void; children:
 
 function KVRow({ label, value, unset, divider }: { label: string; value: string | null; unset?: string; divider?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid #EFE6D6' : 'none' }}>
-      <span style={{ color: '#8D8271', fontWeight: 500 }}>{label}</span>
-      <span style={{ fontWeight: 700, color: value ? '#22190F' : '#FF7A2F' }}>{value ?? unset}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid var(--border)' : 'none' }}>
+      <span style={{ color: 'var(--muted-foreground)', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontWeight: 700, color: value ? 'var(--foreground)' : '#FF7A2F' }}>{value ?? unset}</span>
     </div>
   )
 }
@@ -533,7 +533,7 @@ function KVRow({ label, value, unset, divider }: { label: string; value: string 
 function Field({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{ marginBottom: 16, ...style }}>
-      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: '#8D8271', marginBottom: 8 }}>
+      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: 'var(--muted-foreground)', marginBottom: 8 }}>
         {label}
       </label>
       {children}
@@ -550,7 +550,7 @@ function BigBtn({ children, danger, type = 'button', disabled, onClick }: { chil
       style={{
         width: '100%', border: danger ? '1.5px solid #F4CFC7' : 'none',
         borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: danger ? 10 : 0,
-        background: danger ? 'none' : '#FF7A2F',
+        background: danger ? 'none' : C.orange,
         color: danger ? '#E9573F' : '#fff',
         fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
         fontSize: 15, fontWeight: 800,
@@ -564,8 +564,8 @@ function BigBtn({ children, danger, type = 'button', disabled, onClick }: { chil
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
-  borderRadius: 16, color: '#22190F',
+  width: '100%', background: 'var(--background)', border: '1.5px solid var(--border)',
+  borderRadius: 16, color: 'var(--foreground)',
   fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
   fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
   boxSizing: 'border-box',

@@ -73,7 +73,7 @@ export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
                 onClick={() => setMenuOpen(v => !v)}
                 className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                 {avatar
-                  ? <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                  ? <img src="https://heysaladindesign.web.app/pictures/avatar.png" alt={name} className="w-full h-full object-cover" />
                   : <User size={15} className="text-foreground" />}
               </button>
               {menuOpen && (

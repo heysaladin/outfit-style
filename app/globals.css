@@ -284,31 +284,31 @@
   --spacing-9xl: 128px;
   --spacing-10xl: 144px;
 
-  /* SHADOWS */
+  /* SHADOWS — Starbucks-style layered low-alpha */
   --shadow-2xs: 0 1px 0 0 rgba(0, 0, 0, 0.05);
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.10), 0 1px 2px -1px rgba(0, 0, 0, 0.10);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.10), 0 4px 6px -4px rgba(0, 0, 0, 0.10);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.10);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.10);
+  --shadow-xs:  0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-sm:  0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-md:  0 0 1px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.14);
+  --shadow-lg:  0 1px 3px rgba(0, 0, 0, 0.10), 0 2px 2px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.07);
+  --shadow-xl:  0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
+  --shadow-2xl: 0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
 }
 
 /* =============================================================================
    SEMANTIC COLOR TOKENS — Light Mode
    ============================================================================= */
 :root {
-  --background: var(--color-white);
-  --foreground: var(--brand-neutrals-950);
+  --background: #efece7;
+  --foreground: #545048;
 
-  --primary: #FF7A2F;
-  --primary-foreground: var(--color-white);
+  --primary: #f1f252;
+  --primary-foreground: #1a1a00;
 
   --secondary: var(--brand-neutrals-100);
   --secondary-foreground: var(--brand-neutrals-900);
 
-  --muted: var(--brand-neutrals-100);
-  --muted-foreground: var(--brand-neutrals-500);
+  --muted: #e8e4de;
+  --muted-foreground: #7a756e;
 
   --accent: var(--brand-neutrals-100);
   --accent-foreground: var(--brand-neutrals-900);
@@ -318,10 +318,10 @@
 
   --border: var(--brand-neutrals-200);
   --input: var(--brand-neutrals-200);
-  --ring: #FF7A2F;
+  --ring: #f1f252;
 
-  --card: var(--color-white);
-  --card-foreground: var(--brand-neutrals-950);
+  --card: #ffffff;
+  --card-foreground: #545048;
 
   --popover: var(--color-white);
   --popover-foreground: var(--brand-neutrals-950);
@@ -351,22 +351,22 @@
   --border-4: var(--brand-neutrals-400);
   --border-5: var(--brand-neutrals-500);
 
-  /* M3 SURFACE CONTAINER TONES — warm tonal hierarchy */
+  /* M3 SURFACE CONTAINER TONES — Vestiaire linen hierarchy */
   --surface-container-lowest: #FFFFFF;
-  --surface-container-low: #FDF7EE;
-  --surface-container: #F7F0E4;
-  --surface-container-high: #F0E9DC;
-  --surface-container-highest: #EAE2D5;
+  --surface-container-low: #efece7;
+  --surface-container: #e8e4de;
+  --surface-container-high: #e0dbd4;
+  --surface-container-highest: #d9d4cc;
 
-  /* APP BRAND TOKENS — Interestory warm palette */
-  --app-bg: #FDF7EE;
-  --app-card-secondary: #F7F0E4;
-  --app-line: #EFE6D6;
-  --app-ink: #22190F;
-  --app-muted: #8D8271;
-  --app-faint: #B8AD9A;
-  --app-orange: #FF7A2F;
-  --app-orange-soft: #FFE9DB;
+  /* APP BRAND TOKENS — Vestiaire-inspired editorial palette */
+  --app-bg: #efece7;
+  --app-card-secondary: #e8e4de;
+  --app-line: #d9d4cc;
+  --app-ink: #545048;
+  --app-muted: #7a756e;
+  --app-faint: #a09b93;
+  --app-orange: #f1f252;
+  --app-orange-soft: #f9f9c8;
   --app-mint: #3FBF8F;
   --app-mint-soft: #DDF4EA;
   --app-berry: #8B5CF6;
@@ -380,7 +380,7 @@
    ============================================================================= */
 .dark {
   --background: var(--color-black);
-  --foreground: var(--brand-neutrals-50);
+  --foreground: rgba(255, 255, 255, 0.87);
 
   --primary: var(--brand-neutrals-100);
   --primary-foreground: var(--brand-neutrals-950);
@@ -434,11 +434,10 @@
 }
 
 @theme inline {
-  /* Fonts — using Next.js font variables */
-  --font-sans: var(--font-geist-sans);
+  /* Fonts — Manrope as SoDoSans substitute */
+  --font-sans: Haffer, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
-  /* Bricolage display font */
-  --font-heading: var(--font-bricolage), system-ui, sans-serif;
+  --font-heading: var(--font-cormorant), Fraunces, Georgia, Cambria, ui-serif, serif;
 
   /* Cubicle typography scale — literal values so Tailwind v4 can parse them */
   --text-h1: 48px;
@@ -537,12 +536,12 @@
 
   /* Shadows */
   --shadow-2xs: 0 1px 0 0 rgba(0, 0, 0, 0.05);
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.10), 0 1px 2px -1px rgba(0, 0, 0, 0.10);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.10), 0 4px 6px -4px rgba(0, 0, 0, 0.10);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.10);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.10);
+  --shadow-xs:  0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-sm:  0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-md:  0 0 1px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.14);
+  --shadow-lg:  0 1px 3px rgba(0, 0, 0, 0.10), 0 2px 2px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.07);
+  --shadow-xl:  0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
+  --shadow-2xl: 0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
 }
 
 @layer base {
@@ -553,12 +552,41 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    max-width: 100%;
   }
   html {
     background-color: var(--background);
+    overflow: clip;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    scrollbar-width: none;
+    scrollbar-gutter: stable both-edges;
+  }
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+  /* Starbucks warm canvas on outer gutter */
+  .bg-border {
+    background-color: #e8e5df !important;
   }
   /* Prevent iOS zoom on inputs */
   input, select, textarea {

@@ -14,7 +14,7 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
 
   return (
     <div className="group relative flex flex-col gap-2">
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-white">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-card">
         <button onClick={onClick} className="absolute inset-0 w-full h-full">
           {item.image_url ? (
             <img

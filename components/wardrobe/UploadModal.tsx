@@ -171,7 +171,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
                 Add image URL
               </div>
               <div className={`relative w-10 h-6 rounded-full transition-colors duration-200 ${useImageUrl ? 'bg-primary' : 'bg-border'}`}>
-                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-200 ${useImageUrl ? 'left-5 bg-white' : 'left-1 bg-muted-foreground'}`} />
+                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-200 ${useImageUrl ? 'left-5 bg-card' : 'left-1 bg-muted-foreground'}`} />
               </div>
             </button>
 

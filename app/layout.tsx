@@ -1,9 +1,14 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, Bricolage_Grotesque } from 'next/font/google'
+import { Geist_Mono, Bricolage_Grotesque, Fraunces } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
+const fraunces = Fraunces({
+  variable: '--font-cormorant',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+})
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 const bricolage = Bricolage_Grotesque({
   variable: '--font-bricolage',
@@ -63,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} antialiased`}
+        className={`${geistMono.variable} ${bricolage.variable} ${fraunces.variable} antialiased`}
         suppressHydrationWarning
       >
         <Providers>

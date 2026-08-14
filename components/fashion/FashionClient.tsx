@@ -10,8 +10,8 @@ import { ActivitiesTab } from '@/components/gear/ActivitiesTab'
 import { MomentsTab } from '@/components/gear/MomentsTab'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271',
+  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
 const DP = 'var(--font-bricolage), system-ui, sans-serif'
@@ -194,8 +194,8 @@ function IconBtn({ onClick, children, active, title }: { onClick: () => void; ch
   return (
     <button onClick={onClick} title={title} style={{
       width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: active ? '#22190F' : '#FFFFFF',
-      color: active ? '#FFF7EC' : '#22190F',
+      background: active ? 'var(--foreground)' : 'var(--card)',
+      color: active ? 'var(--background)' : 'var(--foreground)',
       cursor: 'pointer', display: 'grid', placeItems: 'center',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
     }}>

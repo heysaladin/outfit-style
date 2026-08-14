@@ -8,8 +8,8 @@ import { WorthCard } from '@/components/worth/WorthCard'
 import { wearItem, setWardrobeItemWearCount } from '@/app/actions'
 
 const C = {
-  bg: '#FDF7EE', card: '#FFFFFF', card2: '#F7F0E4', line: '#EFE6D6',
-  ink: '#22190F', muted: '#8D8271', faint: '#B8AD9A',
+  bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
+  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
   orange: '#FF7A2F', orangeSoft: '#FFE9DB',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
@@ -17,8 +17,8 @@ const DP = 'var(--font-bricolage), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF', border: '1.5px solid #EFE6D6',
-  borderRadius: 16, color: '#22190F',
+  width: '100%', background: 'var(--background)', border: '1.5px solid var(--border)',
+  borderRadius: 16, color: 'var(--foreground)',
   fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
   fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
   boxSizing: 'border-box',
@@ -247,7 +247,7 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
   return (
     <button onClick={onClick} style={{
       width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: '#FFFFFF', color: '#22190F',
+      background: 'var(--card)', color: 'var(--foreground)',
       cursor: 'pointer', display: 'grid', placeItems: 'center',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
     }}>
@@ -258,9 +258,9 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
 
 function KVRow({ label, value, divider }: { label: string; value: string; divider?: boolean }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid #EFE6D6' : 'none' }}>
-      <span style={{ color: '#8D8271', fontWeight: 500 }}>{label}</span>
-      <span style={{ fontWeight: 700, color: '#22190F', textAlign: 'right', marginLeft: 12 }}>{value}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid var(--border)' : 'none' }}>
+      <span style={{ color: 'var(--muted-foreground)', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontWeight: 700, color: 'var(--foreground)', textAlign: 'right', marginLeft: 12 }}>{value}</span>
     </div>
   )
 }

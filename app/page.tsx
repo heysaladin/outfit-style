@@ -34,17 +34,16 @@ function NavTab({ label, active, onClick, children }: {
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center gap-[3px] w-14 py-1.5 bg-transparent border-0 cursor-pointer text-para-xs font-bold',
-        active ? 'text-[var(--app-orange)]' : 'text-muted-foreground/60'
+        'flex items-center justify-center w-14 h-full bg-transparent border-0 cursor-pointer',
+        active ? 'text-[var(--app-orange)]' : 'text-[rgba(255,255,255,0.45)]'
       )}
     >
       <span className={cn(
-        'w-16 h-8 rounded-full flex items-center justify-center transition-all duration-200',
-        active ? 'bg-[var(--app-orange-soft)]' : ''
+        'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200',
+        active ? 'bg-[rgba(241,242,82,0.15)]' : ''
       )}>
         {children}
       </span>
-      {label}
     </button>
   )
 }
@@ -208,9 +207,7 @@ export default function Home() {
     } finally { setCreatePending(false) }
   }
 
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
-    ?? user?.email?.split('@')[0]
-    ?? 'there'
+  const firstName = 'Saladin'
   const avatarLetter = (firstName[0] ?? 'H').toUpperCase()
 
   const now = new Date()
@@ -433,13 +430,13 @@ export default function Home() {
   ).slice(0, 20) : []
 
   return (
-    <div className="bg-border h-dvh">
+    <div className="h-dvh w-full overflow-hidden" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 bg-background flex items-center justify-between">
+        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: '#1C1917' }}>
           <span className="font-heading font-extrabold text-h3 tracking-tight" style={{ color: 'var(--app-orange)' }}>
-            Interestory
+            interestory
           </span>
           <Avatar
             className="w-10 h-10 flex-shrink-0 cursor-pointer"
@@ -504,55 +501,55 @@ export default function Home() {
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* Date + greeting — scrolls with content */}
-              <div className="pt-3 pb-1 mx-1">
-                <p className="text-caption font-semibold tracking-caption uppercase text-muted-foreground">{dateStr}</p>
-                <h1 className="text-h2 font-extrabold leading-[1.06] tracking-h2 m-0 mt-1 font-heading">
-                  Hey {firstName},<br />let&apos;s add to your{' '}
-                  <em className="not-italic" style={{ color: 'var(--app-orange)' }}>story</em>
-                </h1>
-              </div>
+              {/* ── Dark hero section — connects with header ── */}
+              <div style={{ background: '#1C1917', margin: '0 -18px 48px', padding: '12px 18px 32px', borderRadius: '0 0 20px 20px', height: '41%' }}>
+                {/* Date + greeting */}
+                <div className="pt-2 pb-1 mx-1">
+                  <p className="text-caption font-semibold tracking-caption uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
+                  <h1 className="leading-[1.06] m-0 mt-1 font-heading" style={{ color: '#fff', fontWeight: 400, fontSize: 32 }}>
+                    Hey {firstName},<br />let&apos;s add to your{' '}
+                    <em className="not-italic" style={{ color: 'var(--app-orange)' }}>story</em>
+                  </h1>
+                </div>
 
-              {/* Momo mascot card */}
-              <Card className="mt-4">
-                <CardContent className="flex items-center gap-4 p-4">
+                {/* Momo card — inside dark section */}
+                <div className="mt-3 rounded-[20px] flex items-center gap-4 p-4" style={{ background: 'rgba(255,255,255,0.07)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/momo.png" alt="Momo" className="w-[86px] h-[86px] flex-shrink-0 object-contain rounded-2xl" />
+                  <img src="/momo.png" alt="Momo" className="w-16 h-16 flex-shrink-0 object-contain" />
                   <div>
-                    <p className="font-bold text-para-md leading-snug m-0 font-heading">
+                    <p className="font-bold text-para-md leading-snug m-0" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>
                       {streak > 1
-                        ? `"${streak}-day streak! You're on fire \uD83D\uDD25"`
+                        ? `"${streak}-day streak! You're on fire 🔥"`
                         : streak === 1
-                        ? '"Great start! Keep logging today \uD83C\uDFAF"'
-                        : '"Start logging to build your story \uD83C\uDFAF"'}
+                        ? '"Great start! Keep logging today 🎯"'
+                        : '"Start logging to build your story 🎯"'}
                     </p>
-                    <span className="text-para-xs text-muted-foreground mt-1 block">Momo · your interest friend</span>
+                    <span className="text-para-xs mt-1 block" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Week streak dots */}
-              <Card className="mt-3">
-                <CardContent className="flex items-center justify-between p-4">
+                {/* Week streak dots */}
+                <div className="mt-3 rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)' }}>
                   <div className="flex items-center gap-2">
-                    <span className="text-h3 font-extrabold font-heading">🔥 {streak}</span>
-                    <span className="text-para-xs font-semibold text-muted-foreground leading-[1.3]">day<br />streak</span>
+                    <span className="text-h3 font-extrabold" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>🔥 {streak}</span>
+                    <span className="text-para-xs font-semibold leading-[1.3]" style={{ color: 'rgba(255,255,255,0.45)' }}>day<br />streak</span>
                   </div>
                   <div className="flex gap-[9px]">
                     {weekDots.map((d, i) => (
                       <div key={i} className="flex flex-col items-center gap-[5px]">
-                        <span className="text-para-xs font-bold text-muted-foreground/60">{d.label}</span>
+                        <span className="text-para-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>{d.label}</span>
                         <div className="w-2.5 h-2.5 rounded-full" style={{
-                          background: d.active ? 'var(--app-orange)' : 'var(--border)',
+                          background: d.active ? 'var(--app-orange)' : 'rgba(255,255,255,0.15)',
                           outline: d.isToday ? '2px solid var(--app-orange)' : 'none',
                           outlineOffset: '2px',
                         }} />
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
+              {/* Week streak dots */}
               {/* Recent Activities */}
               {activities.length > 0 && (
                 <>
@@ -594,7 +591,7 @@ export default function Home() {
                 <button
                   onClick={() => setGoalSheetOpen(true)}
                   className="bg-transparent border-0 cursor-pointer text-para-sm font-bold px-1 py-1"
-                  style={{ color: 'var(--app-orange)' }}
+                  style={{ color: 'var(--app-ink)' }}
                 >
                   + Add
                 </button>
@@ -703,7 +700,7 @@ export default function Home() {
                 <div className="rounded-[22px] overflow-hidden">
                   <iframe
                     src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
-                    style={{ border: 0, display: 'block', filter: 'hue-rotate(171deg) saturate(1.2)' }}
+                    style={{ border: 0, display: 'block', filter: 'sepia(0.55) saturate(0.85) contrast(0.9) brightness(1.04)' }}
                     width="100%"
                     height="500"
                     frameBorder={0}
@@ -1072,16 +1069,16 @@ export default function Home() {
           bottom: 'calc(10px + env(safe-area-inset-bottom,0px))',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'min(calc(100vw - 24px), 406px)',
+          width: 'min(calc(100% - 24px), 406px)',
           height: 66,
-          borderRadius: 26,
-          background: 'var(--card)',
-          boxShadow: 'var(--shadow-lg)',
+          borderRadius: 9999,
+          background: '#1C1917',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           zIndex: 30,
-          padding: '0 18px',
+          padding: '0 8px',
         }}>
           <NavTab label="Home" active={tab === 'home'} onClick={() => setTab('home')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1102,11 +1099,11 @@ export default function Home() {
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(() => { const n = new Date(); n.setSeconds(0,0); return n.toISOString().slice(0,16) }) }}
               style={{
-                width: 58, height: 58, borderRadius: 16, border: 'none', cursor: 'pointer',
-                background: 'var(--app-orange)', color: '#fff', display: 'grid', placeItems: 'center',
-                boxShadow: '0 10px 24px rgba(255,122,47,.45)',
+                width: 58, height: 58, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                background: 'var(--app-orange)', display: 'grid', placeItems: 'center',
+                boxShadow: '0 10px 24px rgba(241,242,82,0.35)',
               }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1C1917" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
