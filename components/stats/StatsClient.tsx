@@ -24,7 +24,7 @@ export function StatsClient({ items }: StatsClientProps) {
   const maxCat = Math.max(...byCategory.map(c => c.count), 1)
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
         <h1 className="text-foreground font-bold text-lg">Style Stats</h1>
       </header>
@@ -58,7 +58,7 @@ export function StatsClient({ items }: StatsClientProps) {
                       <span className="text-foreground text-xs font-medium">{cat.count}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all"
+                      <div className="h-full bg-yellow-500 dark:bg-primary rounded-full transition-all"
                         style={{ width: `${(cat.count / maxCat) * 100}%` }} />
                     </div>
                   </div>
@@ -118,7 +118,7 @@ export function StatsClient({ items }: StatsClientProps) {
                     <p className="text-foreground text-xs font-medium truncate">{item.name}</p>
                     <p className="text-muted-foreground text-xs">{item.wear_count} wears · ${item.price}</p>
                   </div>
-                  <p className="text-primary font-semibold text-sm">${item.cpw.toFixed(2)}</p>
+                  <p className="text-yellow-600 dark:text-primary font-semibold text-sm">${item.cpw.toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -142,7 +142,7 @@ function ItemRow({ item, rank }: { item: WardrobeItem; rank: number }) {
           {item.last_worn ? `Last ${new Date(item.last_worn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}
         </p>
       </div>
-      <span className="text-primary font-semibold text-sm">{item.wear_count}×</span>
+      <span className="text-yellow-600 dark:text-primary font-semibold text-sm">{item.wear_count}×</span>
     </div>
   )
 }

@@ -39,7 +39,7 @@ export function WardrobesClient({ wardrobes, items }: WardrobesClientProps) {
   const unassigned = items.filter(i => !i.wardrobe_id)
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
         <h1 className="text-foreground font-bold text-lg">Wardrobes</h1>
         <p className="text-muted-foreground text-xs mt-0.5">Physical storage locations for your clothes</p>

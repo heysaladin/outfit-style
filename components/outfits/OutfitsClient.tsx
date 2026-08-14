@@ -96,7 +96,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <h1 className="text-foreground font-bold text-lg">Outfits</h1>
         <button onClick={() => setCreating(true)}

@@ -38,7 +38,7 @@ export function BottomNav() {
                 active ? 'text-[var(--app-orange)]' : 'text-[rgba(255,255,255,0.45)]'
               )}>
               <span className={cn(
-                'w-16 h-8 rounded-full flex items-center justify-center transition-all duration-200',
+                'w-10 h-8 rounded-full flex items-center justify-center transition-all duration-200',
                 active ? 'bg-[rgba(241,242,82,0.15)]' : ''
               )}>
                 <Icon size={20} strokeWidth={active ? 2 : 1.5} />

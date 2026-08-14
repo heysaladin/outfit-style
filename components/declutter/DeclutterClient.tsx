@@ -35,7 +35,7 @@ export function DeclutterClient({ items, cutoffDate }: DeclutterClientProps) {
   const shown = tab === 'suggested' ? suggested : flagged
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
         <h1 className="text-foreground font-bold text-lg">Declutter</h1>
       </header>

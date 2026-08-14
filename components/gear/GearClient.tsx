@@ -7,6 +7,7 @@ import type { HobbyItem } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
 import { GearItemCard } from './GearItemCard'
 import { AddGearModal } from './AddGearModal'
+import { BottomNav } from '@/components/BottomNav'
 
 interface GearClientProps {
   items: HobbyItem[]
@@ -28,10 +29,10 @@ export function GearClient({ items, user }: GearClientProps) {
   const activeHobbies = HOBBIES.filter(h => hobbyCounts[h.value] > 0)
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="h-dvh overflow-y-auto bg-background pb-20">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
-        <div className="flex items-center justify-between px-4 pt-14 pb-3">
+        <div className="flex items-center justify-between px-4 pt-3 pb-3">
           <div>
             <h1 className="text-foreground font-bold text-xl tracking-tight">Gear</h1>
             <p className="text-muted-foreground text-xs mt-0.5">
@@ -107,6 +108,7 @@ export function GearClient({ items, user }: GearClientProps) {
       )}
 
       {addOpen && <AddGearModal onClose={() => setAddOpen(false)} />}
+      <BottomNav />
     </div>
   )
 }

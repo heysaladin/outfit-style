@@ -68,7 +68,7 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
   const monthLabel = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <button onClick={prevMonth} className="text-muted-foreground hover:text-foreground transition-colors p-1">
           <ChevronLeft size={20} />

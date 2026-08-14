@@ -284,16 +284,25 @@ export async function useOutfit(outfitId: string): Promise<{ error?: string }> {
   const { data: outfitItems } = await supabase
     .from('outfit_items').select('item_id').eq('outfit_id', outfitId)
 
+  const today = new Date().toISOString().split('T')[0]
+
   for (const oi of outfitItems ?? []) {
     const { data: item } = await supabase.from('wardrobe_items')
       .select('wear_count').eq('id', oi.item_id).single()
     await supabase.from('wardrobe_items').update({
       wear_count: (item?.wear_count ?? 0) + 1,
-      last_worn: new Date().toISOString().split('T')[0],
+      last_worn: today,
     }).eq('id', oi.item_id).eq('user_id', user.id)
   }
 
-  revalidatePath('/ofit')
+  const { data: existing } = await supabase.from('outfit_logs')
+    .select('id').eq('user_id', user.id).eq('date', today).maybeSingle()
+  if (!existing) {
+    await supabase.from('outfit_logs').insert({ user_id: user.id, outfit_id: outfitId, date: today })
+  }
+
+  revalidatePath('/outfits')
+  revalidatePath('/calendar')
   revalidatePath('/stats')
   return {}
 }

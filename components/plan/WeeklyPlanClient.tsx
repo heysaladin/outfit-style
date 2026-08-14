@@ -38,7 +38,7 @@ export function WeeklyPlanClient({ weekStart, plans, allItems, today }: WeeklyPl
   const pickerDayPlans = pickerDay ? (plansByDate[pickerDay] ?? []) : []
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="h-dvh overflow-y-auto bg-background pb-20">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
         <h1 className="text-foreground font-bold text-lg tracking-tight mb-2">Weekly Plan</h1>
         <div className="flex items-center justify-between">
