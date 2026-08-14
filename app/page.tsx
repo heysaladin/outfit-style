@@ -1061,19 +1061,10 @@ export default function Home() {
           )}
         </div>
 
-        {/* Bottom fade + safe-area fill */}
-        <div style={{
-          position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-          width: 'min(100%, 430px)', pointerEvents: 'none', zIndex: 29,
-        }}>
-          <div style={{ height: 60, background: 'linear-gradient(to bottom, transparent, var(--background))' }} />
-          <div style={{ height: 'env(safe-area-inset-bottom,0px)', background: '#1C1917' }} />
-        </div>
-
         {/* ── Bottom nav — floating pill ── */}
         <nav style={{
           position: 'fixed',
-          bottom: 'calc(env(safe-area-inset-bottom,0px) + 6px)',
+          bottom: 8,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'min(calc(100% - 24px), 406px)',
