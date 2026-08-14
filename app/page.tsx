@@ -531,7 +531,7 @@ export default function Home() {
               </div>
 
               {/* Streak card — menggantung di batas dark/light */}
-              <div className="rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)', margin: '0 0 32px', marginTop: -28 }}>
+              <div className="rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)', margin: '0 0 16px', marginTop: -28 }}>
                 <div className="flex items-center gap-2">
                   <span className="text-h3 font-extrabold" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>🔥 {streak}</span>
                   <span className="text-para-xs font-semibold leading-[1.3]" style={{ color: 'rgba(255,255,255,0.45)' }}>day<br />streak</span>
@@ -1059,6 +1059,15 @@ export default function Home() {
               })()}
             </div>
           )}
+        </div>
+
+        {/* Bottom fade + safe-area fill */}
+        <div style={{
+          position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+          width: 'min(100%, 430px)', pointerEvents: 'none', zIndex: 29,
+        }}>
+          <div style={{ height: 80, background: 'linear-gradient(to bottom, transparent, var(--background))' }} />
+          <div style={{ height: 'env(safe-area-inset-bottom,0px)', background: 'var(--background)' }} />
         </div>
 
         {/* ── Bottom nav — floating pill ── */}
