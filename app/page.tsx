@@ -434,7 +434,7 @@ export default function Home() {
       <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: '#1C1917' }}>
+        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: 'var(--card)' }}>
           <span className="font-heading font-extrabold text-h3 tracking-tight" style={{ color: 'var(--app-orange)' }}>
             interestory
           </span>
@@ -495,7 +495,7 @@ export default function Home() {
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain px-[18px]"
-          style={{ paddingBottom: 80 }}
+          style={{ paddingBottom: 'calc(66px + env(safe-area-inset-bottom, 0px) + 8px)' }}
         >
 
           {/* ════ HOME TAB ════ */}
@@ -987,17 +987,18 @@ export default function Home() {
                           })
                         }
                         if (isVeryLong) return (
-                          <Card key={`a-${act.id}`}>
-                            <CardContent className="p-4 pb-3.5">
+                          <div key={`a-${act.id}`} className="rounded-[24px] overflow-hidden" style={{ background: 'var(--card)' }}>
+                            <div className="p-4 pb-3.5">
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-sm font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
-                                <span className="ml-auto text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                                <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
+                                <span className="ml-auto text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
                                 className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer overflow-hidden"
                                 style={{
+                                  color: '#ffffff',
                                   display: '-webkit-box',
                                   WebkitBoxOrient: 'vertical',
                                   WebkitLineClamp: isExpanded ? 'unset' : 5,
@@ -1013,43 +1014,45 @@ export default function Home() {
                               >
                                 {isExpanded ? 'Show less' : 'Read more'}
                               </button>
-                            </CardContent>
-                          </Card>
+                            </div>
+                          </div>
                         )
                         if (!isShort) return (
-                          <Card key={`a-${act.id}`}>
-                            <CardContent className="p-4 pb-3.5">
+                          <div key={`a-${act.id}`} className="rounded-[24px] overflow-hidden" style={{ background: 'var(--card)' }}>
+                            <div className="p-4 pb-3.5">
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-sm font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
-                                <span className="ml-auto text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                                <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
+                                <span className="ml-auto text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
                                 className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer"
+                                style={{ color: 'var(--foreground)' }}
                               >
                                 {text}
                               </p>
-                            </CardContent>
-                          </Card>
+                            </div>
+                          </div>
                         )
                         return (
                           <div
                             key={`a-${act.id}`}
                             onClick={() => openActivity(act)}
-                            className="rounded-[24px] overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer bg-card"
+                            className="rounded-[24px] overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer"
+                            style={{ background: 'var(--card)' }}
                           >
                             <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
-                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-heading" style={{ color: 'var(--app-ink)' }}>
+                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-heading" style={{ color: 'var(--foreground)' }}>
                                 {text}
                               </p>
                             </div>
                             <div className="p-[0_18px_16px] flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-xs font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
+                                <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
                               </div>
-                              <span className="text-para-xs font-semibold text-muted-foreground">{timeAgo}</span>
+                              <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
                             </div>
                           </div>
                         )
