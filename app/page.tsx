@@ -434,7 +434,7 @@ export default function Home() {
       <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: 'var(--card)' }}>
+        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: '#1C1917' }}>
           <span className="font-heading font-extrabold text-h3 tracking-tight" style={{ color: 'var(--app-orange)' }}>
             interestory
           </span>
@@ -495,7 +495,7 @@ export default function Home() {
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain px-[18px]"
-          style={{ paddingBottom: 'calc(66px + env(safe-area-inset-bottom, 0px) + 8px)' }}
+          style={{ paddingBottom: 74 }}
         >
 
           {/* ════ HOME TAB ════ */}
@@ -1148,7 +1148,7 @@ export default function Home() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </button>
               </div>
-              <div className="p-[16px_20px] pb-[calc(24px+env(safe-area-inset-bottom,0px))]" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }} onClick={e => e.stopPropagation()}>
+              <div className="p-[16px_20px] pb-6" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }} onClick={e => e.stopPropagation()}>
                 {fullscreenPhoto.note && (
                   <p className="text-para-md font-semibold m-0 mb-3 leading-[1.4]" style={{ color: 'rgba(255,255,255,.9)' }}>{fullscreenPhoto.note}</p>
                 )}
