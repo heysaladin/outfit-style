@@ -83,12 +83,12 @@ export function FilterBar({
         <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           <button onClick={() => onSubcategoryChange(null)}
             className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              !activeSubcategory ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+              !activeSubcategory ? 'bg-[var(--app-ink)] text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
             }`}>All</button>
           {catDef!.subcategories.map(sub => (
             <button key={sub.value} onClick={() => onSubcategoryChange(activeSubcategory === sub.value ? null : sub.value)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                activeSubcategory === sub.value ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+                activeSubcategory === sub.value ? 'bg-[var(--app-ink)] text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}>{sub.label}</button>
           ))}
         </div>
@@ -98,16 +98,16 @@ export function FilterBar({
       <div className="flex gap-1.5">
         <button onClick={() => onShowVerifiedChange(!showVerified)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            showVerified ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+            showVerified ? 'bg-[var(--app-ink)] text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
           }`}>
-          <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+          <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-white' : 'bg-muted-foreground/30'}`} />
           Verified
         </button>
         <button onClick={() => onShowDraftChange(!showDraft)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            showDraft ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:text-foreground'
+            showDraft ? 'bg-[var(--app-ink)] text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
           }`}>
-          <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+          <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-white' : 'bg-muted-foreground/30'}`} />
           Draft
         </button>
       </div>

@@ -39,7 +39,7 @@ export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-10 bg-background px-5 pt-14 pb-3 flex items-center justify-between">
+    <header className="sticky top-0 z-10 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: '#1C1917' }}>
       <div className="flex items-center gap-3">
         <Link href="/fashion" className="w-8 h-8 flex items-center justify-center rounded-full bg-muted">
           <ChevronLeft size={16} strokeWidth={2} className="text-foreground" />

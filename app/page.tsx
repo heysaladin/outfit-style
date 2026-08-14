@@ -442,7 +442,7 @@ export default function Home() {
             className="w-10 h-10 flex-shrink-0 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
           >
-            <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt="avatar" />
+            <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
             <AvatarFallback>{avatarLetter}</AvatarFallback>
           </Avatar>
         </header>
@@ -502,7 +502,8 @@ export default function Home() {
           {tab === 'home' && (
             <>
               {/* ── Dark hero section — connects with header ── */}
-              <div style={{ background: '#1C1917', margin: '0 -18px 48px', padding: '12px 18px 32px', borderRadius: '0 0 20px 20px', height: '41%' }}>
+              {/* Dark hero section */}
+              <div style={{ background: '#1C1917', margin: '0 -18px 0', padding: '12px 18px 48px', borderRadius: '0 0 20px 20px' }}>
                 {/* Date + greeting */}
                 <div className="pt-2 pb-1 mx-1">
                   <p className="text-caption font-semibold tracking-caption uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
@@ -512,7 +513,7 @@ export default function Home() {
                   </h1>
                 </div>
 
-                {/* Momo card — inside dark section */}
+                {/* Momo card */}
                 <div className="mt-3 rounded-[20px] flex items-center gap-4 p-4" style={{ background: 'rgba(255,255,255,0.07)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/momo.png" alt="Momo" className="w-16 h-16 flex-shrink-0 object-contain" />
@@ -527,29 +528,28 @@ export default function Home() {
                     <span className="text-para-xs mt-1 block" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
                   </div>
                 </div>
+              </div>
 
-                {/* Week streak dots */}
-                <div className="mt-3 rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-h3 font-extrabold" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>🔥 {streak}</span>
-                    <span className="text-para-xs font-semibold leading-[1.3]" style={{ color: 'rgba(255,255,255,0.45)' }}>day<br />streak</span>
-                  </div>
-                  <div className="flex gap-[9px]">
-                    {weekDots.map((d, i) => (
-                      <div key={i} className="flex flex-col items-center gap-[5px]">
-                        <span className="text-para-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>{d.label}</span>
-                        <div className="w-2.5 h-2.5 rounded-full" style={{
-                          background: d.active ? 'var(--app-orange)' : 'rgba(255,255,255,0.15)',
-                          outline: d.isToday ? '2px solid var(--app-orange)' : 'none',
-                          outlineOffset: '2px',
-                        }} />
-                      </div>
-                    ))}
-                  </div>
+              {/* Streak card — menggantung di batas dark/light */}
+              <div className="rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)', margin: '0 0 32px', marginTop: -28 }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-h3 font-extrabold" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>🔥 {streak}</span>
+                  <span className="text-para-xs font-semibold leading-[1.3]" style={{ color: 'rgba(255,255,255,0.45)' }}>day<br />streak</span>
+                </div>
+                <div className="flex gap-[9px]">
+                  {weekDots.map((d, i) => (
+                    <div key={i} className="flex flex-col items-center gap-[5px]">
+                      <span className="text-para-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>{d.label}</span>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{
+                        background: d.active ? 'var(--app-orange)' : 'rgba(255,255,255,0.15)',
+                        outline: d.isToday ? '2px solid var(--app-orange)' : 'none',
+                        outlineOffset: '2px',
+                      }} />
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Week streak dots */}
               {/* Recent Activities */}
               {activities.length > 0 && (
                 <>
@@ -1036,21 +1036,19 @@ export default function Home() {
                           <div
                             key={`a-${act.id}`}
                             onClick={() => openActivity(act)}
-                            className="rounded-[20px] overflow-hidden relative shadow-lg min-h-[140px] flex flex-col justify-between cursor-pointer"
-                            style={{ background: '#1C130A' }}
+                            className="rounded-[24px] overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer bg-card"
                           >
-                            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,122,47,.12) 0%, rgba(63,191,143,.08) 100%)' }} />
-                            <div className="relative p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
-                              <p className="m-0 text-h3 font-extrabold leading-[1.25] text-white break-words font-heading">
+                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
+                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-heading" style={{ color: 'var(--app-ink)' }}>
                                 {text}
                               </p>
                             </div>
-                            <div className="relative p-[0_18px_16px] flex items-center justify-between">
+                            <div className="p-[0_18px_16px] flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-xs font-semibold" style={{ color: 'rgba(255,255,255,.5)' }}>{h?.label ?? act.hobby}</span>
+                                <span className="text-para-xs font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
                               </div>
-                              <span className="text-para-xs font-semibold" style={{ color: 'rgba(255,255,255,.5)' }}>{timeAgo}</span>
+                              <span className="text-para-xs font-semibold text-muted-foreground">{timeAgo}</span>
                             </div>
                           </div>
                         )
@@ -1066,7 +1064,7 @@ export default function Home() {
         {/* ── Bottom nav — floating pill ── */}
         <nav style={{
           position: 'fixed',
-          bottom: 'calc(10px + env(safe-area-inset-bottom,0px))',
+          bottom: 'max(10px, env(safe-area-inset-bottom,0px))',
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'min(calc(100% - 24px), 406px)',

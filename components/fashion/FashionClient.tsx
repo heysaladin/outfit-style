@@ -12,7 +12,7 @@ import { MomentsTab } from '@/components/gear/MomentsTab'
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
+  shadow: 'none',
 }
 const DP = 'var(--font-bricolage), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
