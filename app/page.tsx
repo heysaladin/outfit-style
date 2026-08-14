@@ -583,6 +583,7 @@ export default function Home() {
                 </>
               )}
 
+
               {/* Monthly Goals */}
               <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
                 <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">
@@ -1064,7 +1065,7 @@ export default function Home() {
         {/* ── Bottom nav — floating pill ── */}
         <nav style={{
           position: 'fixed',
-          bottom: 8,
+          bottom: 4,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'min(calc(100% - 24px), 406px)',
