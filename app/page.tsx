@@ -1066,14 +1066,14 @@ export default function Home() {
           position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
           width: 'min(100%, 430px)', pointerEvents: 'none', zIndex: 29,
         }}>
-          <div style={{ height: 80, background: 'linear-gradient(to bottom, transparent, var(--background))' }} />
-          <div style={{ height: 'env(safe-area-inset-bottom,0px)', background: 'var(--background)' }} />
+          <div style={{ height: 60, background: 'linear-gradient(to bottom, transparent, var(--background))' }} />
+          <div style={{ height: 'env(safe-area-inset-bottom,0px)', background: '#1C1917' }} />
         </div>
 
         {/* ── Bottom nav — floating pill ── */}
         <nav style={{
           position: 'fixed',
-          bottom: 'max(10px, env(safe-area-inset-bottom,0px))',
+          bottom: 'calc(env(safe-area-inset-bottom,0px) + 6px)',
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'min(calc(100% - 24px), 406px)',
