@@ -34,6 +34,7 @@ interface Props {
   photos: HobbyPhoto[]
   user: User | null
   wardrobeHref?: string
+  wardrobeLabel?: string
 }
 
 function lastActiveLabel(activities: HobbyActivity[]): string {
@@ -45,7 +46,7 @@ function lastActiveLabel(activities: HobbyActivity[]): string {
   return `${Math.floor(diff / 7)}w ago`
 }
 
-export function HobbyDetailClient({ hobby, items, activities, photos, user }: Props) {
+export function HobbyDetailClient({ hobby, items, activities, photos, user, wardrobeHref, wardrobeLabel }: Props) {
   const router = useRouter()
   const [tab, setTab]       = useState<Tab>('items')
   const [addOpen, setAddOpen] = useState(false)
@@ -91,6 +92,21 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user }: Pr
               <path d="M12 5v14M5 12h14"/>
             </svg>
           </IconBtn>
+        )}
+
+        {wardrobeHref && (
+          <a
+            href={wardrobeHref}
+            style={{
+              display: 'flex', alignItems: 'center', height: 42,
+              padding: '0 16px', borderRadius: 16, border: 'none',
+              background: C.ink, color: '#FFF7EC',
+              fontFamily: UI, fontSize: 12, fontWeight: 800,
+              textDecoration: 'none', whiteSpace: 'nowrap',
+            }}
+          >
+            {wardrobeLabel ?? 'Library'}
+          </a>
         )}
       </div>
 

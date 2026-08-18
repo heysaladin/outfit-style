@@ -949,3 +949,44 @@ export async function getPublicHobbyItems(category: string) {
     .order('created_at', { ascending: false })
   return data ?? []
 }
+
+// ─── Books / Library ──────────────────────────────────────────────────────
+
+export async function updateBookNote(
+  itemId: string,
+  note: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { error } = await supabase
+    .from('hobby_items')
+    .update({ description: note || null })
+    .eq('id', itemId)
+
+  if (error) return { error: error.message }
+  revalidatePath('/literacy')
+  return {}
+}
+
+export async function upsertBookProgress(
+  itemId: string,
+  progress: number,
+  status: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { error } = await supabase
+    .from('book_progress')
+    .upsert(
+      { user_id: user.id, hobby_item_id: itemId, progress, status, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,hobby_item_id' }
+    )
+
+  if (error) return { error: error.message }
+  revalidatePath('/literacy')
+  return {}
+}

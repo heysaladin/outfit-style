@@ -404,3 +404,17 @@ export interface HobbyPhoto {
   note: string | null
   created_at: string
 }
+
+// ─── Books / Library ──────────────────────────────────────────────────────
+
+export type BookStatus = 'unread' | 'reading' | 'done'
+
+export interface BookProgress {
+  id: string
+  user_id: string
+  hobby_item_id: string
+  progress: number      // 0–100
+  status: BookStatus
+  created_at: string
+  updated_at: string
+}
