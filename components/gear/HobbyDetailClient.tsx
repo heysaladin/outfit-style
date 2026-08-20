@@ -7,6 +7,13 @@ import type { HobbyItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { AddGearModal } from './AddGearModal'
 import { ActivitiesTab } from './ActivitiesTab'
 import { MomentsTab } from './MomentsTab'
+import { calcWorth, formatWPStatus } from '@/lib/worth'
+
+const WORTH_BADGE: Partial<Record<string, { icon: string; color: string }>> = {
+  'worth':     { icon: '✅', color: '#16a34a' },
+  'great':     { icon: '🔥', color: '#2563eb' },
+  'excellent': { icon: '💎', color: '#7c3aed' },
+}
 
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
@@ -178,6 +185,15 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                         {item.description}
                       </span>
                     )}
+                    {(() => {
+                      const { wpStatus } = calcWorth({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, totalUses: item.use_count })
+                      const wb = wpStatus ? WORTH_BADGE[wpStatus] : null
+                      return wb && wpStatus ? (
+                        <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: wb.color, marginTop: 4 }}>
+                          {wb.icon} {formatWPStatus(wpStatus)}
+                        </span>
+                      ) : null
+                    })()}
                   </div>
                 </button>
               ))}

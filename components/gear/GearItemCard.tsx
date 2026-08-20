@@ -2,6 +2,13 @@
 
 import type { HobbyItem } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
+import { calcWorth, formatWPStatus, wpStatusColor } from '@/lib/worth'
+
+const WORTH_BADGE: Partial<Record<string, { icon: string; bg: string }>> = {
+  'worth':     { icon: '✅', bg: '#DDF4EA' },
+  'great':     { icon: '🔥', bg: '#EFF6FF' },
+  'excellent': { icon: '💎', bg: '#F5F3FF' },
+}
 
 interface GearItemCardProps {
   item: HobbyItem
@@ -11,6 +18,8 @@ interface GearItemCardProps {
 export function GearItemCard({ item, onClick }: GearItemCardProps) {
   const hobbyDef = HOBBIES.find(h => h.value === item.category)
   const isDraft  = !item.status || item.status === 'draft'
+  const { wpStatus } = calcWorth({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, totalUses: item.use_count })
+  const worthBadge = wpStatus ? WORTH_BADGE[wpStatus] : null
 
   return (
     <div className="group relative flex flex-col gap-2">
@@ -53,6 +62,11 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
         </div>
         {item.description && (
           <p className="text-muted-foreground text-[10px] mt-0.5 truncate">{item.description}</p>
+        )}
+        {worthBadge && wpStatus && (
+          <p className={`text-[10px] font-semibold mt-0.5 ${wpStatusColor(wpStatus)}`}>
+            {worthBadge.icon} {formatWPStatus(wpStatus)}
+          </p>
         )}
       </button>
     </div>
