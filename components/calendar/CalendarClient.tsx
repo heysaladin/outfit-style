@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react'
 import { logOutfit, removeOutfitLog } from '@/app/actions'
 import type { Outfit, OutfitLog, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 
 interface CalendarClientProps {
   logs: OutfitLog[]
@@ -74,9 +75,12 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
           <ChevronLeft size={20} />
         </button>
         <h1 className="text-foreground font-bold text-base">{monthLabel}</h1>
-        <button onClick={nextMonth} className="text-muted-foreground hover:text-foreground transition-colors p-1">
-          <ChevronRight size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={nextMonth} className="text-muted-foreground hover:text-foreground transition-colors p-1">
+            <ChevronRight size={20} />
+          </button>
+          <UserAvatarMenu />
+        </div>
       </header>
 
       <div className="p-4">

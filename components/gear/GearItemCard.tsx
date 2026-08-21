@@ -63,11 +63,24 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
         {item.description && (
           <p className="text-muted-foreground text-[10px] mt-0.5 truncate">{item.description}</p>
         )}
-        {worthBadge && wpStatus && (
-          <p className={`text-[10px] font-semibold mt-0.5 ${wpStatusColor(wpStatus)}`}>
-            {worthBadge.icon} {formatWPStatus(wpStatus)}
+        <div className="mt-1.5">
+          <div className="h-[3px] rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.min(item.use_count / 100, 1) * 100}%`,
+                background: item.use_count >= 100 ? '#7c3aed' : item.use_count >= 50 ? '#2563eb' : item.use_count >= 20 ? '#16a34a' : item.use_count >= 10 ? '#d97706' : '#94a3b8',
+              }}
+            />
+          </div>
+          <p className="text-[9px] text-muted-foreground font-medium mt-0.5 leading-none">
+            {item.use_count}× · {
+              item.use_count >= 100 ? '💎 Excellent!'
+              : item.use_count >= 20 ? `${100 - item.use_count} more to Excellent`
+              : `${20 - item.use_count} more to Worth it`
+            }
           </p>
-        )}
+        </div>
       </button>
     </div>
   )

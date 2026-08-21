@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X, Trash2, Shirt, Pencil } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search } from 'lucide-react'
 import { createOutfit, deleteOutfit, useOutfit, updateOutfit } from '@/app/actions'
 import type { Outfit, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 
 interface OutfitsClientProps {
   outfits: Outfit[]
@@ -47,6 +48,8 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const [editName, setEditName]       = useState('')
   const [editOccasion, setEditOccasion] = useState('')
   const [editIds, setEditIds]         = useState<Set<string>>(new Set())
+  const [createSearch, setCreateSearch] = useState('')
+  const [editSearch, setEditSearch]   = useState('')
 
   function toggleItem(id: string) {
     setSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -61,6 +64,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
     setEditName(detail.name)
     setEditOccasion(detail.occasion ?? '')
     setEditIds(new Set(detail.outfit_items?.map(oi => (oi.wardrobe_items as WardrobeItem)?.id).filter(Boolean) ?? []))
+    setEditSearch('')
     setEditing(true)
   }
 
@@ -72,7 +76,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
     })
   }
 
-  function resetCreate() { setName(''); setOccasion(''); setSelectedIds(new Set()); setError('') }
+  function resetCreate() { setName(''); setOccasion(''); setSelectedIds(new Set()); setError(''); setCreateSearch('') }
 
   function handleCreate() {
     if (!name.trim()) return setError('Enter an outfit name')
@@ -95,14 +99,28 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
 
+  function filterItems(items: WardrobeItem[], q: string) {
+    if (!q.trim()) return items
+    const lq = q.toLowerCase()
+    return items.filter(i =>
+      [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(lq)
+    )
+  }
+
+  const createItems = filterItems(allItems, createSearch)
+  const editItems   = filterItems(allItems, editSearch)
+
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <h1 className="text-foreground font-bold text-lg">Outfits</h1>
-        <button onClick={() => setCreating(true)}
-          className="w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
-          <Plus size={16} className="text-primary-foreground" strokeWidth={2.5} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setCreating(true)}
+            className="w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
+            <Plus size={16} className="text-primary-foreground" strokeWidth={2.5} />
+          </button>
+          <UserAvatarMenu />
+        </div>
       </header>
 
       {outfits.length === 0 ? (
@@ -157,9 +175,20 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                 ))}
               </div>
               <div>
-                <p className="text-muted-foreground text-xs font-medium mb-2">Select items ({selectedIds.size} selected)</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-muted-foreground text-xs font-medium">Select items ({selectedIds.size} selected)</p>
+                </div>
+                <div className="relative mb-3">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <input
+                    value={createSearch}
+                    onChange={e => setCreateSearch(e.target.value)}
+                    placeholder="Search by name, brand, tag..."
+                    className="w-full bg-muted border border-border rounded-xl pl-8 pr-4 py-2.5 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary transition-colors"
+                  />
+                </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {allItems.map(item => (
+                  {createItems.map(item => (
                     <button key={item.id} onClick={() => toggleItem(item.id)}
                       className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedIds.has(item.id) ? 'border-primary' : 'border-border'}`}>
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
@@ -172,6 +201,9 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                       )}
                     </button>
                   ))}
+                  {createItems.length === 0 && (
+                    <p className="col-span-3 text-center text-muted-foreground text-xs py-6">No items found</p>
+                  )}
                 </div>
               </div>
               {error && <p className="text-destructive text-xs font-medium">{error}</p>}
@@ -270,8 +302,17 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
               </div>
               <div>
                 <p className="text-muted-foreground text-xs font-medium mb-2">Items ({editIds.size} selected)</p>
+                <div className="relative mb-3">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <input
+                    value={editSearch}
+                    onChange={e => setEditSearch(e.target.value)}
+                    placeholder="Search by name, brand, tag..."
+                    className="w-full bg-muted border border-border rounded-xl pl-8 pr-4 py-2.5 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary transition-colors"
+                  />
+                </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {allItems.map(item => (
+                  {editItems.map(item => (
                     <button key={item.id} onClick={() => toggleEditItem(item.id)}
                       className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${editIds.has(item.id) ? 'border-primary' : 'border-border'}`}>
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
@@ -284,6 +325,9 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                       )}
                     </button>
                   ))}
+                  {editItems.length === 0 && (
+                    <p className="col-span-3 text-center text-muted-foreground text-xs py-6">No items found</p>
+                  )}
                 </div>
               </div>
             </div>

@@ -37,7 +37,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
       .from('wardrobe_items')
       .select('*')
       .eq('status', 'verified')
-      .order('wear_count', { ascending: false })
+      .order('wear_count', { ascending: true })
       .order('created_at', { ascending: false })
       .then(({ data }) => setItems(data ?? []))
   }, [])
@@ -127,50 +127,66 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         <div style={{ padding: '0 18px 40px' }}>
           {items === null ? (
             /* Skeleton */
-            <div style={{ columns: 2, columnGap: 11 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {[...Array(6)].map((_, i) => (
                 <div key={i} style={{
-                  background: C.card, borderRadius: 22, marginBottom: 11,
-                  breakInside: 'avoid', aspectRatio: '1',
-                  boxShadow: C.shadow, opacity: 0.5,
+                  background: C.card, borderRadius: 12, aspectRatio: '1', opacity: 0.5,
                 }} />
               ))}
             </div>
           ) : items.length === 0 ? (
             <div style={{ padding: '50px 24px', textAlign: 'center', color: C.muted }}>
-              <div style={{ width: 60, height: 60, borderRadius: 22, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>👔</div>
+              <div style={{ width: 60, height: 60, borderRadius: 12, background: C.card, display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>👔</div>
               <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No verified items yet</b>
               <p style={{ fontSize: 13, lineHeight: 1.5 }}>Check back soon</p>
             </div>
           ) : (
-            <div style={{ columns: 2, columnGap: 11 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {items.map(item => (
                 <Link
                   key={item.id}
                   href={`/fashion/${item.id}`}
                   style={{
-                    display: 'block', background: C.card, borderRadius: 22, boxShadow: C.shadow,
-                    overflow: 'hidden', marginBottom: 11, breakInside: 'avoid',
+                    display: 'block', background: C.card, borderRadius: 12,
+                    overflow: 'hidden', border: `1px solid var(--border)`,
                     textDecoration: 'none', WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    style={{ width: '100%', display: 'block', objectFit: 'contain' }}
+                    style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '1' }}
                   />
-                  {showNames && (
-                    <div style={{ padding: '10px 13px 13px' }}>
-                      <b style={{ display: 'block', fontFamily: DP, fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {item.name}
-                      </b>
-                      {item.brand && (
-                        <span style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {item.brand}
-                        </span>
-                      )}
+                  <div style={{ padding: '10px 13px 13px' }}>
+                    {showNames && (
+                      <>
+                        <b style={{ display: 'block', fontFamily: DP, fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.name}
+                        </b>
+                        {item.brand && (
+                          <span style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.brand}
+                          </span>
+                        )}
+                      </>
+                    )}
+                    <div style={{ marginTop: showNames ? 8 : 0 }}>
+                      <div style={{ height: 3, borderRadius: 99, background: 'var(--muted)', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 99,
+                          width: `${Math.min(item.wear_count / 100, 1) * 100}%`,
+                          background: item.wear_count >= 100 ? '#7c3aed' : item.wear_count >= 50 ? '#2563eb' : item.wear_count >= 20 ? '#16a34a' : item.wear_count >= 10 ? '#d97706' : '#94a3b8',
+                        }} />
+                      </div>
+                      <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
+                        {item.wear_count}× · {
+                          item.wear_count >= 100 ? '💎 Excellent!'
+                          : item.wear_count >= 20 ? `${100 - item.wear_count} more to Excellent`
+                          : `${20 - item.wear_count} more to Worth it`
+                        }
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </Link>
               ))}
             </div>

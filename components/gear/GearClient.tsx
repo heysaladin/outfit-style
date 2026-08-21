@@ -8,6 +8,7 @@ import { HOBBIES } from '@/lib/types'
 import { GearItemCard } from './GearItemCard'
 import { AddGearModal } from './AddGearModal'
 import { BottomNav } from '@/components/BottomNav'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 
 interface GearClientProps {
   items: HobbyItem[]
@@ -39,12 +40,15 @@ export function GearClient({ items, user }: GearClientProps) {
               {items.length} {items.length === 1 ? 'item' : 'items'} across {activeHobbies.length} {activeHobbies.length === 1 ? 'hobby' : 'hobbies'}
             </p>
           </div>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center hover:opacity-80 transition-opacity"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setAddOpen(true)}
+              className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center hover:opacity-80 transition-opacity"
+            >
+              <Plus size={18} strokeWidth={2.5} />
+            </button>
+            <UserAvatarMenu />
+          </div>
         </div>
 
         {/* Hobby filter pills */}

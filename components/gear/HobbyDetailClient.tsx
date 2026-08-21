@@ -18,7 +18,7 @@ const WORTH_BADGE: Partial<Record<string, { icon: string; color: string }>> = {
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
+  shadow: 'none',
 }
 const DP = 'var(--font-bricolage), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
@@ -145,16 +145,15 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
           {items.length === 0 ? (
             <EmptyState icon={hobby.icon} title={`No ${hobby.label} items yet`} desc={user ? 'Tap + to add your first item' : 'Sign in to add items'} />
           ) : (
-            <div style={{ columns: 2, columnGap: 11 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {items.map((item, i) => (
                 <button
                   key={item.id}
                   onClick={() => router.push(`/${hobby.value}/${item.id}`)}
                   style={{
-                    background: C.card, border: 'none', borderRadius: 22, boxShadow: C.shadow,
+                    background: C.card, border: `1px solid var(--border)`, borderRadius: 12,
                     overflow: 'hidden', cursor: 'pointer', color: C.ink, textAlign: 'left', padding: 0,
-                    WebkitTapHighlightColor: 'transparent',
-                    display: 'block', width: '100%', marginBottom: 11, breakInside: 'avoid',
+                    WebkitTapHighlightColor: 'transparent', display: 'block', width: '100%',
                   }}
                 >
                   <div style={{
@@ -171,7 +170,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                       position: 'absolute', bottom: 8, right: 8,
                       fontSize: 10.5, fontWeight: 700,
                       padding: '4px 9px', borderRadius: 99,
-                      background: 'rgba(255,255,255,.9)', color: C.ink, boxShadow: C.shadow,
+                      background: 'rgba(255,255,255,.9)', color: C.ink,
                     }}>
                       {item.use_count} uses
                     </span>
@@ -185,15 +184,22 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                         {item.description}
                       </span>
                     )}
-                    {(() => {
-                      const { wpStatus } = calcWorth({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, totalUses: item.use_count })
-                      const wb = wpStatus ? WORTH_BADGE[wpStatus] : null
-                      return wb && wpStatus ? (
-                        <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: wb.color, marginTop: 4 }}>
-                          {wb.icon} {formatWPStatus(wpStatus)}
-                        </span>
-                      ) : null
-                    })()}
+                    <div style={{ marginTop: 8 }}>
+                      <div style={{ height: 3, borderRadius: 99, background: 'var(--muted)', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 99,
+                          width: `${Math.min(item.use_count / 100, 1) * 100}%`,
+                          background: item.use_count >= 100 ? '#7c3aed' : item.use_count >= 50 ? '#2563eb' : item.use_count >= 20 ? '#16a34a' : item.use_count >= 10 ? '#d97706' : '#94a3b8',
+                        }} />
+                      </div>
+                      <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
+                        {item.use_count}× · {
+                          item.use_count >= 100 ? '💎 Excellent!'
+                          : item.use_count >= 20 ? `${100 - item.use_count} more to Excellent`
+                          : `${20 - item.use_count} more to Worth it`
+                        }
+                      </span>
+                    </div>
                   </div>
                 </button>
               ))}
@@ -223,7 +229,7 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
       width: 42, height: 42, borderRadius: 16, border: 'none',
       background: 'var(--card)', color: 'var(--foreground)', cursor: 'pointer',
       display: 'grid', placeItems: 'center',
-      boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
+      flexShrink: 0,
     }}>
       {children}
     </button>
@@ -233,7 +239,7 @@ function IconBtn({ onClick, children }: { onClick: () => void; children: React.R
 function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
     <div style={{ padding: '50px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-      <div style={{ width: 60, height: 60, borderRadius: 22, background: 'var(--card)', boxShadow: '0 6px 18px rgba(84,62,32,.08)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
+      <div style={{ width: 60, height: 60, borderRadius: 12, background: 'var(--card)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
       <b style={{ display: 'block', color: 'var(--foreground)', fontFamily: 'var(--font-bricolage), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
       <p style={{ fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
     </div>

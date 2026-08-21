@@ -54,11 +54,11 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
   return (
     <div className={`group relative flex flex-col gap-1.5 ${selected ? 'opacity-90' : ''}`}>
       {/* Image */}
-      <div className={`relative aspect-square rounded-2xl overflow-hidden bg-muted transition-all ${
+      <div className={`relative rounded-2xl overflow-hidden bg-muted transition-all ${
         dimmed ? 'opacity-50' : ''
       } ${selected ? 'ring-2 ring-foreground ring-offset-2 ring-offset-background' : ''}`}>
-        <button onClick={onClick} className="absolute inset-0 w-full h-full">
-          <img src={src} alt={item.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal" />
+        <button onClick={onClick} className="w-full block">
+          <img src={src} alt={item.name} className="w-full h-auto object-contain mix-blend-multiply dark:mix-blend-normal" />
         </button>
 
         {/* Status badge */}

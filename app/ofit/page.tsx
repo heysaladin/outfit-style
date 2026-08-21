@@ -9,7 +9,7 @@ export default async function OfitPage() {
   if (!user) redirect('/login')
 
   const [{ data: items }, { data: wardrobes }] = await Promise.all([
-    supabase.from('wardrobe_items').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+    supabase.from('wardrobe_items').select('*').eq('user_id', user.id).order('wear_count', { ascending: true }),
     supabase.from('wardrobes').select('*').eq('user_id', user.id).order('code', { ascending: true }),
   ])
 

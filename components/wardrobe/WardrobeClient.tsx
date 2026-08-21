@@ -51,17 +51,17 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (activeSeason      && !(item.seasons ?? []).includes(activeSeason))   return false
     if (activeOccasion    && !(item.occasions ?? []).includes(activeOccasion)) return false
     const s = item.status ?? 'draft'
-    if (s === 'draft'     && !showDraft)    return false
     if (s === 'verified'  && !showVerified) return false
+    if (s !== 'verified'  && !showDraft)    return false
     if (q) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q)) return false
     }
     return true
   }).sort((a, b) => {
-    const rankDiff = statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
-    if (rankDiff !== 0) return rankDiff
-    return b.wear_count - a.wear_count
+    const wearDiff = a.wear_count - b.wear_count
+    if (wearDiff !== 0) return wearDiff
+    return statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
   })
 
   function toggleSelect(id: string) {
@@ -149,9 +149,9 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
               selected={selected.has(item.id)}
               selectable={selectMode}
               onVerify={user ? () => handleVerify(item.id) : undefined}
-              onTrash={user ? () => handleTrash(item.id) : undefined}
+              onTrash={user && showDraft ? () => handleTrash(item.id) : undefined}
               onRestoreDraft={user ? () => handleRestoreDraft(item.id) : undefined}
-              onDelete={user ? () => handleDelete(item.id) : undefined}
+              onDelete={user && showDraft ? () => handleDelete(item.id) : undefined}
             />
           ))}
         </div>

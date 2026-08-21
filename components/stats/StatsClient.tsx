@@ -3,6 +3,7 @@
 import type { WardrobeItem } from '@/lib/types'
 import { CATEGORY_TREE } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 
 interface StatsClientProps { items: WardrobeItem[] }
 
@@ -25,8 +26,9 @@ export function StatsClient({ items }: StatsClientProps) {
 
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-16">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <h1 className="text-foreground font-bold text-lg">Style Stats</h1>
+        <UserAvatarMenu />
       </header>
 
       <div className="p-4 space-y-6 pb-24">
