@@ -430,20 +430,21 @@ export default function Home() {
   ).slice(0, 20) : []
 
   return (
-    <div className="h-dvh w-full overflow-hidden" style={{ background: 'var(--background)' }}>
-      <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
+    <div className="h-dvh w-full overflow-hidden" style={{ background: '#0A0A0A' }}>
+      <div className="w-full max-w-[430px] h-dvh mx-auto relative flex flex-col overflow-hidden" style={{ background: '#0A0A0A' }}>
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-6 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between h-12 bg-background border-b border-transparent">
-          <span className="font-sans font-semibold text-[19px] tracking-[-0.5px] text-foreground">
+        <header className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between" style={{ background: '#0A0A0A' }}>
+          <span className="font-sans font-semibold text-[19px] tracking-[-0.5px]" style={{ color: '#f1f252' }}>
             interestory
           </span>
           <Avatar
-            className="w-8 h-8 flex-shrink-0 cursor-pointer border border-border"
+            className="w-9 h-9 flex-shrink-0 cursor-pointer"
+            style={{ border: '2px solid rgba(255,255,255,0.15)', borderRadius: 9999 }}
             onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
           >
             <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
-            <AvatarFallback className="text-[12px] font-semibold bg-neutral-100 text-neutral-600">{avatarLetter}</AvatarFallback>
+            <AvatarFallback className="text-[12px] font-semibold" style={{ background: '#333', color: '#fff' }}>{avatarLetter}</AvatarFallback>
           </Avatar>
         </header>
 
@@ -504,50 +505,57 @@ export default function Home() {
 
         {/* ── Scrollable content ── */}
         <div
-          className="flex-1 overflow-y-auto overscroll-contain px-[18px]"
-          style={{ paddingBottom: 74 }}
+          className="flex-1 overflow-y-auto overscroll-contain"
+          style={{ paddingBottom: 104, background: 'var(--background)' }}
         >
 
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* ── Greeting ── */}
-              <div className="pt-5 pb-1 mx-1">
-                <p className="text-[12px] font-medium tracking-[1.5px] uppercase text-muted-foreground">{dateStr}</p>
-                <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold text-foreground m-0 mt-1">
-                  Hey {firstName},<br />let&apos;s add to your{' '}
-                  <em className="not-italic text-neutral-500">story</em>
-                </h1>
+              {/* ── Dark hero section ── */}
+              <div style={{ background: '#0A0A0A', margin: '0 0 3.25rem', padding: '20px 18px 24px', borderRadius: '0 0 28px 28px', height: '15rem' }}>
+                {/* Greeting */}
+                <div className="mb-5">
+                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
+                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#fff' }}>
+                    Hey {firstName},<br />let&apos;s add to your{' '}
+                    <em className="not-italic" style={{ color: '#f1f252' }}>story</em>
+                  </h1>
+                </div>
+
+                {/* Momo strip */}
+                <div className="rounded-[12px] flex items-center gap-3 p-3 mb-3" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                  <img src="/momo.png" alt="Momo" className="w-10 h-10 object-contain flex-shrink-0" />
+                  <div>
+                    <p className="text-[14px] leading-[18px] font-medium m-0" style={{ color: '#fff' }}>
+                      {streak > 1 ? `${streak}-day streak! You're on fire 🔥` : 'Start logging to build your story'}
+                    </p>
+                    <span className="text-[12px] leading-[16px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
+                  </div>
+                </div>
+
+                {/* Streak card */}
+                <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1a1a1a' }}>
+                  <div>
+                    <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>🔥 {streak}</span>
+                    <span className="text-[13px] ml-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
+                  </div>
+                  <div className="flex gap-[9px]">
+                    {weekDots.map((d, i) => (
+                      <div key={i} className="flex flex-col items-center gap-[5px]">
+                        <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{d.label}</span>
+                        <div className="w-2 h-2 rounded-full" style={{
+                          background: d.active ? '#f1f252' : (d.isToday ? 'transparent' : '#333'),
+                          border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
+                        }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* ── Momo strip ── */}
-              <div className="mt-4 rounded-[8px] flex items-center gap-3 p-3 border border-border bg-neutral-50">
-                <div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center flex-shrink-0 text-[12px] font-semibold text-neutral-600">M</div>
-                <div>
-                  <p className="text-[14px] leading-[18px] font-medium text-foreground m-0">
-                    {streak > 0 ? 'Start logging to build your story' : 'Start logging to build your story'}
-                  </p>
-                  <span className="text-[12px] leading-[16px] text-muted-foreground">Momo · your interest friend</span>
-                </div>
-              </div>
-
-              {/* ── Streak card ── */}
-              <div className="rounded-[8px] flex items-center justify-between p-4 border border-border mt-3 mb-4 bg-card">
-                <div>
-                  <span className="font-mono text-[22px] font-medium text-foreground">{streak}</span>
-                  <span className="text-[13px] text-neutral-500 ml-1.5">day streak</span>
-                </div>
-                <div className="flex gap-[9px]">
-                  {weekDots.map((d, i) => (
-                    <div key={i} className="flex flex-col items-center gap-[5px]">
-                      <span className="text-[11px] font-medium text-muted-foreground">{d.label}</span>
-                      <div className="w-2 h-2 rounded-full" style={{
-                        background: d.active ? '#171717' : '#E5E5E5',
-                      }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* ── Light content section ── */}
+              <div className="px-[18px]">
 
               {/* Recent Activities */}
               {activities.length > 0 && (
@@ -710,12 +718,13 @@ export default function Home() {
                   />
                 </div>
               </div>
+              </div>{/* end light content section */}
             </>
           )}
 
           {/* ════ HOBBY TAB ════ */}
           {tab === 'hobby' && (
-            <>
+            <div className="px-[18px]">
               <div className="flex items-baseline justify-between mt-5 mb-3 mx-0.5">
                 <h2 className="text-[16px] font-semibold text-foreground m-0">
                   Interests <small className="text-[12px] text-muted-foreground font-medium ml-1">{hobbyLinks.length}</small>
@@ -738,7 +747,7 @@ export default function Home() {
                   return (
                     <Link key={label} href={href} prefetch={false} className="block no-underline min-w-0">
                       <div className="border border-border rounded-[8px] bg-card hover:bg-neutral-50 transition-colors h-full overflow-hidden">
-                        <div className="bg-neutral-100 w-full aspect-[4/3]" />
+                        <div className="bg-neutral-100 w-full aspect-[4/3] flex items-center justify-center text-[48px]">{icon}</div>
                         <div className="p-3 pt-2.5">
                           <p className="text-[14px] font-semibold text-foreground m-0 mb-1 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
                             {value === 'social' ? 'Life' : label}
@@ -752,12 +761,12 @@ export default function Home() {
                   )
                 })}
               </div>
-            </>
+            </div>
           )}
 
           {/* ════ STATS TAB ════ */}
           {tab === 'stats' && (
-            <div className="pt-4">
+            <div className="px-[18px] pt-4">
               {!user ? (
                 <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
                   <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
@@ -815,7 +824,7 @@ export default function Home() {
 
           {/* ════ SEARCH TAB ════ */}
           {tab === 'search' && (
-            <div className="pt-4">
+            <div className="px-[18px] pt-4">
               <div className="relative mb-[18px]">
                 <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
@@ -897,7 +906,7 @@ export default function Home() {
 
           {/* ════ GALLERY TAB ════ */}
           {tab === 'gallery' && (
-            <div className="pt-4">
+            <div className="px-[18px] pt-4">
               {!user ? (
                 <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
                   <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
@@ -1032,12 +1041,12 @@ export default function Home() {
                             className="rounded-xl overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer border border-border"
                             style={{ background: 'var(--card)' }}
                           >
-                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
+                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center" style={{ background: 'var(--color-neutral-100)' }}>
                               <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-sans" style={{ color: 'var(--foreground)' }}>
                                 {text}
                               </p>
                             </div>
-                            <div className="p-[0_18px_16px] flex items-center justify-between">
+                            <div className="p-[12px_18px] flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
                                 <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
@@ -1055,45 +1064,51 @@ export default function Home() {
           )}
         </div>
 
-        {/* ── Bottom tab bar ── */}
+        {/* ── Bottom tab bar (floating pill) ── */}
         <nav
-          className="fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-background border-t border-border grid"
-          style={{ bottom: 0, gridTemplateColumns: 'repeat(5, 1fr)', height: 80, paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}
+          className="fixed left-1/2 -translate-x-1/2 z-30 grid"
+          style={{
+            bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+            width: 'calc(100% - 32px)',
+            maxWidth: 398,
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            height: 64,
+            background: '#171717',
+            borderRadius: 9999,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          }}
         >
           {/* Home */}
-          <button onClick={() => setTab('home')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'home' ? 'text-foreground' : 'text-neutral-400')}>
+          <button onClick={() => setTab('home')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
-            <span className="text-[11px] font-medium">Home</span>
           </button>
 
           {/* Activity */}
-          <button onClick={() => setTab('gallery')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'gallery' ? 'text-foreground' : 'text-neutral-400')}>
+          <button onClick={() => setTab('gallery')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-4-9 8"/></svg>
-            <span className="text-[11px] font-medium">Activity</span>
           </button>
 
           {/* FAB */}
           <div className="flex items-center justify-center">
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(() => { const n = new Date(); n.setSeconds(0,0); return n.toISOString().slice(0,16) }) }}
-              className="w-12 h-12 rounded-[12px] border-0 cursor-pointer flex items-center justify-center bg-foreground"
+              className="w-11 h-11 rounded-full border-0 cursor-pointer flex items-center justify-center"
+              style={{ background: '#f1f252' }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FAFAFA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
           </div>
 
           {/* Stats */}
-          <button onClick={() => setTab('stats')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'stats' ? 'text-foreground' : 'text-neutral-400')}>
+          <button onClick={() => setTab('stats')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-            <span className="text-[11px] font-medium">Stats</span>
           </button>
 
           {/* Hobby */}
-          <button onClick={() => setTab('hobby')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'hobby' ? 'text-foreground' : 'text-neutral-400')}>
+          <button onClick={() => setTab('hobby')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/></svg>
-            <span className="text-[11px] font-medium">Hobby</span>
           </button>
         </nav>
 

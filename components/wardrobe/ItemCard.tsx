@@ -110,8 +110,9 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
       {/* Text below image */}
       <button onClick={onClick} className="text-left px-0.5">
         <p className={`text-xs font-semibold truncate leading-tight ${dimmed ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</p>
+        {item.brand && <p className="text-muted-foreground text-[10px] truncate">{item.brand}</p>}
         <p className="text-muted-foreground text-[10px] mt-0.5">
-          {item.brand ? item.brand : item.wear_count > 0 ? `${item.wear_count}× worn` : 'Never worn'}
+          {item.wear_count > 0 ? `${item.wear_count}× worn` : 'Never worn'}
         </p>
         {worthBadge && wpStatus && (
           <p className={`text-[10px] font-semibold mt-0.5 ${wpStatusColor(wpStatus)}`}>

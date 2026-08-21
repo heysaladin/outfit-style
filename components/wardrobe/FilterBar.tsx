@@ -1,8 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal, X, ArrowUpDown } from 'lucide-react'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef } from '@/lib/types'
+
+type SortKey = 'wear_asc' | 'wear_desc' | 'price_asc' | 'price_desc' | 'date_asc' | 'date_desc'
+
+const SORT_GROUPS: { label: string; options: { key: SortKey; desc: string }[] }[] = [
+  { label: 'Wear',  options: [{ key: 'wear_asc',   desc: 'Least worn first' }, { key: 'wear_desc',  desc: 'Most worn first'      }] },
+  { label: 'Price', options: [{ key: 'price_desc',  desc: 'Most expensive'   }, { key: 'price_asc',  desc: 'Cheapest first'       }] },
+  { label: 'Date',  options: [{ key: 'date_desc',   desc: 'Newest first'     }, { key: 'date_asc',   desc: 'Oldest first'         }] },
+]
+
+const SORT_LABEL: Record<SortKey, string> = {
+  wear_asc: 'Wear ↑', wear_desc: 'Wear ↓',
+  price_asc: 'Price ↑', price_desc: 'Price ↓',
+  date_asc: 'Date ↑', date_desc: 'Date ↓',
+}
 
 interface FilterBarProps {
   activeCategory: string | null
@@ -12,6 +26,8 @@ interface FilterBarProps {
   activeOccasion: string | null
   showVerified: boolean
   showDraft: boolean
+  sort: SortKey
+  onSortChange: (v: SortKey) => void
   onCategoryChange: (v: string | null) => void
   onSubcategoryChange: (v: string | null) => void
   onColorChange: (v: string | null) => void
@@ -23,11 +39,12 @@ interface FilterBarProps {
 
 export function FilterBar({
   activeCategory, activeSubcategory, activeColor, activeSeason, activeOccasion,
-  showVerified, showDraft,
+  showVerified, showDraft, sort, onSortChange,
   onCategoryChange, onSubcategoryChange, onColorChange, onSeasonChange, onOccasionChange,
   onShowVerifiedChange, onShowDraftChange,
 }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false)
+  const [sortOpen, setSortOpen] = useState(false)
   const catDef = getCategoryDef(activeCategory ?? '')
   const hasSubcategories = (catDef?.subcategories.length ?? 0) > 0
   const activeCount = [activeColor, activeSeason, activeOccasion].filter(Boolean).length
@@ -95,7 +112,7 @@ export function FilterBar({
       )}
 
       {/* Status — always visible */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 items-center">
         <button onClick={() => onShowVerifiedChange(!showVerified)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
             showVerified ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
@@ -110,6 +127,48 @@ export function FilterBar({
           <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-white' : 'bg-muted-foreground/30'}`} />
           Draft
         </button>
+
+        {/* Sort button */}
+        <div className="relative ml-auto">
+          <button
+            onClick={() => setSortOpen(v => !v)}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+              sortOpen ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <ArrowUpDown size={11} />
+            {SORT_LABEL[sort]}
+          </button>
+
+          {sortOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+              <div className="absolute right-0 top-full mt-1.5 z-20 bg-card border border-border rounded-xl shadow-md overflow-hidden min-w-[180px]">
+                {SORT_GROUPS.map((group, gi) => (
+                  <div key={group.label}>
+                    {gi > 0 && <div className="border-t border-border mx-3" />}
+                    <div className="px-3.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{group.label}</div>
+                    {group.options.map(opt => (
+                      <button
+                        key={opt.key}
+                        onClick={() => { onSortChange(opt.key); setSortOpen(false) }}
+                        className="w-full flex items-center justify-between gap-3 px-3.5 py-2 text-left hover:bg-muted transition-colors"
+                      >
+                        <span className="text-[13px] font-medium text-foreground">{opt.desc}</span>
+                        {sort === opt.key && (
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-foreground">
+                            <path d="M20 6L9 17l-5-5"/>
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+                <div className="pb-1" />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Expanded filters */}

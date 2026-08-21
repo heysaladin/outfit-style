@@ -276,7 +276,7 @@ export async function setItemStatus(
   return {}
 }
 
-export async function useOutfit(outfitId: string): Promise<{ error?: string }> {
+export async function useOutfit(outfitId: string, date?: string): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
@@ -284,7 +284,7 @@ export async function useOutfit(outfitId: string): Promise<{ error?: string }> {
   const { data: outfitItems } = await supabase
     .from('outfit_items').select('item_id').eq('outfit_id', outfitId)
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = date ?? new Date().toISOString().split('T')[0]
 
   for (const oi of outfitItems ?? []) {
     const { data: item } = await supabase.from('wardrobe_items')

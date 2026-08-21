@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutGrid, Layers, CalendarDays, BarChart2, Backpack } from 'lucide-react'
+import { LayoutGrid, Layers, CalendarDays, BarChart2, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { href: '/ofit',     icon: LayoutGrid,   label: 'Closet'   },
-  { href: '/outfits',  icon: Layers,       label: 'Outfits'  },
-  { href: '/gear',     icon: Backpack,     label: 'Gear'     },
-  { href: '/calendar', icon: CalendarDays, label: 'Calendar' },
-  { href: '/stats',    icon: BarChart2,    label: 'Stats'    },
+  { href: '/ofit',      icon: LayoutGrid,   label: 'Closet'   },
+  { href: '/wardrobes', icon: Archive,      label: 'Storage'  },
+  { href: '/outfits',   icon: Layers,       label: 'Outfits'  },
+  { href: '/calendar',  icon: CalendarDays, label: 'Calendar' },
+  { href: '/stats',     icon: BarChart2,    label: 'Stats'    },
 ]
 
 export function BottomNav() {

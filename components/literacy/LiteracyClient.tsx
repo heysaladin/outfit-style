@@ -169,21 +169,21 @@ function BookCard({ book, progress, status, onDetails }: {
 
   return (
     <div style={{
-      background: C.card, borderRadius: 22,
+      background: C.card, borderRadius: 14,
       boxShadow: '0 4px 14px rgba(84,62,32,.07)',
       overflow: 'hidden', marginBottom: 11, breakInside: 'avoid',
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Cover */}
       <div style={{
-        aspectRatio: '3/4', background: book.image_url
+        background: book.image_url
           ? undefined
           : 'linear-gradient(150deg,#FFF0DC,#FFDFC2)',
         display: 'grid', placeItems: 'center', fontSize: 40,
         position: 'relative', overflow: 'hidden',
       }}>
         {book.image_url
-          ? <img src={book.image_url} alt={book.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ? <img src={book.image_url} alt={book.name} style={{ width: '100%', height: 'auto', display: 'block' }} />
           : '📖'
         }
 

@@ -10,13 +10,13 @@ export default async function WardrobesPage() {
 
   const [{ data: wardrobes }, { data: items }] = await Promise.all([
     supabase.from('wardrobes').select('*').eq('user_id', user.id).order('code', { ascending: true }),
-    supabase.from('wardrobe_items').select('id, name, image_url, category, color, wardrobe_id').eq('user_id', user.id),
+    supabase.from('wardrobe_items').select('id, name, image_url, category, color, wardrobe_id, wear_count').eq('user_id', user.id),
   ])
 
   return (
     <WardrobesClient
       wardrobes={(wardrobes ?? []) as Wardrobe[]}
-      items={(items ?? []) as Pick<WardrobeItem, 'id' | 'name' | 'image_url' | 'category' | 'color' | 'wardrobe_id'>[]}
+      items={(items ?? []) as Pick<WardrobeItem, 'id' | 'name' | 'image_url' | 'category' | 'color' | 'wardrobe_id' | 'wear_count'>[]}
     />
   )
 }

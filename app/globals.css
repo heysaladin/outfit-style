@@ -549,7 +549,6 @@
     border: none;
     width: 100%;
     scrollbar-width: none;
-    scrollbar-gutter: stable both-edges;
   }
   ::-webkit-scrollbar {
     width: 0;

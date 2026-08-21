@@ -34,6 +34,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
   const [search,            setSearch]            = useState('')
+  const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'>('wear_asc')
 
   const q = search.toLowerCase().trim()
   const statusRank = (s: string) => {
@@ -59,6 +60,11 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     }
     return true
   }).sort((a, b) => {
+    if (sort === 'price_desc') return (b.price ?? -1) - (a.price ?? -1)
+    if (sort === 'price_asc')  return (a.price ?? Infinity) - (b.price ?? Infinity)
+    if (sort === 'date_desc')  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    if (sort === 'date_asc')   return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+    if (sort === 'wear_desc')  return b.wear_count - a.wear_count
     const wearDiff = a.wear_count - b.wear_count
     if (wearDiff !== 0) return wearDiff
     return statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
@@ -126,6 +132,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}
         activeColor={activeColor} activeSeason={activeSeason} activeOccasion={activeOccasion}
         showVerified={showVerified} showDraft={showDraft}
+        sort={sort} onSortChange={setSort}
         onCategoryChange={v => { setActiveCategory(v); setActiveSubcategory(null) }}
         onSubcategoryChange={setActiveSubcategory}
         onColorChange={setActiveColor} onSeasonChange={setActiveSeason} onOccasionChange={setActiveOccasion}

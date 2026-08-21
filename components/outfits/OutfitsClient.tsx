@@ -44,6 +44,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const [isPending, startTransition]  = useTransition()
   const [error, setError]             = useState('')
   const [confirmUse, setConfirmUse]   = useState(false)
+  const [useDate, setUseDate]         = useState(() => new Date().toISOString().split('T')[0])
   const [editing, setEditing]         = useState(false)
   const [editName, setEditName]       = useState('')
   const [editOccasion, setEditOccasion] = useState('')
@@ -94,7 +95,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   }
 
   function handleUse(id: string) {
-    startTransition(async () => { await useOutfit(id); setConfirmUse(false) })
+    startTransition(async () => { await useOutfit(id, useDate); setConfirmUse(false) })
   }
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
@@ -251,9 +252,18 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                   Use This Outfit
                 </button>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
+                    <input
+                      type="date"
+                      value={useDate}
+                      onChange={e => setUseDate(e.target.value)}
+                      className="w-full bg-muted rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20"
+                    />
+                  </div>
                   <p className="text-sm text-center text-muted-foreground">
-                    Ini akan menambah <span className="font-semibold text-foreground">+1 worn</span> untuk semua {detailItems.length} item. Lanjut?
+                    +1 worn untuk semua {detailItems.length} item. Lanjut?
                   </p>
                   <div className="flex gap-2">
                     <button onClick={() => setConfirmUse(false)} disabled={isPending}
