@@ -1,20 +1,14 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist_Mono, Bricolage_Grotesque, Fraunces } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const fraunces = Fraunces({
-  variable: '--font-cormorant',
+const geist = Geist({
+  variable: '--font-geist',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
 })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
-const bricolage = Bricolage_Grotesque({
-  variable: '--font-bricolage',
-  subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-})
 
 export const metadata: Metadata = {
   title: 'Interestory',
@@ -54,8 +48,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#171717' },
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
+    { media: '(prefers-color-scheme: light)', color: '#FAFAFA' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -68,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistMono.variable} ${bricolage.variable} ${fraunces.variable} antialiased`}
+        className={`${geist.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
         <Providers>

@@ -43,7 +43,7 @@ export function UserAvatarMenu() {
   if (!user) return null
 
   const name   = user.user_metadata?.full_name?.split(' ')[0] ?? user.email?.split('@')[0]
-  const avatar = user.user_metadata?.avatar_url
+  const avatar = 'https://heysaladindesign.web.app/pictures/avatar.png'
 
   return (
     <div ref={menuRef} className="relative">

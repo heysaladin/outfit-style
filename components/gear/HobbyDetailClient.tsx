@@ -20,16 +20,11 @@ const C = {
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   shadow: 'none',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 const ITEM_TINTS = [
-  'linear-gradient(150deg,#FFF0DC,#FFDFC2)',
-  'linear-gradient(150deg,#EAEFFB,#D8E2F5)',
-  'linear-gradient(150deg,#DFF2E4,#B7DFC3)',
-  'linear-gradient(150deg,#EDE6FD,#D3C4F6)',
-  'linear-gradient(150deg,#FBE0DC,#F2BBB2)',
-  'linear-gradient(150deg,#D8ECF7,#A9D2EA)',
+  '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5',
 ]
 
 type Tab = 'items' | 'activities' | 'moments'
@@ -76,7 +71,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
         display: 'flex', alignItems: 'center', gap: 10,
         position: 'sticky', top: 0, zIndex: 10,
-        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+        background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)',
       }}>
         <IconBtn onClick={() => router.push('/')}>
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,7 +102,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
             style={{
               display: 'flex', alignItems: 'center', height: 42,
               padding: '0 16px', borderRadius: 16, border: 'none',
-              background: C.ink, color: '#FFF7EC',
+              background: C.ink, color: '#FAFAFA',
               fontFamily: UI, fontSize: 12, fontWeight: 800,
               textDecoration: 'none', whiteSpace: 'nowrap',
             }}
@@ -127,7 +122,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
               flex: 1, border: 'none', cursor: 'pointer', fontFamily: UI,
               fontSize: 13, fontWeight: 700, padding: '11px 0', borderRadius: 99,
               background: tab === t.key ? C.ink : C.card,
-              color: tab === t.key ? '#FFF7EC' : C.muted,
+              color: tab === t.key ? '#FAFAFA' : C.muted,
               boxShadow: C.shadow,
             }}
           >
@@ -240,7 +235,7 @@ function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: 
   return (
     <div style={{ padding: '50px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
       <div style={{ width: 60, height: 60, borderRadius: 12, background: 'var(--card)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
-      <b style={{ display: 'block', color: 'var(--foreground)', fontFamily: 'var(--font-bricolage), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
+      <b style={{ display: 'block', color: 'var(--foreground)', fontFamily: 'var(--font-sans), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
       <p style={{ fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
     </div>
   )

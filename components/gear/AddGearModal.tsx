@@ -7,10 +7,10 @@ import { HOBBIES } from '@/lib/types'
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  orange: '#FF7A2F',
+  orange: 'var(--primary)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface AddGearModalProps {
@@ -108,7 +108,7 @@ export function AddGearModal({ onClose, defaultHobby }: AddGearModalProps) {
                     border: 'none', borderRadius: 99, padding: '10px 15px',
                     fontFamily: UI, fontSize: 13, fontWeight: 700, cursor: 'pointer',
                     background: hobby === h.value ? C.ink : C.card,
-                    color: hobby === h.value ? '#FFF7EC' : C.muted,
+                    color: hobby === h.value ? '#FAFAFA' : C.muted,
                     boxShadow: C.shadow,
                   }}
                 >
@@ -189,9 +189,8 @@ export function AddGearModal({ onClose, defaultHobby }: AddGearModalProps) {
             disabled={loading}
             style={{
               width: '100%', border: 'none', borderRadius: 18, padding: 17,
-              cursor: 'pointer', background: C.orange, color: '#fff',
+              cursor: 'pointer', background: C.orange, color: 'var(--primary-foreground)',
               fontFamily: UI, fontSize: 15, fontWeight: 800,
-              boxShadow: '0 10px 22px rgba(255,122,47,.35)',
               opacity: loading ? 0.6 : 1,
             }}
           >

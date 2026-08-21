@@ -11,7 +11,7 @@ const C = {
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   border: 'var(--border)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 const STATUS_OPTS: { value: BookStatus; label: string; color: string }[] = [
@@ -85,7 +85,7 @@ export function LiteracyClient({ user, books, progressMap: initialMap }: Props) 
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
         display: 'flex', alignItems: 'center', gap: 10,
         position: 'sticky', top: 0, zIndex: 10,
-        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+        background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)',
       }}>
         <IconBtn onClick={() => router.push('/reading')}>
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -224,7 +224,7 @@ function BookCard({ book, progress, status, onDetails }: {
             onClick={onDetails}
             style={{
               flex: 1, padding: '8px 0', borderRadius: 10, border: 'none',
-              background: C.ink, color: '#FFF7EC',
+              background: C.ink, color: '#FAFAFA',
               fontFamily: UI, fontSize: 11.5, fontWeight: 800, cursor: 'pointer',
             }}
           >
@@ -398,7 +398,7 @@ function DetailsSheet({ book, draftNote, draftProgress, draftStatus, saving, sav
             disabled={saving}
             style={{
               width: '100%', padding: '13px 0', borderRadius: 14, border: 'none',
-              background: C.ink, color: '#FFF7EC',
+              background: C.ink, color: '#FAFAFA',
               fontFamily: UI, fontSize: 14, fontWeight: 800,
               cursor: 'pointer', opacity: saving ? 0.6 : 1,
             }}

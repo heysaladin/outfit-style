@@ -35,12 +35,12 @@ function NavTab({ label, active, onClick, children }: {
       onClick={onClick}
       className={cn(
         'flex items-center justify-center w-14 h-full bg-transparent border-0 cursor-pointer',
-        active ? 'text-[var(--app-orange)]' : 'text-[rgba(255,255,255,0.45)]'
+        active ? 'text-foreground' : 'text-neutral-400'
       )}
     >
       <span className={cn(
         'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200',
-        active ? 'bg-[rgba(241,242,82,0.15)]' : ''
+        active ? 'bg-neutral-100' : ''
       )}>
         {children}
       </span>
@@ -61,7 +61,7 @@ function EmptyState({ icon, title, desc, children }: { icon: string; title: stri
   return (
     <div className="py-7 text-center">
       <div className="w-13 h-13 rounded-[18px] bg-card border shadow-sm flex items-center justify-center mx-auto mb-2.5 text-[22px] w-[52px] h-[52px]">{icon}</div>
-      <b className="block text-para-sm font-bold mb-1 font-heading">{title}</b>
+      <b className="block text-para-sm font-bold mb-1 font-sans">{title}</b>
       <p className="text-para-xs text-muted-foreground m-0">{desc}</p>
       {children}
     </div>
@@ -434,57 +434,67 @@ export default function Home() {
       <div className="w-full max-w-[430px] h-dvh bg-background mx-auto relative flex flex-col overflow-hidden">
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-5 pt-[calc(0.875rem+env(safe-area-inset-top,0px))] pb-3.5 flex items-center justify-between" style={{ background: '#1C1917' }}>
-          <span className="font-heading font-extrabold text-h3 tracking-tight" style={{ color: 'var(--app-orange)' }}>
+        <header className="flex-shrink-0 px-6 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between h-12 bg-background border-b border-transparent">
+          <span className="font-sans font-semibold text-[19px] tracking-[-0.5px] text-foreground">
             interestory
           </span>
           <Avatar
-            className="w-10 h-10 flex-shrink-0 cursor-pointer"
+            className="w-8 h-8 flex-shrink-0 cursor-pointer border border-border"
             onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
           >
             <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
-            <AvatarFallback>{avatarLetter}</AvatarFallback>
+            <AvatarFallback className="text-[12px] font-semibold bg-neutral-100 text-neutral-600">{avatarLetter}</AvatarFallback>
           </Avatar>
         </header>
 
-        {/* ── Popup menu ── */}
+        {/* ── Account dropdown ── */}
         {popOpen && (
-          <div className="fixed inset-0 z-[55]" onClick={() => setPopOpen(false)}>
+          <div className="fixed inset-0 z-[55]" style={{ background: 'rgba(0,0,0,0.10)' }} onClick={() => setPopOpen(false)}>
             <div
-              className="absolute bg-card rounded-[20px] min-w-[240px] max-w-[calc(100vw-32px)] shadow-lg border overflow-hidden"
-              style={{ top: 'calc(70px + env(safe-area-inset-top,0px))', right: 16 }}
+              className="absolute bg-card rounded-[10px] w-[268px] shadow-md border overflow-hidden"
+              style={{ top: 'calc(56px + env(safe-area-inset-top,0px))', right: 16 }}
               onClick={e => e.stopPropagation()}
             >
               {user ? (
                 <>
-                  <div className="px-4 py-3.5 text-para-xs font-semibold text-muted-foreground border-b overflow-hidden text-ellipsis whitespace-nowrap">
-                    {user.email}
+                  <div className="flex items-center gap-3 px-4 py-3 border-b">
+                    <Avatar className="w-10 h-10 border border-border flex-shrink-0">
+                      <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
+                      <AvatarFallback className="text-[12px] font-semibold bg-neutral-100 text-neutral-600">{avatarLetter}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-[15px] font-semibold text-foreground leading-tight truncate">{firstName}</p>
+                      <p className="text-[12px] text-muted-foreground leading-tight">Logging since Mar 2026</p>
+                    </div>
                   </div>
+                  <Link href="/profile" className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors no-underline rounded-[6px] mx-1 my-0.5" onClick={() => setPopOpen(false)}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    Profile
+                  </Link>
                   <button
-                    className="flex w-full items-center gap-2.5 bg-transparent border-0 text-foreground text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-foreground/[0.08] transition-colors"
+                    className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
                     onClick={() => { toggleTheme(); setPopOpen(false) }}
                   >
-                    {theme === 'dark' ? (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    ) : (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-                    )}
-                    {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    Appearance
+                    <span className="ml-auto text-[14px] text-muted-foreground">{theme === 'dark' ? 'Dark' : 'Light'}</span>
                   </button>
                   <button
-                    className="flex w-full items-center gap-2.5 bg-transparent border-0 text-foreground text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-foreground/[0.08] transition-colors"
+                    className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
                     onClick={() => { setPopOpen(false); setReorderOpen(true) }}
                   >
-                    ⇅ &nbsp;Reorder interests
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                    Reorder interests
                   </button>
-                  <form action="/auth/signout" method="post" className="m-0">
-                    <button className="flex w-full items-center bg-transparent border-0 text-destructive text-para-sm font-semibold px-4 py-3.5 cursor-pointer text-left hover:bg-accent transition-colors">
+                  <div className="border-t mx-4 my-1" />
+                  <form action="/auth/signout" method="post" className="m-0 px-1 pb-1">
+                    <button className="flex w-full items-center gap-3 px-3 h-11 text-[15px] text-neutral-600 hover:bg-neutral-100 transition-colors rounded-[6px] cursor-pointer border-0 bg-transparent">
                       Sign out
                     </button>
                   </form>
                 </>
               ) : (
-                <Link href="/login" className="block px-4 py-3.5 text-foreground font-semibold text-para-sm no-underline hover:bg-accent transition-colors" onClick={() => setPopOpen(false)}>
+                <Link href="/login" className="block px-4 py-3.5 text-foreground font-semibold text-[15px] no-underline hover:bg-neutral-100 transition-colors" onClick={() => setPopOpen(false)}>
                   Login
                 </Link>
               )}
@@ -501,49 +511,38 @@ export default function Home() {
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* ── Dark hero section — connects with header ── */}
-              {/* Dark hero section */}
-              <div style={{ background: '#1C1917', margin: '0 -18px 0', padding: '12px 18px 48px', borderRadius: '0 0 20px 20px' }}>
-                {/* Date + greeting */}
-                <div className="pt-2 pb-1 mx-1">
-                  <p className="text-caption font-semibold tracking-caption uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
-                  <h1 className="leading-[1.06] m-0 mt-1 font-heading" style={{ color: '#fff', fontWeight: 400, fontSize: 32 }}>
-                    Hey {firstName},<br />let&apos;s add to your{' '}
-                    <em className="not-italic" style={{ color: 'var(--app-orange)' }}>story</em>
-                  </h1>
-                </div>
+              {/* ── Greeting ── */}
+              <div className="pt-5 pb-1 mx-1">
+                <p className="text-[12px] font-medium tracking-[1.5px] uppercase text-muted-foreground">{dateStr}</p>
+                <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold text-foreground m-0 mt-1">
+                  Hey {firstName},<br />let&apos;s add to your{' '}
+                  <em className="not-italic text-neutral-500">story</em>
+                </h1>
+              </div>
 
-                {/* Momo card */}
-                <div className="mt-3 rounded-[20px] flex items-center gap-4 p-4" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/momo.png" alt="Momo" className="w-16 h-16 flex-shrink-0 object-contain" />
-                  <div>
-                    <p className="font-bold text-para-md leading-snug m-0" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>
-                      {streak > 1
-                        ? `"${streak}-day streak! You're on fire 🔥"`
-                        : streak === 1
-                        ? '"Great start! Keep logging today 🎯"'
-                        : '"Start logging to build your story 🎯"'}
-                    </p>
-                    <span className="text-para-xs mt-1 block" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
-                  </div>
+              {/* ── Momo strip ── */}
+              <div className="mt-4 rounded-[8px] flex items-center gap-3 p-3 border border-border bg-neutral-50">
+                <div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center flex-shrink-0 text-[12px] font-semibold text-neutral-600">M</div>
+                <div>
+                  <p className="text-[14px] leading-[18px] font-medium text-foreground m-0">
+                    {streak > 0 ? 'Start logging to build your story' : 'Start logging to build your story'}
+                  </p>
+                  <span className="text-[12px] leading-[16px] text-muted-foreground">Momo · your interest friend</span>
                 </div>
               </div>
 
-              {/* Streak card — menggantung di batas dark/light */}
-              <div className="rounded-[20px] flex items-center justify-between p-4" style={{ background: 'rgb(48,45,44)', margin: '0 0 16px', marginTop: -28 }}>
-                <div className="flex items-center gap-2">
-                  <span className="text-h3 font-extrabold" style={{ color: '#fff', fontFamily: 'var(--font-sans)' }}>🔥 {streak}</span>
-                  <span className="text-para-xs font-semibold leading-[1.3]" style={{ color: 'rgba(255,255,255,0.45)' }}>day<br />streak</span>
+              {/* ── Streak card ── */}
+              <div className="rounded-[8px] flex items-center justify-between p-4 border border-border mt-3 mb-4 bg-card">
+                <div>
+                  <span className="font-mono text-[22px] font-medium text-foreground">{streak}</span>
+                  <span className="text-[13px] text-neutral-500 ml-1.5">day streak</span>
                 </div>
                 <div className="flex gap-[9px]">
                   {weekDots.map((d, i) => (
                     <div key={i} className="flex flex-col items-center gap-[5px]">
-                      <span className="text-para-xs font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>{d.label}</span>
-                      <div className="w-2.5 h-2.5 rounded-full" style={{
-                        background: d.active ? 'var(--app-orange)' : 'rgba(255,255,255,0.15)',
-                        outline: d.isToday ? '2px solid var(--app-orange)' : 'none',
-                        outlineOffset: '2px',
+                      <span className="text-[11px] font-medium text-muted-foreground">{d.label}</span>
+                      <div className="w-2 h-2 rounded-full" style={{
+                        background: d.active ? '#171717' : '#E5E5E5',
                       }} />
                     </div>
                   ))}
@@ -553,30 +552,32 @@ export default function Home() {
               {/* Recent Activities */}
               {activities.length > 0 && (
                 <>
-                  <div className="flex items-baseline justify-between mt-[22px] mb-2.5 mx-1">
-                    <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">Recent</h2>
+                  <div className="flex items-baseline justify-between mt-5 mb-2 mx-0.5">
+                    <h2 className="text-[15px] font-semibold text-foreground m-0">Recent</h2>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    {activities.slice(0, 3).map(act => {
+                  <div className="border border-border rounded-[8px] overflow-hidden bg-card">
+                    {activities.slice(0, 5).map((act, idx) => {
                       const h = HOBBIES.find(x => x.value === act.hobby)
                       const diff = Math.floor((now.getTime() - new Date(act.activity_at).getTime()) / 86400000)
                       const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
+                      const initials = (h?.label ?? act.hobby).slice(0, 2).toUpperCase()
                       return (
-                        <Card key={act.id} className="cursor-pointer" onClick={() => openActivity(act)}>
-                          <CardContent className="flex items-center gap-3 p-3">
-                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--app-orange-soft)' }}>
-                              {h?.icon ?? '✨'}
+                        <div
+                          key={act.id}
+                          className={cn('flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors', idx > 0 ? 'border-t border-neutral-100' : '')}
+                          onClick={() => openActivity(act)}
+                        >
+                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 bg-neutral-100 text-[11px] font-semibold text-neutral-600">
+                            {initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center gap-2">
+                              <span className="text-[15px] font-medium text-foreground">{h?.label ?? act.hobby}</span>
+                              <span className="text-[12px] text-muted-foreground flex-shrink-0">{timeAgo}</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-center">
-                                <span className="font-bold text-para-sm font-heading">{h?.label ?? act.hobby}</span>
-                                <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
-                              </div>
-                              <p className="text-para-xs text-muted-foreground m-0 overflow-hidden text-ellipsis whitespace-nowrap">{act.note}</p>
-                            </div>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-muted-foreground/40"><path d="M9 18l6-6-6-6"/></svg>
-                          </CardContent>
-                        </Card>
+                            <p className="text-[12px] text-muted-foreground m-0 overflow-hidden text-ellipsis whitespace-nowrap">{act.note}</p>
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
@@ -586,13 +587,13 @@ export default function Home() {
 
               {/* Monthly Goals */}
               <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
-                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">
+                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-sans">
                   Monthly Goals
                 </h2>
                 <button
                   onClick={() => setGoalSheetOpen(true)}
                   className="bg-transparent border-0 cursor-pointer text-para-sm font-bold px-1 py-1"
-                  style={{ color: 'var(--app-ink)' }}
+                  style={{ color: 'var(--foreground)' }}
                 >
                   + Add
                 </button>
@@ -612,7 +613,7 @@ export default function Home() {
                       <Card key={goal.id}>
                         <CardContent className="p-4 space-y-2.5">
                           <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-bold text-para-sm leading-snug flex-1 m-0 font-heading">{goal.name}</h3>
+                            <h3 className="font-bold text-para-sm leading-snug flex-1 m-0 font-sans">{goal.name}</h3>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
                               {deadlineDate && (
                                 <span
@@ -666,8 +667,8 @@ export default function Home() {
                                       onClick={() => toggleTask(t.id)}
                                       className="w-5 h-5 rounded-[7px] flex-shrink-0 cursor-pointer flex items-center justify-center"
                                       style={{
-                                        border: `2px solid ${t.done ? 'var(--app-mint)' : 'var(--border)'}`,
-                                        background: t.done ? 'var(--app-mint)' : 'transparent',
+                                        border: `2px solid ${t.done ? '#171717' : 'var(--border)'}`,
+                                        background: t.done ? '#171717' : 'transparent',
                                       }}
                                     >
                                       {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
@@ -697,7 +698,7 @@ export default function Home() {
 
               {/* Calendar */}
               <div className="mt-[22px] mb-2">
-                <h2 className="text-para-lg font-bold tracking-h2 mx-1 mb-3 mt-0 font-heading">Calendar</h2>
+                <h2 className="text-para-lg font-bold tracking-h2 mx-1 mb-3 mt-0 font-sans">Calendar</h2>
                 <div className="rounded-[22px] overflow-hidden">
                   <iframe
                     src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
@@ -715,20 +716,19 @@ export default function Home() {
           {/* ════ HOBBY TAB ════ */}
           {tab === 'hobby' && (
             <>
-              <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
-                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-heading">
-                  Interests <small className="text-para-xs text-muted-foreground/60 font-semibold ml-1">{hobbyLinks.length}</small>
+              <div className="flex items-baseline justify-between mt-5 mb-3 mx-0.5">
+                <h2 className="text-[16px] font-semibold text-foreground m-0">
+                  Interests <small className="text-[12px] text-muted-foreground font-medium ml-1">{hobbyLinks.length}</small>
                 </h2>
                 <button
-                  className="bg-transparent border-0 text-para-sm font-bold cursor-pointer px-1 py-1"
-                  style={{ color: 'var(--muted-foreground)' }}
+                  className="bg-transparent border-0 text-[13px] text-muted-foreground cursor-pointer px-1 py-1"
                   onClick={() => setReorderOpen(true)}
                 >
                   Reorder
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-[11px]">
+              <div className="grid grid-cols-2 gap-3" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
                 {hobbyLinks.map(({ label, icon, href, value }, i) => {
                   const count = gearCounts[value] ?? 0
                   const last = lastActive[value]
@@ -736,28 +736,18 @@ export default function Home() {
                     activities.some(a => a.hobby === value && new Date(a.activity_at).toDateString() === d.toDateString())
                   )
                   return (
-                    <Link key={label} href={href} prefetch={false} className="block no-underline">
-                      <Card className="hover:shadow-md transition-shadow h-full">
-                        <CardContent className="p-[15px_14px_13px] flex flex-col gap-2.5">
-                          <div className="flex items-center justify-between">
-                            <span className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[21px]" style={{ background: TINTS[i % TINTS.length] }}>
-                              {icon}
-                            </span>
-                            <Badge variant="secondary" className="text-para-xs font-bold">{count} items</Badge>
+                    <Link key={label} href={href} prefetch={false} className="block no-underline min-w-0">
+                      <div className="border border-border rounded-[8px] bg-card hover:bg-neutral-50 transition-colors h-full overflow-hidden">
+                        <div className="bg-neutral-100 w-full aspect-[4/3]" />
+                        <div className="p-3 pt-2.5">
+                          <p className="text-[14px] font-semibold text-foreground m-0 mb-1 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+                            {value === 'social' ? 'Life' : label}
+                          </p>
+                          <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-foreground rounded-full" style={{ width: last ? '40%' : '0%' }} />
                           </div>
-                          <div className="font-bold text-para-sm tracking-tight font-heading">
-                            {value === 'social' ? 'Life (Cleaning)' : label}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-para-xs font-semibold text-muted-foreground/60">{last ?? 'not started'}</span>
-                            <span className="flex gap-[3.5px]">
-                              {dots.map((on, j) => (
-                                <i key={j} className="block w-[5px] h-[5px] rounded-full not-italic" style={{ background: on ? 'var(--app-mint)' : 'var(--border)' }} />
-                              ))}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     </Link>
                   )
                 })}
@@ -770,7 +760,7 @@ export default function Home() {
             <div className="pt-4">
               {!user ? (
                 <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
-                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block" style={{ color: 'var(--app-orange)' }}>Login</Link>
+                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
                 </EmptyState>
               ) : activities.length === 0 ? (
                 <EmptyState icon="📈" title="No activities yet" desc="Start logging activities in your hobbies" />
@@ -785,7 +775,7 @@ export default function Home() {
                     ].map((s, i) => (
                       <Card key={i}>
                         <CardContent className="p-4">
-                          <div className="text-h2 font-extrabold leading-none font-heading">
+                          <div className="text-h2 font-extrabold leading-none font-sans">
                             {s.v}{s.unit ? <small className="text-para-sm text-muted-foreground font-semibold"> {s.unit}</small> : null}
                           </div>
                           <div className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mt-2">{s.l}</div>
@@ -797,15 +787,15 @@ export default function Home() {
                   {hobbiesByActivity.length > 0 && (
                     <Card className="mt-3">
                       <CardContent className="p-[17px_15px]">
-                        <h3 className="font-bold text-para-md m-0 mb-1 font-heading">Top hobbies</h3>
+                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Top hobbies</h3>
                         {hobbiesByActivity.slice(0, 5).map((h, i) => {
                           const maxC = hobbiesByActivity[0].count
                           const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                          const colors = ['var(--app-orange)', 'var(--app-mint)', 'var(--app-sun)', 'var(--app-berry)', '#0ea5e9']
-                          const bgs = ['var(--app-orange-soft)', 'var(--app-mint-soft)', 'var(--app-sun-soft)', '#EDE6FD', '#E0F2FE']
+                          const colors = ['#171717', '#171717', '#525252', '#525252', '#A3A3A3']
+                          const bgs = ['#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5']
                           return (
                             <div key={h.value} className={cn('flex items-center gap-3 py-3 px-0.5', i > 0 ? 'border-t' : '')}>
-                              <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-heading">{i + 1}</span>
+                              <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">{i + 1}</span>
                               <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: bgs[i] }}>{h.icon}</span>
                               <div className="flex-1 min-w-0">
                                 <b className="text-para-sm font-bold block">{h.label}</b>
@@ -868,7 +858,7 @@ export default function Home() {
                                 <span className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[21px]" style={{ background: TINTS[i % TINTS.length] }}>{icon}</span>
                                 <Badge variant="secondary" className="text-para-xs font-bold">{count} items</Badge>
                               </div>
-                              <div className="font-bold text-para-sm font-heading">{label}</div>
+                              <div className="font-bold text-para-sm font-sans">{label}</div>
                               <span className="text-para-xs font-semibold text-muted-foreground/60">{last ?? 'not started'}</span>
                             </CardContent>
                           </Card>
@@ -888,7 +878,7 @@ export default function Home() {
                       return (
                         <Card key={act.id}>
                           <CardContent className="flex gap-3 p-3.5 items-center">
-                            <Link href={`/${act.hobby}`} className="w-[42px] h-[42px] rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0 no-underline" style={{ background: 'var(--app-orange-soft)' }}>
+                            <Link href={`/${act.hobby}`} className="w-[42px] h-[42px] rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0 no-underline bg-neutral-100">
                               {h?.icon ?? '✨'}
                             </Link>
                             <div className="flex-1 min-w-0">
@@ -910,7 +900,7 @@ export default function Home() {
             <div className="pt-4">
               {!user ? (
                 <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
-                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block" style={{ color: 'var(--app-orange)' }}>Login</Link>
+                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
                 </EmptyState>
               ) : (() => {
                 const noPhotoActs = activities.filter(act =>
@@ -938,7 +928,7 @@ export default function Home() {
                           ?? activities.find(a => a.hobby === p.hobby)
                         return (
                           <Card key={`p-${p.id}`} className="overflow-hidden">
-                            <div onClick={() => setFullscreenPhoto(p)} className="cursor-pointer rounded-t-lg overflow-hidden">
+                            <div onClick={() => setFullscreenPhoto(p)} className="cursor-pointer rounded-t-xl overflow-hidden">
                               <img src={p.image_url} alt={p.hobby} className="w-full block object-cover max-h-[420px]" />
                             </div>
                             <CardContent className="p-[12px_14px_14px]">
@@ -946,7 +936,7 @@ export default function Home() {
                               <div className="flex items-center justify-between gap-2.5">
                                 <div className="flex gap-2.5 items-center flex-1 min-w-0">
                                   <span className="text-[22px] flex-shrink-0">{h?.icon ?? '📷'}</span>
-                                  <b className="font-bold text-para-sm block font-heading">{h?.label ?? p.hobby}</b>
+                                  <b className="font-bold text-para-sm block font-sans">{h?.label ?? p.hobby}</b>
                                 </div>
                                 {(() => {
                                   const ts = linkedActivity?.activity_at ?? p.created_at
@@ -987,7 +977,7 @@ export default function Home() {
                           })
                         }
                         if (isVeryLong) return (
-                          <div key={`a-${act.id}`} className="rounded-[24px] overflow-hidden" style={{ background: 'var(--card)' }}>
+                          <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border" style={{ background: "var(--card)" }}>
                             <div className="p-4 pb-3.5">
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
@@ -1010,7 +1000,7 @@ export default function Home() {
                               <button
                                 onClick={toggleExpand}
                                 className="bg-transparent border-0 pt-1.5 pb-0 px-0 text-para-sm font-bold cursor-pointer"
-                                style={{ color: 'var(--app-orange)' }}
+                                style={{ color: 'var(--foreground)' }}
                               >
                                 {isExpanded ? 'Show less' : 'Read more'}
                               </button>
@@ -1018,7 +1008,7 @@ export default function Home() {
                           </div>
                         )
                         if (!isShort) return (
-                          <div key={`a-${act.id}`} className="rounded-[24px] overflow-hidden" style={{ background: 'var(--card)' }}>
+                          <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border" style={{ background: "var(--card)" }}>
                             <div className="p-4 pb-3.5">
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
@@ -1039,11 +1029,11 @@ export default function Home() {
                           <div
                             key={`a-${act.id}`}
                             onClick={() => openActivity(act)}
-                            className="rounded-[24px] overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer"
+                            className="rounded-xl overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer border border-border"
                             style={{ background: 'var(--card)' }}
                           >
                             <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center">
-                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-heading" style={{ color: 'var(--foreground)' }}>
+                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-sans" style={{ color: 'var(--foreground)' }}>
                                 {text}
                               </p>
                             </div>
@@ -1065,64 +1055,46 @@ export default function Home() {
           )}
         </div>
 
-        {/* ── Bottom nav — floating pill ── */}
-        <nav style={{
-          position: 'fixed',
-          bottom: 4,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'min(calc(100% - 24px), 406px)',
-          height: 66,
-          borderRadius: 9999,
-          background: '#1C1917',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 30,
-          padding: '0 8px',
-        }}>
-          <NavTab label="Home" active={tab === 'home'} onClick={() => setTab('home')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/>
-            </svg>
-          </NavTab>
+        {/* ── Bottom tab bar ── */}
+        <nav
+          className="fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-background border-t border-border grid"
+          style={{ bottom: 0, gridTemplateColumns: 'repeat(5, 1fr)', height: 80, paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}
+        >
+          {/* Home */}
+          <button onClick={() => setTab('home')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'home' ? 'text-foreground' : 'text-neutral-400')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+            <span className="text-[11px] font-medium">Home</span>
+          </button>
 
-          <NavTab label="Activity" active={tab === 'gallery'} onClick={() => setTab('gallery')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="5" width="18" height="14" rx="3"/>
-              <circle cx="9" cy="10" r="1.6" fill="currentColor" stroke="none"/>
-              <path d="M21 15l-5-4-9 8"/>
-            </svg>
-          </NavTab>
+          {/* Activity */}
+          <button onClick={() => setTab('gallery')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'gallery' ? 'text-foreground' : 'text-neutral-400')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-4-9 8"/></svg>
+            <span className="text-[11px] font-medium">Activity</span>
+          </button>
 
           {/* FAB */}
-          <div style={{ position: 'relative', width: 58, height: 58, marginTop: -28, flexShrink: 0, display: 'grid', placeItems: 'center' }}>
+          <div className="flex items-center justify-center">
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(() => { const n = new Date(); n.setSeconds(0,0); return n.toISOString().slice(0,16) }) }}
-              style={{
-                width: 58, height: 58, borderRadius: '50%', border: 'none', cursor: 'pointer',
-                background: 'var(--app-orange)', display: 'grid', placeItems: 'center',
-                boxShadow: '0 10px 24px rgba(241,242,82,0.35)',
-              }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1C1917" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              className="w-12 h-12 rounded-[12px] border-0 cursor-pointer flex items-center justify-center bg-foreground"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FAFAFA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
           </div>
 
-          <NavTab label="Stats" active={tab === 'stats'} onClick={() => setTab('stats')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 20V10M12 20V4M20 20v-7"/>
-            </svg>
-          </NavTab>
+          {/* Stats */}
+          <button onClick={() => setTab('stats')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'stats' ? 'text-foreground' : 'text-neutral-400')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+            <span className="text-[11px] font-medium">Stats</span>
+          </button>
 
-          <NavTab label="Hobby" active={tab === 'hobby'} onClick={() => setTab('hobby')}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/>
-            </svg>
-          </NavTab>
+          {/* Hobby */}
+          <button onClick={() => setTab('hobby')} className={cn('flex flex-col items-center justify-center gap-[5px] border-0 bg-transparent cursor-pointer', tab === 'hobby' ? 'text-foreground' : 'text-neutral-400')}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/></svg>
+            <span className="text-[11px] font-medium">Hobby</span>
+          </button>
         </nav>
 
         {/* Reorder modal */}
@@ -1155,7 +1127,7 @@ export default function Home() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[20px]">{h?.icon ?? '📷'}</span>
-                    <b className="text-white font-bold text-para-md font-heading">{h?.label ?? fullscreenPhoto.hobby}</b>
+                    <b className="text-white font-bold text-para-md font-sans">{h?.label ?? fullscreenPhoto.hobby}</b>
                   </div>
                   {linkedActivity && (
                     <button
@@ -1187,7 +1159,7 @@ export default function Home() {
                     <div className="flex items-center gap-2.5">
                       <span className="text-[26px]">{h?.icon ?? '✨'}</span>
                       <div>
-                        <DrawerTitle className="text-para-lg font-extrabold block font-heading">{h?.label ?? viewActivity.hobby}</DrawerTitle>
+                        <DrawerTitle className="text-para-lg font-extrabold block font-sans">{h?.label ?? viewActivity.hobby}</DrawerTitle>
                         <span className="text-para-xs text-muted-foreground font-semibold">
                           {new Date(viewActivity.activity_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
@@ -1250,9 +1222,9 @@ export default function Home() {
                                 onClick={() => setActEditForm(f => ({ ...f, hobby: hb.value }))}
                                 className="px-[13px] py-[7px] rounded-full text-para-sm font-bold cursor-pointer border-2 transition-colors"
                                 style={{
-                                  borderColor: actEditForm.hobby === hb.value ? 'var(--app-orange)' : 'var(--border)',
-                                  background: actEditForm.hobby === hb.value ? 'var(--app-orange-soft)' : 'var(--card)',
-                                  color: actEditForm.hobby === hb.value ? 'var(--app-orange)' : 'var(--foreground)',
+                                  borderColor: actEditForm.hobby === hb.value ? '#171717' : 'var(--border)',
+                                  background: actEditForm.hobby === hb.value ? '#171717' : 'var(--card)',
+                                  color: actEditForm.hobby === hb.value ? '#FAFAFA' : 'var(--foreground)',
                                 }}
                               >
                                 {hb.icon} {hb.label}
@@ -1343,7 +1315,7 @@ export default function Home() {
         >
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle className="font-heading">{editGoalId ? 'Edit Goal' : 'New Goal'}</DrawerTitle>
+              <DrawerTitle className="font-sans">{editGoalId ? 'Edit Goal' : 'New Goal'}</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-2 space-y-0 overflow-y-auto">
               <CField label="Goal name *">
@@ -1387,7 +1359,7 @@ export default function Home() {
         >
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle className="font-heading">Add Task</DrawerTitle>
+              <DrawerTitle className="font-sans">Add Task</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-2 space-y-0 overflow-y-auto">
               <CField label="Task *">
@@ -1406,9 +1378,9 @@ export default function Home() {
                       onClick={() => setTaskForm(f => ({ ...f, week: w }))}
                       className="flex-1 py-[11px] rounded-[13px] border-2 text-para-sm font-bold cursor-pointer transition-colors"
                       style={{
-                        borderColor: taskForm.week === w ? 'var(--app-orange)' : 'var(--border)',
-                        background: taskForm.week === w ? 'var(--app-orange-soft)' : 'var(--card)',
-                        color: taskForm.week === w ? 'var(--app-orange)' : 'var(--foreground)',
+                        borderColor: taskForm.week === w ? '#171717' : 'var(--border)',
+                        background: taskForm.week === w ? '#171717' : 'var(--card)',
+                        color: taskForm.week === w ? '#FAFAFA' : 'var(--foreground)',
                       }}
                     >
                       W{w}
@@ -1432,7 +1404,7 @@ export default function Home() {
         >
           <DrawerContent className="max-h-[92dvh]">
             <DrawerHeader>
-              <DrawerTitle className="font-heading">Log activity</DrawerTitle>
+              <DrawerTitle className="font-sans">Log activity</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-2 space-y-0 overflow-y-auto">
               <CField label="Interest *">
@@ -1443,9 +1415,9 @@ export default function Home() {
                       onClick={() => setCreateHobby(h.value)}
                       className="px-[13px] py-[7px] rounded-full border-2 text-para-sm font-bold cursor-pointer transition-colors"
                       style={{
-                        borderColor: createHobby === h.value ? 'var(--app-orange)' : 'var(--border)',
-                        background: createHobby === h.value ? 'var(--app-orange-soft)' : 'var(--card)',
-                        color: createHobby === h.value ? 'var(--app-orange)' : 'var(--foreground)',
+                        borderColor: createHobby === h.value ? '#171717' : 'var(--border)',
+                        background: createHobby === h.value ? '#171717' : 'var(--card)',
+                        color: createHobby === h.value ? '#FAFAFA' : 'var(--foreground)',
                       }}
                     >
                       {h.icon} {h.label}

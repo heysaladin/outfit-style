@@ -14,7 +14,7 @@ const C = {
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
   shadow: 'none',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 type Tab = 'items' | 'activities' | 'moments'
@@ -56,7 +56,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
         display: 'flex', alignItems: 'center', gap: 10,
         position: 'sticky', top: 0, zIndex: 10,
-        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+        background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)',
       }}>
         <IconBtn onClick={() => router.push('/')}>
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -90,7 +90,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           style={{
             display: 'flex', alignItems: 'center', height: 42,
             padding: '0 16px', borderRadius: 16, border: 'none',
-            background: C.ink, color: '#FFF7EC',
+            background: C.ink, color: '#FAFAFA',
             fontFamily: UI, fontSize: 12, fontWeight: 800,
             textDecoration: 'none', whiteSpace: 'nowrap',
             boxShadow: C.shadow,
@@ -110,7 +110,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
               flex: 1, border: 'none', cursor: 'pointer', fontFamily: UI,
               fontSize: 13, fontWeight: 700, padding: '11px 0', borderRadius: 99,
               background: tab === t.key ? C.ink : C.card,
-              color: tab === t.key ? '#FFF7EC' : C.muted,
+              color: tab === t.key ? '#FAFAFA' : C.muted,
               boxShadow: C.shadow,
             }}
           >

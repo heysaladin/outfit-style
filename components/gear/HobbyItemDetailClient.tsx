@@ -11,13 +11,13 @@ import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses, setHo
 const C = {
   bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
-  mint: '#3FBF8F',
-  danger: '#E9573F',
+  orange: 'var(--primary)', orangeSoft: 'var(--secondary)',
+  mint: '#059669',
+  danger: 'var(--destructive)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
   shadowLg: '0 14px 34px rgba(84,62,32,.14)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 const HERO_TINTS = [
@@ -130,7 +130,7 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
         display: 'flex', alignItems: 'center', gap: 8,
         position: 'sticky', top: 0, zIndex: 10,
-        background: '#FDF7EEf5', backdropFilter: 'blur(12px)',
+        background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)',
       }}>
         <IconBtn onClick={() => router.push(`/${hobby}`)}>
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -231,7 +231,7 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
               <button
                 onClick={openUseSheet}
                 disabled={isPending}
-                style={{ border: 'none', borderRadius: 99, padding: '12px 22px', cursor: 'pointer', background: C.orange, color: '#fff', fontFamily: UI, fontSize: 14, fontWeight: 800, boxShadow: '0 8px 18px rgba(255,122,47,.35)', opacity: isPending ? 0.6 : 1 }}
+                style={{ border: 'none', borderRadius: 99, padding: '12px 22px', cursor: 'pointer', background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 14, fontWeight: 800, opacity: isPending ? 0.6 : 1 }}
               >
                 ＋ Use
               </button>
@@ -400,11 +400,10 @@ export function HobbyItemDetailClient({ item, hobby, user }: Props) {
               disabled={isPending}
               style={{
                 width: '100%', border: 'none', borderRadius: 16, padding: '14px 0',
-                background: C.danger, color: '#fff',
+                background: C.danger, color: 'var(--destructive-foreground)',
                 fontFamily: UI, fontSize: 15, fontWeight: 800,
                 cursor: 'pointer', marginBottom: 10,
                 opacity: isPending ? 0.6 : 1,
-                boxShadow: '0 8px 20px rgba(233,87,63,.3)',
               }}
             >
               {isPending ? 'Deleting…' : 'Yes, delete'}
@@ -512,7 +511,7 @@ function IconBtn({ onClick, children, danger }: { onClick: () => void; children:
   return (
     <button onClick={onClick} style={{
       width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: 'var(--card)', color: danger ? '#E9573F' : 'var(--foreground)',
+      background: 'var(--card)', color: danger ? 'var(--destructive)' : 'var(--foreground)',
       cursor: 'pointer', display: 'grid', placeItems: 'center',
       boxShadow: '0 6px 18px rgba(84,62,32,.08)', flexShrink: 0,
     }}>
@@ -525,7 +524,7 @@ function KVRow({ label, value, unset, divider }: { label: string; value: string 
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: divider ? '1px solid var(--border)' : 'none' }}>
       <span style={{ color: 'var(--muted-foreground)', fontWeight: 500 }}>{label}</span>
-      <span style={{ fontWeight: 700, color: value ? 'var(--foreground)' : '#FF7A2F' }}>{value ?? unset}</span>
+      <span style={{ fontWeight: 700, color: value ? 'var(--foreground)' : 'var(--primary)' }}>{value ?? unset}</span>
     </div>
   )
 }
@@ -548,13 +547,13 @@ function BigBtn({ children, danger, type = 'button', disabled, onClick }: { chil
       disabled={disabled}
       onClick={onClick}
       style={{
-        width: '100%', border: danger ? '1.5px solid #F4CFC7' : 'none',
+        width: '100%', border: danger ? '1.5px solid var(--destructive)' : 'none',
         borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: danger ? 10 : 0,
         background: danger ? 'none' : C.orange,
-        color: danger ? '#E9573F' : '#fff',
+        color: danger ? 'var(--destructive)' : 'var(--primary-foreground)',
         fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
         fontSize: 15, fontWeight: 800,
-        boxShadow: danger ? 'none' : '0 10px 22px rgba(255,122,47,.35)',
+        boxShadow: 'none',
         opacity: disabled ? 0.6 : 1,
       }}
     >

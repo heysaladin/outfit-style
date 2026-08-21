@@ -5,14 +5,14 @@ import { calcWorth, type WPStatus } from '@/lib/worth'
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
-  mint: '#3FBF8F', mintSoft: '#DDF4EA',
+  orange: 'var(--primary)', orangeSoft: 'var(--secondary)',
+  mint: '#059669', mintSoft: '#ECFDF5',
   yellow: '#F59E0B', yellowSoft: '#FEF3C7',
   blue: '#3B82F6', blueSoft: '#EFF6FF',
   purple: '#8B5CF6', purpleSoft: '#F5F3FF',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface WorthCardProps {

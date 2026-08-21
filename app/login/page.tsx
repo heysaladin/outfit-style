@@ -18,82 +18,54 @@ function LoginContent() {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: '#F5F1EB', color: '#1C1917' }}
-    >
-      {/* Header */}
-      <div className="px-6 pt-10">
-        <p
-          className="text-[11px] tracking-[0.22em] uppercase"
-          style={{ color: '#9C9488', fontFamily: 'var(--font-manrope)' }}
-        >
-          Interestory
-        </p>
-      </div>
-
-      {/* Hero */}
-      <div className="flex-1 flex flex-col justify-center px-6">
-        <h1
-          className="font-medium italic leading-[1.0]"
-          style={{
-            fontFamily: 'var(--font-cormorant)',
-            fontSize: 56,
-            letterSpacing: '-0.5px',
-            color: '#1C1917',
-          }}
-        >
-          Your interest,<br />your story.
-        </h1>
-        <p
-          className="mt-5 text-sm leading-relaxed"
-          style={{ color: '#6B6560', fontFamily: 'var(--font-manrope)', maxWidth: 260 }}
-        >
-          Hobbies, wardrobe, gear — everything you care about, beautifully tracked.
-        </p>
-      </div>
-
-      {/* CTA */}
-      <div className="px-6 pb-12 flex flex-col gap-3">
-        {error && (
-          <p
-            className="text-xs px-4 py-3"
-            style={{ background: 'rgba(233,87,63,0.1)', color: '#C0392B' }}
-          >
-            Sign in failed. Please try again.
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+      <div className="w-full max-w-[342px] flex flex-col gap-8">
+        {/* Wordmark + subhead */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-[30px] leading-[32px] tracking-[-1px] font-semibold text-foreground m-0">
+            interestory
+          </h1>
+          <p className="text-[16px] leading-[24px] text-neutral-500 m-0">
+            Log what you&apos;re into. Build the story of your interests over time.
           </p>
-        )}
+        </div>
 
-        <button
-          onClick={signInWithGoogle}
-          className="w-full flex items-center justify-center gap-3 transition-opacity hover:opacity-75 active:opacity-60"
-          style={{
-            height: 52,
-            background: '#1C1917',
-            color: '#F5F1EB',
-            fontFamily: 'var(--font-manrope)',
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <GoogleIcon color="#F5F1EB" />
-          Continue with Google
-        </button>
+        {/* Auth section */}
+        <div className="flex flex-col gap-3">
+          {error && (
+            <p className="text-[13px] text-destructive">
+              Sign in failed. Please try again.
+            </p>
+          )}
 
-        <p
-          className="text-[10px] text-center leading-[1.6] mt-2"
-          style={{ color: '#B0A99F', fontFamily: 'var(--font-manrope)' }}
-        >
-          By continuing, you agree to our terms and privacy policy.
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[12px] text-muted-foreground">or</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* Google */}
+          <button
+            onClick={signInWithGoogle}
+            className="w-full h-12 rounded-[6px] border border-border bg-card text-foreground text-[15px] font-medium flex items-center justify-center gap-3 hover:bg-neutral-50 transition-colors cursor-pointer"
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
+        </div>
+
+        {/* Footer */}
+        <p className="text-[13px] text-muted-foreground text-center">
+          New here?{' '}
+          <span className="text-foreground font-medium">Create an account</span>
         </p>
       </div>
     </div>
   )
 }
 
-function GoogleIcon({ color = '#000' }: { color?: string }) {
+function GoogleIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
       <path d="M17.64 9.2045C17.64 8.5663 17.5827 7.9527 17.4764 7.3636H9V10.845H13.8436C13.635 11.97 13.0009 12.9231 12.0477 13.5613V15.8195H14.9564C16.6582 14.2527 17.64 11.9454 17.64 9.2045Z" fill="#4285F4" />

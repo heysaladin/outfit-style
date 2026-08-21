@@ -295,149 +295,140 @@
 }
 
 /* =============================================================================
-   SEMANTIC COLOR TOKENS — Light Mode
+   SEMANTIC COLOR TOKENS — Light Mode (Cubicle neutral-first)
    ============================================================================= */
 :root {
-  --background: #efece7;
-  --foreground: #545048;
+  --background: var(--color-neutral-50);
+  --foreground: var(--color-neutral-950);
 
-  --primary: #f1f252;
-  --primary-foreground: #1a1a00;
+  --primary: var(--color-neutral-900);
+  --primary-foreground: var(--color-neutral-50);
 
-  --secondary: var(--brand-neutrals-100);
-  --secondary-foreground: var(--brand-neutrals-900);
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-900);
 
-  --muted: #e8e4de;
-  --muted-foreground: #7a756e;
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-400);
 
-  --accent: var(--brand-neutrals-100);
-  --accent-foreground: var(--brand-neutrals-900);
+  --accent: var(--color-neutral-100);
+  --accent-foreground: var(--color-neutral-900);
 
   --destructive: var(--color-red-600);
   --destructive-foreground: var(--color-white);
 
-  --border: var(--brand-neutrals-200);
-  --input: var(--brand-neutrals-200);
-  --ring: #f1f252;
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-200);
+  --ring: var(--color-neutral-900);
 
-  --card: #ffffff;
-  --card-foreground: #545048;
+  --card: var(--color-white);
+  --card-foreground: var(--color-neutral-950);
 
   --popover: var(--color-white);
-  --popover-foreground: var(--brand-neutrals-950);
+  --popover-foreground: var(--color-neutral-950);
 
-  --sidebar: var(--brand-neutrals-50);
-  --sidebar-foreground: var(--brand-neutrals-700);
-  --sidebar-primary: var(--brand-neutrals-900);
-  --sidebar-primary-foreground: var(--brand-neutrals-50);
-  --sidebar-accent: var(--brand-neutrals-100);
-  --sidebar-accent-foreground: var(--brand-neutrals-900);
-  --sidebar-border: var(--brand-neutrals-200);
-  --sidebar-ring: var(--brand-neutrals-400);
+  --sidebar: var(--color-neutral-50);
+  --sidebar-foreground: var(--color-neutral-700);
+  --sidebar-primary: var(--color-neutral-900);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: var(--color-neutral-100);
+  --sidebar-accent-foreground: var(--color-neutral-900);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-neutral-400);
 
-  --chart-1: #F54A00;
-  --chart-2: #009689;
-  --chart-3: #104E64;
-  --chart-4: #FFB900;
-  --chart-5: #FE9A00;
+  --chart-fill-1: var(--color-neutral-900);
+  --chart-stroke-1: var(--color-neutral-700);
+  --chart-1: var(--color-neutral-900);
+  --chart-2: var(--color-emerald-600);
+  --chart-3: var(--color-neutral-600);
+  --chart-4: var(--color-neutral-400);
+  --chart-5: var(--color-neutral-300);
 
-  --foreground-alt: var(--brand-neutrals-700);
+  --foreground-alt: var(--color-neutral-600);
   --ghost: var(--white-alpha-001);
   --outline: var(--white-alpha-10);
   --outline-hover: var(--black-alpha-333);
   --outline-active: var(--black-alpha-5);
   --destructive-border: var(--color-red-500);
   --destructive-text: var(--color-red-600);
-  --border-4: var(--brand-neutrals-400);
-  --border-5: var(--brand-neutrals-500);
+  --border-4: var(--color-neutral-400);
+  --border-5: var(--color-neutral-500);
 
-  /* M3 SURFACE CONTAINER TONES — Vestiaire linen hierarchy */
-  --surface-container-lowest: #FFFFFF;
-  --surface-container-low: #efece7;
-  --surface-container: #e8e4de;
-  --surface-container-high: #e0dbd4;
-  --surface-container-highest: #d9d4cc;
+  /* Surface tokens */
+  --surface-container-lowest: var(--color-white);
+  --surface-container-low: var(--color-neutral-50);
+  --surface-container: var(--color-neutral-100);
+  --surface-container-high: var(--color-neutral-200);
+  --surface-container-highest: var(--color-neutral-300);
 
-  /* APP BRAND TOKENS — Vestiaire-inspired editorial palette */
-  --app-bg: #efece7;
-  --app-card-secondary: #e8e4de;
-  --app-line: #d9d4cc;
-  --app-ink: #545048;
-  --app-muted: #7a756e;
-  --app-faint: #a09b93;
-  --app-orange: #f1f252;
-  --app-orange-soft: #f9f9c8;
-  --app-mint: #3FBF8F;
-  --app-mint-soft: #DDF4EA;
-  --app-berry: #8B5CF6;
-  --app-sun: #FFC531;
-  --app-sun-soft: #FFF3D1;
-  --app-danger: #E9573F;
+  /* Positive/connected state */
+  --color-connected: var(--color-emerald-600);
 }
 
 /* =============================================================================
    SEMANTIC COLOR TOKENS — Dark Mode
    ============================================================================= */
 .dark {
-  --background: var(--color-black);
-  --foreground: rgba(255, 255, 255, 0.87);
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-50);
 
-  --primary: var(--brand-neutrals-100);
-  --primary-foreground: var(--brand-neutrals-950);
+  --primary: var(--color-neutral-50);
+  --primary-foreground: var(--color-neutral-950);
 
-  --secondary: var(--brand-neutrals-800);
-  --secondary-foreground: var(--brand-neutrals-100);
+  --secondary: var(--color-neutral-800);
+  --secondary-foreground: var(--color-neutral-100);
 
-  --muted: var(--brand-neutrals-900);
-  --muted-foreground: var(--brand-neutrals-400);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
 
-  --accent: var(--brand-neutrals-900);
-  --accent-foreground: var(--brand-neutrals-100);
+  --accent: var(--color-neutral-800);
+  --accent-foreground: var(--color-neutral-100);
 
   --destructive: var(--color-red-400);
   --destructive-foreground: var(--color-white);
 
-  --border: var(--brand-neutrals-800);
-  --input: var(--brand-neutrals-800);
-  --ring: var(--brand-neutrals-400);
+  --border: var(--color-neutral-800);
+  --input: var(--color-neutral-800);
+  --ring: var(--color-neutral-400);
 
-  --card: var(--brand-neutrals-950);
-  --card-foreground: var(--brand-neutrals-50);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-neutral-50);
 
-  --popover: var(--brand-neutrals-950);
-  --popover-foreground: var(--brand-neutrals-50);
+  --popover: var(--color-neutral-900);
+  --popover-foreground: var(--color-neutral-50);
 
-  --sidebar: var(--brand-neutrals-950);
-  --sidebar-foreground: var(--brand-neutrals-300);
-  --sidebar-primary: var(--brand-neutrals-200);
-  --sidebar-primary-foreground: var(--brand-neutrals-950);
-  --sidebar-accent: var(--brand-neutrals-800);
-  --sidebar-accent-foreground: var(--brand-neutrals-200);
-  --sidebar-border: var(--brand-neutrals-800);
-  --sidebar-ring: var(--brand-neutrals-400);
+  --sidebar: var(--color-neutral-950);
+  --sidebar-foreground: var(--color-neutral-300);
+  --sidebar-primary: var(--color-neutral-200);
+  --sidebar-primary-foreground: var(--color-neutral-950);
+  --sidebar-accent: var(--color-neutral-800);
+  --sidebar-accent-foreground: var(--color-neutral-200);
+  --sidebar-border: var(--color-neutral-800);
+  --sidebar-ring: var(--color-neutral-400);
 
-  --chart-1: #1447E6;
-  --chart-2: #00BC7D;
-  --chart-3: #FD9A00;
-  --chart-4: #AD46FF;
-  --chart-5: #FF2056;
+  --chart-fill-1: var(--color-neutral-100);
+  --chart-stroke-1: var(--color-neutral-300);
+  --chart-1: var(--color-neutral-100);
+  --chart-2: var(--color-emerald-400);
+  --chart-3: var(--color-neutral-400);
+  --chart-4: var(--color-neutral-600);
+  --chart-5: var(--color-neutral-700);
 
-  --foreground-alt: var(--brand-neutrals-300);
+  --foreground-alt: var(--color-neutral-300);
   --ghost: var(--white-alpha-001);
   --outline: var(--white-alpha-5);
   --outline-hover: var(--white-alpha-10);
   --outline-active: var(--white-alpha-15);
   --destructive-border: var(--color-red-500);
   --destructive-text: var(--color-red-400);
-  --border-4: var(--brand-neutrals-600);
-  --border-5: var(--brand-neutrals-500);
+  --border-4: var(--color-neutral-600);
+  --border-5: var(--color-neutral-500);
 }
 
 @theme inline {
-  /* Fonts — Manrope as SoDoSans substitute */
-  --font-sans: Haffer, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-cormorant), Fraunces, Georgia, Cambria, ui-serif, serif;
+  /* Fonts — Geist (Cubicle) */
+  --font-sans: var(--font-geist), Geist, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --font-heading: var(--font-geist), Geist, "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Cubicle typography scale — literal values so Tailwind v4 can parse them */
   --text-h1: 48px;
@@ -506,21 +497,8 @@
   --color-surface-high: var(--surface-container-high);
   --color-surface-highest: var(--surface-container-highest);
 
-  /* App brand tokens → Tailwind utilities */
-  --color-app-bg: var(--app-bg);
-  --color-app-card-secondary: var(--app-card-secondary);
-  --color-app-line: var(--app-line);
-  --color-app-ink: var(--app-ink);
-  --color-app-muted: var(--app-muted);
-  --color-app-faint: var(--app-faint);
-  --color-app-orange: var(--app-orange);
-  --color-app-orange-soft: var(--app-orange-soft);
-  --color-app-mint: var(--app-mint);
-  --color-app-mint-soft: var(--app-mint-soft);
-  --color-app-berry: var(--app-berry);
-  --color-app-sun: var(--app-sun);
-  --color-app-sun-soft: var(--app-sun-soft);
-  --color-app-danger: var(--app-danger);
+  /* Positive/connected */
+  --color-connected: var(--color-connected);
 
   /* Border radii — fixed values from Cubicle */
   --radius-none: 0px;
@@ -583,10 +561,6 @@
   }
   ::-webkit-scrollbar-thumb {
     background: transparent;
-  }
-  /* Starbucks warm canvas on outer gutter */
-  .bg-border {
-    background-color: #e8e5df !important;
   }
   /* Prevent iOS zoom on inputs */
   input, select, textarea {

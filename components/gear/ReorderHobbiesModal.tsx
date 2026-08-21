@@ -25,11 +25,11 @@ export function getOrderedHobbies() {
 const C = {
   bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  orange: '#FF7A2F',
+  orange: 'var(--primary)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
   shadowLg: '0 14px 34px rgba(84,62,32,.14)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface ReorderHobbiesModalProps {
@@ -142,9 +142,8 @@ export function ReorderHobbiesModal({ initialOrder, onClose, onSave }: ReorderHo
             style={{
               width: '100%', border: 'none', borderRadius: 18, padding: 17,
               cursor: 'pointer', marginTop: 14,
-              background: C.orange, color: '#fff',
+              background: C.orange, color: 'var(--primary-foreground)',
               fontFamily: UI, fontSize: 15, fontWeight: 800,
-              boxShadow: '0 10px 22px rgba(255,122,47,.35)',
             }}
           >
             Save order

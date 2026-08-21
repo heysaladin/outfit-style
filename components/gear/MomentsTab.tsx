@@ -8,11 +8,11 @@ import { createClient } from '@/lib/supabase/client'
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: '#FF7A2F',
-  danger: '#E9573F',
+  orange: 'var(--primary)',
+  danger: 'var(--destructive)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 const MAX_PHOTOS = 6
 
@@ -101,8 +101,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
             onClick={() => setAddOpen(true)}
             style={{
               border: 'none', borderRadius: 99, padding: '9px 16px', cursor: 'pointer',
-              background: C.orange, color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 700,
-              boxShadow: '0 6px 14px rgba(255,122,47,.35)',
+              background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 13, fontWeight: 700,
             }}
           >
             📸 Add photo
@@ -200,7 +199,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
               <button
                 onClick={handleAdd}
                 disabled={isPending || !file}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: isPending || !file ? 0.5 : 1 }}
+                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: isPending || !file ? 0.5 : 1 }}
               >
                 {isPending ? 'Uploading…' : 'Save moment'}
               </button>

@@ -8,13 +8,13 @@ import { createClient } from '@/lib/supabase/client'
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
   ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: '#FF7A2F', orangeSoft: '#FFE9DB',
-  mint: '#3FBF8F', mintSoft: '#DDF4EA',
-  danger: '#E9573F',
+  orange: 'var(--primary)', orangeSoft: 'var(--secondary)',
+  mint: '#059669', mintSoft: '#ECFDF5',
+  danger: 'var(--destructive)',
   shadow: '0 6px 18px rgba(84,62,32,.08)',
   shadowLg: '0 14px 34px rgba(84,62,32,.14)',
 }
-const DP = 'var(--font-bricolage), system-ui, sans-serif'
+const DP = 'var(--font-sans), system-ui, sans-serif'
 const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface Props {
@@ -418,7 +418,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               <button
                 onClick={handleAdd}
                 disabled={isPending}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: isPending ? 0.6 : 1 }}
+                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: isPending ? 0.6 : 1 }}
               >
                 {isPending ? 'Saving…' : 'Save activity'}
               </button>
@@ -495,7 +495,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               <button
                 onClick={handleEdit}
                 disabled={editPending}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: '#fff', fontFamily: UI, fontSize: 15, fontWeight: 800, boxShadow: '0 10px 22px rgba(255,122,47,.35)', opacity: editPending ? 0.6 : 1 }}
+                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: editPending ? 0.6 : 1 }}
               >
                 {editPending ? 'Saving…' : 'Save changes'}
               </button>
