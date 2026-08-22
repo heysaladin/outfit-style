@@ -35,7 +35,7 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
     startTransition(async () => { await setGearItemStatus(item!.id, status); onClose() })
   }
 
-  function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | null) {
+  function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | 'non-fashion' | null) {
     startTransition(async () => { await flagGearDeclutter(item!.id, status); onClose() })
   }
 
