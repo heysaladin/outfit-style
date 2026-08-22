@@ -699,7 +699,7 @@ export async function setGearItemStatus(
 }
 
 export async function flagGearDeclutter(
-  id: string, status: 'donate' | 'sell' | 'giveaway' | null, note?: string
+  id: string, status: 'donate' | 'sell' | 'giveaway' | 'non-fashion' | null, note?: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
