@@ -22,7 +22,7 @@ async function fetchZopavoBacklog(): Promise<ZopavoNote[]> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: process.env.ZOPAVO_PASSWORD ?? 'creative' }),
     })
-    const cookie = authRes.headers.get('set-cookie') ?? ''
+    const cookie = (authRes.headers.get('set-cookie') ?? '').split(';')[0]
 
     const res = await fetch('https://zopavo.vercel.app/api/backlog', {
       headers: { Cookie: cookie },

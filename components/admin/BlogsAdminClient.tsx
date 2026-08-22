@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Pencil, Trash2, Globe, FileText, ExternalLink } from 'lucide-react'
+import { Plus, Pencil, FileText, ExternalLink } from 'lucide-react'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
-import { BottomNav } from '@/components/BottomNav'
+import { AdminNav } from '@/components/admin/AdminNav'
 import type { Blog } from '@/app/admin/blogs/page'
 
 interface Props {
@@ -79,9 +79,6 @@ export function BlogsAdminClient({ blogs: initial }: Props) {
     })
   }
 
-  const published = blogs.filter(b => b.status === 'published')
-  const drafts    = blogs.filter(b => b.status === 'draft')
-
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
@@ -101,51 +98,25 @@ export function BlogsAdminClient({ blogs: initial }: Props) {
         </div>
       </header>
 
-      <div className="px-4 py-4 space-y-6 max-w-2xl mx-auto">
-        {blogs.length === 0 && (
+      <div className="max-w-2xl mx-auto">
+        {blogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <FileText size={32} className="text-muted-foreground mb-3" />
             <p className="text-foreground font-medium text-sm">No blog posts yet</p>
             <p className="text-muted-foreground text-xs mt-1">Create your first post to get started.</p>
           </div>
-        )}
-
-        {published.length > 0 && (
-          <section>
-            <p className="text-muted-foreground text-[11px] font-semibold uppercase tracking-wider mb-2">
-              Published · {published.length}
-            </p>
-            <ul className="space-y-2">
-              {published.map(blog => (
-                <BlogRow
-                  key={blog.id}
-                  blog={blog}
-                  deleting={deletingId === blog.id}
-                  onEdit={() => openEdit(blog)}
-                  onDelete={() => handleDelete(blog.id)}
-                />
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {drafts.length > 0 && (
-          <section>
-            <p className="text-muted-foreground text-[11px] font-semibold uppercase tracking-wider mb-2">
-              Drafts · {drafts.length}
-            </p>
-            <ul className="space-y-2">
-              {drafts.map(blog => (
-                <BlogRow
-                  key={blog.id}
-                  blog={blog}
-                  deleting={deletingId === blog.id}
-                  onEdit={() => openEdit(blog)}
-                  onDelete={() => handleDelete(blog.id)}
-                />
-              ))}
-            </ul>
-          </section>
+        ) : (
+          <ul className="divide-y divide-border">
+            {blogs.map(blog => (
+              <BlogRow
+                key={blog.id}
+                blog={blog}
+                deleting={deletingId === blog.id}
+                onEdit={() => openEdit(blog)}
+                onDelete={() => handleDelete(blog.id)}
+              />
+            ))}
+          </ul>
         )}
       </div>
 
@@ -230,7 +201,7 @@ export function BlogsAdminClient({ blogs: initial }: Props) {
         </div>
       )}
 
-      <BottomNav />
+      <AdminNav />
     </div>
   )
 }
@@ -248,26 +219,22 @@ function BlogRow({
   })
 
   return (
-    <li className="flex items-start gap-3 bg-card border border-border rounded-2xl px-3 py-3">
+    <li className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors group">
+      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${blog.status === 'published' ? 'bg-green-500' : 'bg-muted-foreground/40'}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-foreground text-sm font-medium truncate">{blog.title}</p>
-        {blog.excerpt && (
-          <p className="text-muted-foreground text-xs mt-0.5 line-clamp-1">{blog.excerpt}</p>
-        )}
-        <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-muted-foreground text-[10px]">{date}</span>
+        <p className="text-foreground text-sm truncate">{blog.title}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-muted-foreground text-[11px]">{date}</span>
           {blog.slug && (
             <>
               <span className="text-border">·</span>
-              <span className="text-muted-foreground text-[10px] font-mono truncate max-w-[120px]">
-                /{blog.slug}
-              </span>
+              <span className="text-muted-foreground text-[11px] font-mono truncate max-w-[140px]">/{blog.slug}</span>
             </>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-0.5 flex-shrink-0">
         {blog.status === 'published' && (
           <a
             href={`https://hyperfantasy.co/blogs/${blog.slug ?? blog.id}`}
@@ -278,18 +245,8 @@ function BlogRow({
             <ExternalLink size={13} />
           </a>
         )}
-        <button
-          onClick={onEdit}
-          className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
-        >
-          <Pencil size={13} />
-        </button>
-        <button
-          onClick={onDelete}
-          disabled={deleting}
-          className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground disabled:opacity-40"
-        >
-          <Trash2 size={13} />
+        <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+          <Pencil size={15} />
         </button>
       </div>
     </li>

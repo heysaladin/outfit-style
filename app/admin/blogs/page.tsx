@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { createHyperfantasyAdminClient } from '@/lib/supabase/hyperfantasy'
 import { redirect } from 'next/navigation'
 import { BlogsAdminClient } from '@/components/admin/BlogsAdminClient'
 
@@ -23,11 +22,32 @@ export default async function AdminBlogsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const hf = createHyperfantasyAdminClient()
-  const { data: blogs } = await hf
-    .from('blogs')
-    .select('*')
-    .order('created_at', { ascending: false })
+  const res = await fetch('https://www.hyperfantasy.co/api/blogs', { cache: 'no-store' })
+  const raw: Array<{
+    id: string
+    authorId: string | null
+    title: string
+    slug: string | null
+    content: string | null
+    excerpt: string | null
+    isPublished: boolean
+    tags: string[] | null
+    createdAt: string
+    updatedAt: string
+  }> = res.ok ? await res.json() : []
 
-  return <BlogsAdminClient blogs={(blogs ?? []) as Blog[]} />
+  const blogs: Blog[] = raw.map(b => ({
+    id: b.id,
+    user_id: b.authorId ?? '',
+    title: b.title,
+    slug: b.slug,
+    content: b.content,
+    excerpt: b.excerpt,
+    status: b.isPublished ? 'published' : 'draft',
+    tags: b.tags,
+    created_at: b.createdAt,
+    updated_at: b.updatedAt,
+  }))
+
+  return <BlogsAdminClient blogs={blogs} />
 }
