@@ -131,12 +131,13 @@ export const OCCASIONS = [
 // ─── Declutter ────────────────────────────────────────────────────────────
 
 export const DECLUTTER_STATUSES = [
-  { value: 'donate',   label: 'Donate',    color: '#22C55E' },
-  { value: 'sell',     label: 'Sell',      color: '#3B82F6' },
-  { value: 'giveaway', label: 'Give Away', color: '#A855F7' },
+  { value: 'donate',      label: 'Donate',      color: '#22C55E' },
+  { value: 'sell',        label: 'Sell',         color: '#3B82F6' },
+  { value: 'giveaway',   label: 'Give Away',    color: '#A855F7' },
+  { value: 'non-fashion', label: 'Non-Fashion', color: '#F59E0B' },
 ] as const
 
-export type DeclutterStatus = 'donate' | 'sell' | 'giveaway'
+export type DeclutterStatus = 'donate' | 'sell' | 'giveaway' | 'non-fashion'
 
 // ─── Interfaces ───────────────────────────────────────────────────────────
 

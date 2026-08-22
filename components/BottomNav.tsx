@@ -6,8 +6,8 @@ import { LayoutGrid, Layers, CalendarDays, BarChart2, Archive } from 'lucide-rea
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { href: '/ofit',      icon: LayoutGrid,   label: 'Closet'   },
-  { href: '/wardrobes', icon: Archive,      label: 'Storage'  },
+  { href: '/ofit',      icon: LayoutGrid,   label: 'Wardrobe' },
+  { href: '/wardrobes', icon: Archive,      label: 'Closet'   },
   { href: '/outfits',   icon: Layers,       label: 'Outfits'  },
   { href: '/calendar',  icon: CalendarDays, label: 'Calendar' },
   { href: '/stats',     icon: BarChart2,    label: 'Stats'    },
@@ -23,7 +23,7 @@ export function BottomNav() {
         style={{ height: 'env(safe-area-inset-bottom, 0px)' }}
       />
       <nav
-        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] z-20 flex border-t border-border bg-background"
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] z-20 flex border border-border bg-background rounded-t-[24px]"
         style={{ bottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         {tabs.map(({ href, icon: Icon, label }) => {

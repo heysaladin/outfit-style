@@ -243,7 +243,7 @@ export async function setWardrobeItemWearCount(id: string, count: number): Promi
 }
 
 export async function flagDeclutter(
-  itemId: string, status: 'donate' | 'sell' | 'giveaway' | null, note?: string
+  itemId: string, status: 'donate' | 'sell' | 'giveaway' | 'non-fashion' | null, note?: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

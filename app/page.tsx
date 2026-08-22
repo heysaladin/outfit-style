@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
 import { cn } from '@/lib/utils'
+import { dateStrWIB, daysDiff, formatDateLabel, formatTime, defaultDatetimeLocal, isSameDayWIB } from '@/lib/date'
 import { useTheme } from '@/components/ThemeProvider'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -88,7 +89,7 @@ export default function Home() {
   const [createHobby, setCreateHobby] = useState('')
   const [createNote, setCreateNote] = useState('')
   const [createLocation, setCreateLocation] = useState('')
-  const [createAt, setCreateAt] = useState(() => { const n = new Date(); n.setSeconds(0, 0); return n.toISOString().slice(0, 16) })
+  const [createAt, setCreateAt] = useState(() => defaultDatetimeLocal())
   const [createPhoto, setCreatePhoto] = useState<string | null>(null)
   const [createPhotoFile, setCreatePhotoFile] = useState<File | null>(null)
   const [createError, setCreateError] = useState('')
@@ -154,7 +155,7 @@ export default function Home() {
   function resetCreate() {
     setCreateHobby(''); setCreateNote(''); setCreateLocation(''); setCreateError('')
     setCreatePhoto(null); setCreatePhotoFile(null)
-    const n = new Date(); n.setSeconds(0, 0); setCreateAt(n.toISOString().slice(0, 16))
+    setCreateAt(defaultDatetimeLocal())
   }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -202,7 +203,7 @@ export default function Home() {
         setPhotos(prev => [{ id: Date.now().toString(), user_id: u.id, hobby: createHobby, image_url: imageUrl!, note: createNote.trim() || null, created_at: new Date().toISOString() }, ...prev])
       }
 
-      setActivities(prev => [act, ...prev])
+      setActivities(prev => [act, ...prev].sort((a, b) => new Date(b.activity_at).getTime() - new Date(a.activity_at).getTime()))
       resetCreate(); setCreateOpen(false)
     } finally { setCreatePending(false) }
   }
@@ -211,23 +212,27 @@ export default function Home() {
   const avatarLetter = (firstName[0] ?? 'H').toUpperCase()
 
   const now = new Date()
-  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+  const dateStr = dateStrWIB(now)
 
   // Last 7 days (Sun=0..Sat=6 order relative to today)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(now); d.setDate(d.getDate() - (6 - i)); return d
   })
   const DAY_LABELS = ['S','M','T','W','T','F','S']
-  const activeDaySet = new Set(activities.map(a => new Date(a.activity_at).toDateString()))
+  const activeDaySet = new Set(activities.map(a =>
+    new Date(a.activity_at).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' })
+  ))
   const weekDots = weekDays.map((d, i) => ({
-    label: DAY_LABELS[d.getDay()], active: activeDaySet.has(d.toDateString()), isToday: i === 6,
+    label: DAY_LABELS[d.getDay()],
+    active: activeDaySet.has(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' })),
+    isToday: i === 6,
   }))
 
   // Streak: consecutive days back from today
   let streak = 0
   for (let i = 0; i < 60; i++) {
     const d = new Date(now); d.setDate(d.getDate() - i)
-    if (activeDaySet.has(d.toDateString())) streak++
+    if (activeDaySet.has(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }))) streak++
     else break
   }
 
@@ -235,7 +240,7 @@ export default function Home() {
   const lastActive: Record<string, string> = {}
   for (const a of activities) {
     if (!lastActive[a.hobby]) {
-      const diff = Math.floor((now.getTime() - new Date(a.activity_at).getTime()) / 86400000)
+      const diff = daysDiff(a.activity_at, now)
       if (diff === 0) lastActive[a.hobby] = 'today'
       else if (diff === 1) lastActive[a.hobby] = 'yesterday'
       else if (diff < 7) lastActive[a.hobby] = `${diff}d ago`
@@ -258,7 +263,7 @@ export default function Home() {
       hobby: act.hobby,
       note: act.note ?? '',
       location: act.location ?? '',
-      at: new Date(act.activity_at).toISOString().slice(0, 16),
+      at: defaultDatetimeLocal(new Date(act.activity_at)),
     })
     const linked = photo ?? photos.find(p => p.hobby === act.hobby && p.note === act.note) ?? null
     setActPhoto(linked)
@@ -430,17 +435,23 @@ export default function Home() {
   ).slice(0, 20) : []
 
   return (
-    <div className="h-dvh w-full overflow-hidden" style={{ background: '#0A0A0A' }}>
-      <div className="w-full max-w-[430px] h-dvh mx-auto relative flex flex-col overflow-hidden" style={{ background: '#0A0A0A' }}>
+    <div className="h-dvh w-full overflow-hidden bg-background">
+      <div className="w-full max-w-[430px] h-dvh mx-auto relative flex flex-col overflow-hidden bg-background">
 
         {/* ── Sticky Header ── */}
-        <header className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between" style={{ background: '#0A0A0A' }}>
-          <span className="font-sans font-semibold text-[19px] tracking-[-0.5px]" style={{ color: '#f1f252' }}>
+        <header
+          className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between"
+          style={{ background: tab === 'home' ? '#0A0A0A' : 'var(--background)' }}
+        >
+          <span
+            className="font-sans font-semibold text-[19px] tracking-[-0.5px]"
+            style={{ color: tab === 'home' ? '#f1f252' : 'var(--foreground)' }}
+          >
             interestory
           </span>
           <Avatar
             className="w-9 h-9 flex-shrink-0 cursor-pointer"
-            style={{ border: '2px solid rgba(255,255,255,0.15)', borderRadius: 9999 }}
+            style={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '2px solid var(--border)', borderRadius: 9999 }}
             onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
           >
             <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
@@ -564,18 +575,18 @@ export default function Home() {
                     <h2 className="text-[15px] font-semibold text-foreground m-0">Recent</h2>
                   </div>
                   <div className="border border-border rounded-[8px] overflow-hidden bg-card">
-                    {activities.slice(0, 5).map((act, idx) => {
+                    {activities.slice(0, 3).map((act, idx) => {
                       const h = HOBBIES.find(x => x.value === act.hobby)
-                      const diff = Math.floor((now.getTime() - new Date(act.activity_at).getTime()) / 86400000)
+                      const diff = daysDiff(act.activity_at, now)
                       const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
                       const initials = (h?.label ?? act.hobby).slice(0, 2).toUpperCase()
                       return (
                         <div
                           key={act.id}
-                          className={cn('flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors', idx > 0 ? 'border-t border-neutral-100' : '')}
+                          className={cn('flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors', idx > 0 ? 'border-t border-border' : '')}
                           onClick={() => openActivity(act)}
                         >
-                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 bg-neutral-100 text-[11px] font-semibold text-neutral-600">
+                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 bg-muted text-[11px] font-semibold text-muted-foreground">
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -742,7 +753,7 @@ export default function Home() {
                   const count = gearCounts[value] ?? 0
                   const last = lastActive[value]
                   const dots = weekDays.map(d =>
-                    activities.some(a => a.hobby === value && new Date(a.activity_at).toDateString() === d.toDateString())
+                    activities.some(a => a.hobby === value && isSameDayWIB(a.activity_at, d))
                   )
                   return (
                     <Link key={label} href={href} prefetch={false} className="block no-underline min-w-0">
@@ -919,7 +930,11 @@ export default function Home() {
                   | { type: 'photo'; date: string; photo: HobbyPhoto }
                   | { type: 'activity'; date: string; act: HobbyActivity }
                 > = [
-                  ...photos.map(p => ({ type: 'photo' as const, date: p.created_at, photo: p })),
+                  ...photos.map(p => {
+                    const linked = activities.find(a => a.hobby === p.hobby && a.note === p.note)
+                      ?? activities.find(a => a.hobby === p.hobby)
+                    return { type: 'photo' as const, date: linked?.activity_at ?? p.created_at, photo: p }
+                  }),
                   ...noPhotoActs.map(a => ({ type: 'activity' as const, date: a.activity_at, act: a })),
                 ].sort((a, b) => b.date.localeCompare(a.date))
 
@@ -949,13 +964,9 @@ export default function Home() {
                                 </div>
                                 {(() => {
                                   const ts = linkedActivity?.activity_at ?? p.created_at
-                                  const d = new Date(ts)
-                                  const diff = Math.floor((now.getTime() - d.getTime()) / 86400000)
-                                  const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                                  const label = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                                   return (
                                     <span className="flex-shrink-0 text-para-xs font-semibold text-muted-foreground/60">
-                                      {label} · {timeStr}
+                                      {formatDateLabel(ts, now)} · {formatTime(ts)}
                                     </span>
                                   )
                                 })()}
@@ -966,11 +977,7 @@ export default function Home() {
                       } else {
                         const act = item.act
                         const h = HOBBIES.find(x => x.value === act.hobby)
-                        const actD = new Date(act.activity_at)
-                        const diff = Math.floor((now.getTime() - actD.getTime()) / 86400000)
-                        const actTimeStr = actD.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                        const actLabel = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : actD.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                        const timeAgo = `${actLabel} · ${actTimeStr}`
+                        const timeAgo = `${formatDateLabel(act.activity_at, now)} · ${formatTime(act.activity_at)}`
                         const text = act.note ?? 'Session logged'
                         const SHORT = 120
                         const LONG  = 400
@@ -1091,7 +1098,7 @@ export default function Home() {
           {/* FAB */}
           <div className="flex items-center justify-center">
             <button
-              onClick={() => { setCreateOpen(true); setCreateAt(() => { const n = new Date(); n.setSeconds(0,0); return n.toISOString().slice(0,16) }) }}
+              onClick={() => { setCreateOpen(true); setCreateAt(defaultDatetimeLocal()) }}
               className="w-11 h-11 rounded-full border-0 cursor-pointer flex items-center justify-center"
               style={{ background: '#f1f252' }}
             >
@@ -1176,7 +1183,7 @@ export default function Home() {
                       <div>
                         <DrawerTitle className="text-para-lg font-extrabold block font-sans">{h?.label ?? viewActivity.hobby}</DrawerTitle>
                         <span className="text-para-xs text-muted-foreground font-semibold">
-                          {new Date(viewActivity.activity_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          {new Date(viewActivity.activity_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'Asia/Jakarta' })} · {formatTime(viewActivity.activity_at)}
                         </span>
                       </div>
                     </div>

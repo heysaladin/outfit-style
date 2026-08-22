@@ -49,7 +49,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Drag handle */}
@@ -256,7 +256,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
                 <div className="flex flex-col items-center py-8 text-center">
                   <Package2 size={24} className="text-border mb-2" />
                   <p className="text-muted-foreground text-sm">No wardrobes yet</p>
-                  <p className="text-muted-foreground/60 text-xs mt-0.5">Create one in Storage</p>
+                  <p className="text-muted-foreground/60 text-xs mt-0.5">Create one in Closet</p>
                 </div>
               ) : (
                 <>

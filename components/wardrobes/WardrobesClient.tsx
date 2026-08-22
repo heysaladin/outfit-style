@@ -13,6 +13,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { deleteWardrobe } from '@/app/actions'
 import { WardrobeFormModal } from './WardrobeFormModal'
 import { BottomNav } from '@/components/BottomNav'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import type { Wardrobe, WardrobeItem } from '@/lib/types'
 
 type SlimItem = Pick<WardrobeItem, 'id' | 'name' | 'image_url' | 'category' | 'color' | 'wardrobe_id' | 'wear_count'>
@@ -73,17 +74,26 @@ export function WardrobesClient({ wardrobes, items }: WardrobesClientProps) {
 
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-        <h1 className="text-foreground font-bold text-lg">Wardrobes</h1>
-        <p className="text-muted-foreground text-xs mt-0.5">Physical storage locations for your clothes</p>
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
+        <h1 className="text-foreground font-bold text-lg">Closet</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openCreate}
+            className="h-8 px-3 rounded-full bg-foreground flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+          >
+            <Plus size={13} className="text-background" strokeWidth={2.5} />
+            <span className="text-background text-[11px] font-bold">New</span>
+          </button>
+          <UserAvatarMenu />
+        </div>
       </header>
 
       <div className="px-4 pt-4 space-y-3">
         {wardrobes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center px-6">
             <Package2 size={40} className="text-border mb-3" />
-            <p className="text-foreground font-semibold">No wardrobes yet</p>
-            <p className="text-muted-foreground text-sm mt-1">Tap + to add your first storage location</p>
+            <p className="text-foreground font-semibold">No closets yet</p>
+            <p className="text-muted-foreground text-sm mt-1">Tap + to add your first closet</p>
           </div>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -111,13 +121,6 @@ export function WardrobesClient({ wardrobes, items }: WardrobesClientProps) {
           </div>
         )}
       </div>
-
-      <button
-        onClick={openCreate}
-        className="fixed bottom-20 right-4 w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg z-20 hover:opacity-90 transition-opacity"
-      >
-        <Plus size={22} className="text-primary-foreground" />
-      </button>
 
       <BottomNav />
 

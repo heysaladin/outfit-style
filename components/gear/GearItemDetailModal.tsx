@@ -56,7 +56,7 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="absolute inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

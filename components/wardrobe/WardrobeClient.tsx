@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, Search } from 'lucide-react'
+import { X, Search, Check, Shirt } from 'lucide-react'
+import { useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
-import { setItemStatus, deleteItem } from '@/app/actions'
+import { setItemStatus, deleteItem, createOutfit } from '@/app/actions'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
@@ -25,6 +26,10 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null)
   const [selectMode, setSelectMode]     = useState(false)
   const [selected, setSelected]         = useState<Set<string>>(new Set())
+  const [namingOutfit, setNamingOutfit] = useState(false)
+  const [outfitName, setOutfitName]     = useState('')
+  const [outfitPending, setOutfitPending] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   const [activeCategory,    setActiveCategory]    = useState<string | null>(null)
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null)
@@ -54,6 +59,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     const s = item.status ?? 'draft'
     if (s === 'verified'  && !showVerified) return false
     if (s !== 'verified'  && !showDraft)    return false
+    if (item.declutter_status === 'non-fashion') return false
+    if (item.declutter_status && !showDraft) return false
     if (q) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
       if (!hay.includes(q)) return false
@@ -78,7 +85,18 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     })
   }
 
-  function exitSelectMode() { setSelectMode(false); setSelected(new Set()) }
+  function exitSelectMode() {
+    setSelectMode(false); setSelected(new Set())
+    setNamingOutfit(false); setOutfitName('')
+  }
+
+  async function handleCreateOutfit() {
+    if (!outfitName.trim() || selected.size === 0) return
+    setOutfitPending(true)
+    const res = await createOutfit(outfitName.trim(), [...selected])
+    setOutfitPending(false)
+    if (!res.error) { exitSelectMode(); router.push('/outfits') }
+  }
 
   async function handleVerify(id: string) {
     await setItemStatus(id, 'verified')
@@ -166,13 +184,54 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
 
       {/* Bulk select bar */}
       {selectMode && (
-        <div className="fixed bottom-16 inset-x-0 bg-background/95 backdrop-blur-md border-t border-border px-5 py-3 flex items-center justify-between">
-          <span className="text-foreground text-sm font-medium">
-            {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
-          </span>
-          <button onClick={exitSelectMode} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X size={18} />
-          </button>
+        <div
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-background border-t border-border"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          {namingOutfit ? (
+            <div className="flex items-center gap-2 px-4 py-3">
+              <input
+                ref={nameInputRef}
+                autoFocus
+                value={outfitName}
+                onChange={e => setOutfitName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCreateOutfit()}
+                placeholder="Outfit name…"
+                className="flex-1 bg-muted rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              />
+              <button
+                onClick={handleCreateOutfit}
+                disabled={!outfitName.trim() || outfitPending}
+                className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center disabled:opacity-40 transition-opacity"
+              >
+                <Check size={16} />
+              </button>
+              <button
+                onClick={() => { setNamingOutfit(false); setOutfitName('') }}
+                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-4 py-3">
+              <span className="text-foreground text-sm font-medium flex-1">
+                {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
+              </span>
+              {selected.size > 0 && (
+                <button
+                  onClick={() => { setNamingOutfit(true); setTimeout(() => nameInputRef.current?.focus(), 50) }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-foreground text-background text-xs font-semibold transition-opacity"
+                >
+                  <Shirt size={13} />
+                  Save as Outfit
+                </button>
+              )}
+              <button onClick={exitSelectMode} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                <X size={16} />
+              </button>
+            </div>
+          )}
         </div>
       )}
 

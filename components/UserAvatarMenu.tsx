@@ -9,7 +9,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 const MENU_ITEMS = [
   { href: '/declutter', icon: Archive,       label: 'Declutter' },
-  { href: '/wardrobes', icon: Package2,      label: 'Storage'   },
+  { href: '/wardrobes', icon: Package2,      label: 'Closet'    },
   { href: '/plan',      icon: CalendarRange, label: 'Plan'      },
   { href: '/fashion',   icon: Shirt,         label: 'Fashion'   },
   { href: '/literacy',  icon: BookOpen,      label: 'Literacy'  },

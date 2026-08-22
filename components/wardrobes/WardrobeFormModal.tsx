@@ -30,7 +30,7 @@ export function WardrobeFormModal({ wardrobe, onClose }: WardrobeFormModalProps)
   return (
     <div className="fixed inset-0 z-50 bg-black/70" onClick={onClose}>
       <div
-        className="absolute inset-x-0 bottom-0 bg-background rounded-t-3xl max-h-[90vh] overflow-y-auto border-t border-border"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-3xl max-h-[90vh] overflow-y-auto border-t border-border"
         onClick={e => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
@@ -40,7 +40,7 @@ export function WardrobeFormModal({ wardrobe, onClose }: WardrobeFormModalProps)
 
         <div className="p-5 pt-6">
           <h2 className="text-foreground font-bold text-lg mb-5">
-            {wardrobe ? 'Edit Wardrobe' : 'New Wardrobe'}
+            {wardrobe ? 'Edit Closet' : 'New Closet'}
           </h2>
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
@@ -82,7 +82,7 @@ export function WardrobeFormModal({ wardrobe, onClose }: WardrobeFormModalProps)
               disabled={isPending}
               className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
             >
-              {isPending ? 'Saving...' : wardrobe ? 'Save Changes' : 'Create Wardrobe'}
+              {isPending ? 'Saving...' : wardrobe ? 'Save Changes' : 'Create Closet'}
             </button>
           </form>
         </div>

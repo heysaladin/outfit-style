@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { HOBBIES, type HobbyActivity, type HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
+import { formatRelative as fmtRelative, formatDateLabel, formatTime, defaultDatetimeLocal, daysDiff } from '@/lib/date'
 
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
@@ -24,25 +25,17 @@ interface Props {
   user: User | null
 }
 
-function formatRelative(iso: string): string {
-  const d = new Date(iso)
-  const diff = Math.floor((Date.now() - d.getTime()) / 86400000)
-  const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-  if (diff === 0) return `Today · ${timeStr}`
-  if (diff === 1) return `Yesterday · ${timeStr}`
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ` · ${timeStr}`
-}
+const formatRelative = fmtRelative
 
 export function ActivitiesTab({ hobby, activities: initialActivities, photos: initialPhotos = [], user }: Props) {
-  const [activities, setActivities] = useState(initialActivities)
+  const [activities, setActivities] = useState(() =>
+    [...initialActivities].sort((a, b) => new Date(b.activity_at).getTime() - new Date(a.activity_at).getTime())
+  )
   const [photos, setPhotos] = useState(initialPhotos)
   const [addOpen, setAddOpen]       = useState(false)
   const [note, setNote]             = useState('')
   const [location, setLocation]     = useState('')
-  const [activityAt, setActivityAt] = useState(() => {
-    const now = new Date(); now.setSeconds(0, 0)
-    return now.toISOString().slice(0, 16)
-  })
+  const [activityAt, setActivityAt] = useState(() => defaultDatetimeLocal())
   const [addPhoto, setAddPhoto]     = useState<string | null>(null)
   const [addPhotoFile, setAddPhotoFile] = useState<File | null>(null)
   const [error, setError]     = useState('')
@@ -67,8 +60,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
     setNote(''); setLocation(''); setError('')
     setAddPhoto(null); setAddPhotoFile(null)
     if (addFileRef.current) addFileRef.current.value = ''
-    const now = new Date(); now.setSeconds(0, 0)
-    setActivityAt(now.toISOString().slice(0, 16))
+    setActivityAt(defaultDatetimeLocal())
   }
 
   function handleAddFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -87,7 +79,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
     setEditLocation(act.location ?? '')
     const d = new Date(act.activity_at)
     d.setSeconds(0, 0)
-    setEditActivityAt(d.toISOString().slice(0, 16))
+    setEditActivityAt(defaultDatetimeLocal(d))
     setEditError('')
   }
 
@@ -206,10 +198,8 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11, paddingBottom: 12 }}>
           {activities.map(act => {
             const h = HOBBIES.find(x => x.value === act.hobby)
-            const d = new Date(act.activity_at)
-            const diff = Math.floor((Date.now() - d.getTime()) / 86400000)
-            const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            const dateLabel = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            const timeStr = formatTime(act.activity_at)
+            const dateLabel = formatDateLabel(act.activity_at)
             const linkedPhoto = photos.find(p => p.hobby === act.hobby && p.note === act.note)
               ?? photos.find(p => p.hobby === act.hobby && !p.note)
 

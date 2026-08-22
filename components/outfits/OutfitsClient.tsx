@@ -222,7 +222,7 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
       {/* Outfit detail modal */}
       {detail && (
         <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setDetail(null); setConfirmUse(false) }}>
-          <div className="absolute inset-x-0 bottom-0 bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
             <div className="absolute top-4 right-4 flex items-center gap-2">
