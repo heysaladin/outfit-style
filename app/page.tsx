@@ -1048,7 +1048,7 @@ export default function Home() {
                             className="rounded-xl overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer border border-border"
                             style={{ background: 'var(--card)' }}
                           >
-                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center" style={{ background: 'var(--color-neutral-100)' }}>
+                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center" style={{ background: 'var(--muted)' }}>
                               <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-sans" style={{ color: 'var(--foreground)' }}>
                                 {text}
                               </p>
