@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, ListTodo, Pencil } from 'lucide-react'
+import { ExternalLink, ListTodo, Pencil, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { AdminNav } from '@/components/admin/AdminNav'
 import type { ZopavoNote } from '@/app/admin/backlog/page'
@@ -57,9 +58,14 @@ export function BacklogAdminClient({ notes: initial }: Props) {
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-foreground font-bold text-lg">Zopavo Backlog</h1>
-          <p className="text-muted-foreground text-xs">zopavo.vercel.app</p>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <h1 className="text-foreground font-bold text-lg">Zopavo Backlog</h1>
+            <p className="text-muted-foreground text-xs">zopavo.vercel.app</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <a href="https://zopavo.vercel.app" target="_blank" rel="noopener noreferrer"

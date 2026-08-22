@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, Pencil, FileText, ExternalLink } from 'lucide-react'
+import { Plus, Pencil, FileText, ExternalLink, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { AdminNav } from '@/components/admin/AdminNav'
 import type { Blog } from '@/app/admin/blogs/page'
@@ -82,9 +83,14 @@ export function BlogsAdminClient({ blogs: initial }: Props) {
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-foreground font-bold text-lg">Hyperfantasy Blogs</h1>
-          <p className="text-muted-foreground text-xs">hyperfantasy.co</p>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <h1 className="text-foreground font-bold text-lg">Hyperfantasy Blogs</h1>
+            <p className="text-muted-foreground text-xs">hyperfantasy.co</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button

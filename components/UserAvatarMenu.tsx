@@ -39,7 +39,7 @@ export function UserAvatarMenu({ buttonClassName, buttonStyle, onReorderInterest
     >
       <div
         className="absolute bg-card rounded-[10px] w-[268px] shadow-md border border-border overflow-hidden"
-        style={{ top: 'calc(56px + env(safe-area-inset-top,0px))', right: 16 }}
+        style={{ top: 'calc(56px + env(safe-area-inset-top,0px))', right: 'max(16px, calc((100vw - 430px) / 2 + 16px))' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
