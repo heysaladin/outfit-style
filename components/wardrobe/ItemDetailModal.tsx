@@ -32,7 +32,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
   function handleWear() {
     startTransition(async () => { await wearItem(item!.id); onClose() })
   }
-  function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | null) {
+  function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | 'non-fashion' | null) {
     startTransition(async () => { await flagDeclutter(item!.id, status); onClose() })
   }
   function handleAssign(wardrobeId: string | null) {
