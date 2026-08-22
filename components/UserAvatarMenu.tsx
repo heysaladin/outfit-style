@@ -1,89 +1,129 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { User, Archive, Package2, CalendarRange, Shirt, BookOpen, LogOut } from 'lucide-react'
+import { User, Sun, Moon, AlignJustify, Layers, PenLine } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/ThemeProvider'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
-const MENU_ITEMS = [
-  { href: '/declutter', icon: Archive,       label: 'Declutter' },
-  { href: '/wardrobes', icon: Package2,      label: 'Closet'    },
-  { href: '/plan',      icon: CalendarRange, label: 'Plan'      },
-  { href: '/fashion',   icon: Shirt,         label: 'Fashion'   },
-  { href: '/literacy',  icon: BookOpen,      label: 'Literacy'  },
-  { href: '/profile',   icon: User,          label: 'Profile'   },
-]
+interface Props {
+  buttonClassName?: string
+  buttonStyle?: React.CSSProperties
+  onReorderInterests?: () => void
+}
 
-export function UserAvatarMenu() {
-  const [user, setUser]   = useState<SupabaseUser | null>(null)
-  const [open, setOpen]   = useState(false)
-  const menuRef           = useRef<HTMLDivElement>(null)
-  const router            = useRouter()
+export function UserAvatarMenu({ buttonClassName, buttonStyle, onReorderInterests }: Props) {
+  const [user, setUser]       = useState<SupabaseUser | null>(null)
+  const [open, setOpen]       = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { theme, toggle }     = useTheme()
 
   useEffect(() => {
+    setMounted(true)
     createClient().auth.getUser().then(({ data }) => setUser(data.user))
   }, [])
-
-  useEffect(() => {
-    function handleOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    if (open) document.addEventListener('mousedown', handleOutside)
-    return () => document.removeEventListener('mousedown', handleOutside)
-  }, [open])
-
-  async function handleSignOut() {
-    setOpen(false)
-    await createClient().auth.signOut()
-    router.push('/login')
-  }
 
   if (!user) return null
 
   const name   = user.user_metadata?.full_name?.split(' ')[0] ?? user.email?.split('@')[0]
   const avatar = 'https://heysaladindesign.web.app/pictures/avatar.png'
+  const since  = new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+
+  const dropdown = (
+    <div
+      className="fixed inset-0 z-[55]"
+      style={{ background: 'rgba(0,0,0,0.10)' }}
+      onClick={() => setOpen(false)}
+    >
+      <div
+        className="absolute bg-card rounded-[10px] w-[268px] shadow-md border border-border overflow-hidden"
+        style={{ top: 'calc(56px + env(safe-area-inset-top,0px))', right: 16 }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
+          <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border border-border">
+            <img className="aspect-square h-full w-full" alt={name} src={avatar} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[15px] font-semibold text-foreground leading-tight truncate">{name}</p>
+            <p className="text-[12px] text-muted-foreground leading-tight">Logging since {since}</p>
+          </div>
+        </div>
+
+        <Link
+          href="/profile"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5"
+        >
+          <User size={18} className="text-muted-foreground" />
+          Profile
+        </Link>
+
+        <button
+          onClick={toggle}
+          className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
+        >
+          {theme === 'dark'
+            ? <Moon size={18} className="text-muted-foreground" />
+            : <Sun  size={18} className="text-muted-foreground" />}
+          Appearance
+          <span className="ml-auto text-[14px] text-muted-foreground">{theme === 'dark' ? 'Dark' : 'Light'}</span>
+        </button>
+
+        {onReorderInterests && (
+          <button
+            onClick={() => { setOpen(false); onReorderInterests() }}
+            className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
+          >
+            <AlignJustify size={18} className="text-muted-foreground" />
+            Reorder interests
+          </button>
+        )}
+
+        <div className="border-t border-border mx-4 my-1" />
+
+        <Link
+          href="/admin/backlog"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5"
+        >
+          <Layers size={18} className="text-muted-foreground" />
+          Zopavo
+        </Link>
+
+        <Link
+          href="/admin/blogs"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5"
+        >
+          <PenLine size={18} className="text-muted-foreground" />
+          Hyperfantasy
+        </Link>
+
+        <div className="border-t border-border mx-4 my-1" />
+
+        <form action="/auth/signout" method="post" className="m-0 px-1 pb-1">
+          <button className="flex w-full items-center gap-3 px-3 h-11 text-[15px] text-muted-foreground hover:bg-muted transition-colors rounded-[6px] cursor-pointer border-0 bg-transparent">
+            Sign out
+          </button>
+        </form>
+      </div>
+    </div>
+  )
 
   return (
-    <div ref={menuRef} className="relative">
+    <>
       <button
-        onClick={() => setOpen(v => !v)}
-        className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0"
+        onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
+        className={buttonClassName ?? 'w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0'}
+        style={buttonStyle}
       >
-        {avatar
-          ? <img src={avatar} alt={name} className="w-full h-full object-cover" />
-          : <User size={15} className="text-foreground" />}
+        <img src={avatar} alt={name} className="w-full h-full object-cover" />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-10 w-48 bg-background border border-border rounded-2xl shadow-xl overflow-hidden z-50">
-          <div className="px-3 py-3 border-b border-border">
-            <p className="text-foreground text-xs font-semibold truncate">{name}</p>
-            <p className="text-muted-foreground text-[10px] truncate">{user.email}</p>
-          </div>
-
-          {MENU_ITEMS.map(({ href, icon: Icon, label }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-muted transition-colors"
-            >
-              <Icon size={13} className="text-muted-foreground" />
-              <span className="text-foreground text-xs font-medium">{label}</span>
-            </Link>
-          ))}
-
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-muted transition-colors border-t border-border"
-          >
-            <LogOut size={13} className="text-muted-foreground" />
-            <span className="text-foreground text-xs font-medium">Sign Out</span>
-          </button>
-        </div>
-      )}
-    </div>
+      {open && mounted && createPortal(dropdown, document.body)}
+    </>
   )
 }

@@ -7,6 +7,7 @@ import type { HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
+import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { cn } from '@/lib/utils'
 import { dateStrWIB, daysDiff, formatDateLabel, formatTime, defaultDatetimeLocal, isSameDayWIB } from '@/lib/date'
 import { useTheme } from '@/components/ThemeProvider'
@@ -14,7 +15,6 @@ import { useTheme } from '@/components/ThemeProvider'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
@@ -72,7 +72,6 @@ function EmptyState({ icon, title, desc, children }: { icon: string; title: stri
 export default function Home() {
   const [tab, setTab]               = useState<Tab>('home')
   const { theme, toggle: toggleTheme } = useTheme()
-  const [popOpen, setPopOpen]       = useState(false)
   const [reorderOpen, setReorderOpen] = useState(false)
   const [user, setUser]             = useState<User | null>(null)
   const [hobbyOrder, setHobbyOrder] = useState(() => [...HOBBIES])
@@ -209,7 +208,6 @@ export default function Home() {
   }
 
   const firstName = 'Saladin'
-  const avatarLetter = (firstName[0] ?? 'H').toUpperCase()
 
   const now = new Date()
   const dateStr = dateStrWIB(now)
@@ -449,70 +447,12 @@ export default function Home() {
           >
             interestory
           </span>
-          <Avatar
-            className="w-9 h-9 flex-shrink-0 cursor-pointer"
-            style={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '2px solid var(--border)', borderRadius: 9999 }}
-            onClick={(e) => { e.stopPropagation(); setPopOpen(v => !v) }}
-          >
-            <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
-            <AvatarFallback className="text-[12px] font-semibold" style={{ background: '#333', color: '#fff' }}>{avatarLetter}</AvatarFallback>
-          </Avatar>
+          <UserAvatarMenu
+            buttonClassName="w-9 h-9 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+            buttonStyle={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '2px solid var(--border)' }}
+            onReorderInterests={() => setReorderOpen(true)}
+          />
         </header>
-
-        {/* ── Account dropdown ── */}
-        {popOpen && (
-          <div className="fixed inset-0 z-[55]" style={{ background: 'rgba(0,0,0,0.10)' }} onClick={() => setPopOpen(false)}>
-            <div
-              className="absolute bg-card rounded-[10px] w-[268px] shadow-md border overflow-hidden"
-              style={{ top: 'calc(56px + env(safe-area-inset-top,0px))', right: 16 }}
-              onClick={e => e.stopPropagation()}
-            >
-              {user ? (
-                <>
-                  <div className="flex items-center gap-3 px-4 py-3 border-b">
-                    <Avatar className="w-10 h-10 border border-border flex-shrink-0">
-                      <AvatarImage src="https://heysaladindesign.web.app/pictures/avatar.png" alt={firstName} />
-                      <AvatarFallback className="text-[12px] font-semibold bg-neutral-100 text-neutral-600">{avatarLetter}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="text-[15px] font-semibold text-foreground leading-tight truncate">{firstName}</p>
-                      <p className="text-[12px] text-muted-foreground leading-tight">Logging since Mar 2026</p>
-                    </div>
-                  </div>
-                  <Link href="/profile" className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors no-underline rounded-[6px] mx-1 my-0.5" onClick={() => setPopOpen(false)}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                    Profile
-                  </Link>
-                  <button
-                    className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
-                    onClick={() => { toggleTheme(); setPopOpen(false) }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    Appearance
-                    <span className="ml-auto text-[14px] text-muted-foreground">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-neutral-100 transition-colors rounded-[6px] mx-1 my-0.5 cursor-pointer border-0 bg-transparent"
-                    onClick={() => { setPopOpen(false); setReorderOpen(true) }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-                    Reorder interests
-                  </button>
-                  <div className="border-t mx-4 my-1" />
-                  <form action="/auth/signout" method="post" className="m-0 px-1 pb-1">
-                    <button className="flex w-full items-center gap-3 px-3 h-11 text-[15px] text-neutral-600 hover:bg-neutral-100 transition-colors rounded-[6px] cursor-pointer border-0 bg-transparent">
-                      Sign out
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <Link href="/login" className="block px-4 py-3.5 text-foreground font-semibold text-[15px] no-underline hover:bg-neutral-100 transition-colors" onClick={() => setPopOpen(false)}>
-                  Login
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* ── Scrollable content ── */}
         <div
