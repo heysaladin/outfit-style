@@ -127,12 +127,12 @@ export default function Home() {
       setUser(u)
       if (!u) return
       const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }] = await Promise.all([
-        supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at').eq('user_id', u.id).order('activity_at', { ascending: false }),
+        supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at,outfit_id,outfit_snapshot,outfits(id,name,outfit_items(item_id,wardrobe_items(*)))').eq('user_id', u.id).order('activity_at', { ascending: false }),
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
         supabase.from('hobby_items').select('category'),
         supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
       ])
-      setActivities(acts ?? [])
+      setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
       const counts: Record<string, number> = { fashion: wardrobeCount ?? 0 }
       for (const item of (gear ?? [])) {
@@ -247,7 +247,7 @@ export default function Home() {
   }
 
   // Sorted hobby list for stats
-  const hobbiesByActivity = [...HOBBIES].map(h => ({
+  const hobbiesByActivity = [{ value: 'fashion', label: 'Fashion', icon: '👔' }, ...HOBBIES].map(h => ({
     ...h, count: activities.filter(a => a.hobby === h.value).length,
   })).sort((a, b) => b.count - a.count).filter(h => h.count > 0)
 
@@ -314,8 +314,8 @@ export default function Home() {
       activity_at: new Date(actEditForm.at).toISOString(),
     }).eq('id', viewActivity.id).select().single()
     if (data) {
-      setActivities(prev => prev.map(a => a.id === viewActivity.id ? data : a))
-      setViewActivity(data)
+      setActivities(prev => prev.map(a => a.id === viewActivity.id ? { ...a, ...data } : a))
+      setViewActivity(prev => prev ? { ...prev, ...data } : data)
     }
     setActNewPhotoPreview(null)
     setActNewPhotoFile(null)
@@ -748,19 +748,17 @@ export default function Home() {
                     <Card className="mt-3">
                       <CardContent className="p-[17px_15px]">
                         <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Top hobbies</h3>
-                        {hobbiesByActivity.slice(0, 5).map((h, i) => {
+                        {hobbiesByActivity.map((h, i) => {
                           const maxC = hobbiesByActivity[0].count
                           const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                          const colors = ['#171717', '#171717', '#525252', '#525252', '#A3A3A3']
-                          const bgs = ['#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5']
                           return (
                             <div key={h.value} className={cn('flex items-center gap-3 py-3 px-0.5', i > 0 ? 'border-t' : '')}>
                               <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">{i + 1}</span>
-                              <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: bgs[i] }}>{h.icon}</span>
+                              <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--muted)' }}>{h.icon}</span>
                               <div className="flex-1 min-w-0">
                                 <b className="text-para-sm font-bold block">{h.label}</b>
                                 <span className="text-para-xs font-medium text-muted-foreground">{h.count} activities</span>
-                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: colors[i], width: `${pct}%` }} />
+                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: `${pct}%` }} />
                               </div>
                             </div>
                           )
@@ -932,6 +930,32 @@ export default function Home() {
                             return next
                           })
                         }
+                        const outfitSnapshotItems = act.outfit_snapshot && act.outfit_snapshot.length > 0 ? act.outfit_snapshot : null
+                        const outfitLinkedItems = act.outfits ? (act.outfits.outfit_items?.map((oi: { item_id: string; wardrobe_items: { id: string; image_url: string; name: string } }) => oi.wardrobe_items).filter(Boolean) ?? []) : null
+                        const outfitDisplayItems = outfitSnapshotItems ?? outfitLinkedItems
+                        const outfitLabel = act.outfits?.name ?? '👗 Outfit'
+
+                        if (outfitDisplayItems) {
+                          return (
+                            <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border cursor-pointer" style={{ background: 'var(--card)' }} onClick={() => openActivity(act)}>
+                              <div className="flex items-center justify-between px-4 pt-3 pb-2">
+                                <span className="text-para-xs font-bold text-muted-foreground">{act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit'}</span>
+                                <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                              </div>
+                              <div className="flex gap-2 overflow-x-auto px-4 pb-3" style={{ scrollbarWidth: 'none' }}>
+                                {outfitDisplayItems.map((item: { id: string; image_url: string; name: string }, i: number) => (
+                                  <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border">
+                                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                                  </div>
+                                ))}
+                              </div>
+                              {act.note && (
+                                <p className="m-0 px-4 pb-4 text-para-sm font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>{act.note}</p>
+                              )}
+                            </div>
+                          )
+                        }
+
                         if (isVeryLong) return (
                           <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border" style={{ background: "var(--card)" }}>
                             <div className="p-4 pb-3.5">

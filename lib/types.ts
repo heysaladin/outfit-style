@@ -396,6 +396,13 @@ export interface HobbyActivity {
   location: string | null
   activity_at: string
   created_at: string
+  outfit_id?: string | null
+  outfits?: {
+    id: string
+    name: string
+    outfit_items?: { item_id: string; wardrobe_items: WardrobeItem }[]
+  } | null
+  outfit_snapshot?: { id: string; image_url: string; name: string }[] | null
 }
 
 export interface HobbyPhoto {

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X, Trash2, Shirt, Pencil, Search } from 'lucide-react'
-import { createOutfit, deleteOutfit, useOutfit, updateOutfit } from '@/app/actions'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2 } from 'lucide-react'
+import { createOutfit, deleteOutfit, useOutfit, updateOutfit, postOutfit } from '@/app/actions'
 import type { Outfit, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
@@ -51,6 +51,8 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
   const [editIds, setEditIds]         = useState<Set<string>>(new Set())
   const [createSearch, setCreateSearch] = useState('')
   const [editSearch, setEditSearch]   = useState('')
+  const [posting, setPosting]         = useState(false)
+  const [postCaption, setPostCaption] = useState('')
 
   function toggleItem(id: string) {
     setSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -96,6 +98,15 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
 
   function handleUse(id: string) {
     startTransition(async () => { await useOutfit(id, useDate); setConfirmUse(false) })
+  }
+
+  function handlePost() {
+    if (!detail) return
+    startTransition(async () => {
+      await postOutfit(detail.id, postCaption)
+      setPosting(false)
+      setPostCaption('')
+    })
   }
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
@@ -245,6 +256,11 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                   </div>
                 ))}
               </div>
+              <button onClick={() => setPosting(true)} disabled={isPending}
+                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
+                <Share2 size={15} />
+                Post to Activity
+              </button>
               {!confirmUse ? (
                 <button onClick={() => setConfirmUse(true)} disabled={isPending}
                   className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40">
@@ -281,6 +297,47 @@ export function OutfitsClient({ outfits, allItems }: OutfitsClientProps) {
                 className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
                 <Trash2 size={15} />
                 {isPending ? 'Deleting...' : 'Delete Outfit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Post outfit sheet */}
+      {posting && detail && (
+        <div className="fixed inset-0 z-[60] bg-black/70 flex items-end" onClick={() => { setPosting(false); setPostCaption('') }}>
+          <div className="w-full bg-background rounded-t-3xl max-h-[80vh] flex flex-col border-t border-border"
+            onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outfit</p>
+                <h2 className="text-foreground font-bold text-base leading-tight">{detail.name}</h2>
+              </div>
+              <button onClick={() => { setPosting(false); setPostCaption('') }} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-5 space-y-4">
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                {detailItems.map((item, i) => item && (
+                  <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border">
+                    <img src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+              <textarea
+                value={postCaption}
+                onChange={e => setPostCaption(e.target.value)}
+                placeholder="Add a caption... (optional)"
+                rows={3}
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary transition-colors resize-none"
+              />
+            </div>
+            <div className="px-5 pb-8 pt-3 border-t border-border flex-shrink-0">
+              <button onClick={handlePost} disabled={isPending}
+                className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
+                {isPending ? 'Posting...' : 'Post'}
               </button>
             </div>
           </div>

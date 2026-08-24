@@ -276,6 +276,62 @@ export async function setItemStatus(
   return {}
 }
 
+export async function postOutfitActivity(
+  items: { id: string; image_url: string; name: string }[],
+  caption: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase.from('hobby_activities').insert({
+    user_id: user.id,
+    hobby: 'fashion',
+    note: caption.trim() || null,
+    outfit_snapshot: items,
+    activity_at: new Date().toISOString(),
+  })
+  if (error) return { error: error.message }
+
+  const today = new Date().toISOString().split('T')[0]
+  for (const item of items) {
+    const { data: current } = await supabase.from('wardrobe_items')
+      .select('wear_count').eq('id', item.id).single()
+    await supabase.from('wardrobe_items').update({
+      wear_count: (current?.wear_count ?? 0) + 1,
+      last_worn: today,
+    }).eq('id', item.id).eq('user_id', user.id)
+  }
+
+  revalidatePath('/fashion')
+  revalidatePath('/ofit')
+  revalidatePath('/stats')
+  return {}
+}
+
+export async function postOutfit(outfitId: string, caption: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase.from('hobby_activities').insert({
+    user_id: user.id,
+    hobby: 'fashion',
+    note: caption.trim() || null,
+    outfit_id: outfitId,
+    activity_at: new Date().toISOString(),
+  })
+
+  if (error) return { error: error.message }
+
+  const today = new Date().toISOString().split('T')[0]
+  await supabase.from('outfit_logs').insert({ user_id: user.id, outfit_id: outfitId, date: today })
+
+  revalidatePath('/fashion')
+  revalidatePath('/calendar')
+  return {}
+}
+
 export async function useOutfit(outfitId: string, date?: string): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -295,11 +351,7 @@ export async function useOutfit(outfitId: string, date?: string): Promise<{ erro
     }).eq('id', oi.item_id).eq('user_id', user.id)
   }
 
-  const { data: existing } = await supabase.from('outfit_logs')
-    .select('id').eq('user_id', user.id).eq('date', today).maybeSingle()
-  if (!existing) {
-    await supabase.from('outfit_logs').insert({ user_id: user.id, outfit_id: outfitId, date: today })
-  }
+  await supabase.from('outfit_logs').insert({ user_id: user.id, outfit_id: outfitId, date: today })
 
   revalidatePath('/outfits')
   revalidatePath('/calendar')

@@ -22,7 +22,10 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const logMap = new Map(logs.map(l => [l.date, l]))
+  const logMap = logs.reduce((m, l) => {
+    m.set(l.date, [...(m.get(l.date) ?? []), l])
+    return m
+  }, new Map<string, OutfitLog[]>())
 
   const firstOfMonth = new Date(year, month, 1)
   const startDayOfWeek = (firstOfMonth.getDay() + 6) % 7
@@ -53,18 +56,13 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
     })
   }
 
-  function handleRemove() {
-    if (!selectedDate) return
-    const log = logMap.get(selectedDate)
-    if (!log) return
+  function handleRemove(logId: string) {
     startTransition(async () => {
-      await removeOutfitLog(log.id)
-      setSelectedDate(null)
+      await removeOutfitLog(logId)
     })
   }
 
-  const selectedLog = selectedDate ? logMap.get(selectedDate) : null
-  const selectedOutfitItems = selectedLog?.outfits?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+  const selectedLogs = selectedDate ? (logMap.get(selectedDate) ?? []) : []
 
   const monthLabel = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
@@ -95,11 +93,11 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
         <div className="grid grid-cols-7 gap-1">
           {cells.map((day, i) => {
             if (!day) return <div key={i} />
-            const ds  = dateStr(day)
-            const log = logMap.get(ds)
+            const ds   = dateStr(day)
+            const dayLogs = logMap.get(ds) ?? []
             const isToday = ds === today
             const isFuture = ds > today
-            const coverImg = log?.outfits?.outfit_items?.[0]?.wardrobe_items?.image_url
+            const coverImg = dayLogs[0]?.outfits?.outfit_items?.[0]?.wardrobe_items?.image_url
 
             return (
               <button key={i} onClick={() => !isFuture && setSelectedDate(ds)}
@@ -121,8 +119,11 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
                     <span className={`text-xs font-medium ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>{day}</span>
                   </div>
                 )}
-                {log && !coverImg && (
+                {dayLogs.length > 0 && !coverImg && (
                   <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                )}
+                {dayLogs.length > 1 && (
+                  <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{dayLogs.length}</div>
                 )}
               </button>
             )
@@ -143,28 +144,36 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
               <button onClick={() => setSelectedDate(null)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
             </div>
             <div className="p-5 space-y-4 pb-8">
-              {selectedLog ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-foreground font-semibold">{selectedLog.outfits?.name ?? 'Logged'}</p>
-                    <button onClick={handleRemove} disabled={isPending}
-                      className="text-muted-foreground hover:text-destructive text-xs transition-colors disabled:opacity-40">Remove</button>
-                  </div>
-                  {selectedOutfitItems.length > 0 && (
-                    <div className="grid grid-cols-4 gap-2">
-                      {selectedOutfitItems.map((item) => item && (
-                        <div key={(item as WardrobeItem).id} className="aspect-square rounded-xl overflow-hidden border border-border">
-                          <img src={(item as WardrobeItem).image_url} alt="" className="w-full h-full object-cover" />
+              {selectedLogs.length > 0 ? (
+                <div className="space-y-4">
+                  {selectedLogs.map((log, idx) => {
+                    const items = log.outfits?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+                    return (
+                      <div key={log.id} className="space-y-2">
+                        {idx > 0 && <div className="border-t border-border" />}
+                        <div className="flex items-center justify-between">
+                          <p className="text-foreground font-semibold text-sm">{log.outfits?.name ?? 'Logged'}</p>
+                          <button onClick={() => handleRemove(log.id)} disabled={isPending}
+                            className="text-muted-foreground hover:text-destructive text-xs transition-colors disabled:opacity-40">Remove</button>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        {items.length > 0 && (
+                          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                            {items.map((item) => item && (
+                              <div key={(item as WardrobeItem).id} className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-border">
+                                <img src={(item as WardrobeItem).image_url} alt="" className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               ) : (
                 <p className="text-muted-foreground text-sm">No outfit logged. Pick one:</p>
               )}
 
-              {!selectedLog && (
+              {selectedLogs.length === 0 && (
                 <>
                   <button onClick={() => handleLog()} disabled={isPending}
                     className="w-full py-3 rounded-xl border border-border text-muted-foreground text-sm disabled:opacity-40 hover:border-primary/50 transition-colors">

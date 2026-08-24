@@ -10,7 +10,8 @@ export default async function FashionPage() {
 
   const [{ data: activities }, { data: photos }] = await Promise.all([
     user
-      ? supabase.from('hobby_activities').select('*')
+      ? supabase.from('hobby_activities')
+          .select('*, outfits(id, name, outfit_items(item_id, wardrobe_items(*)))')
           .eq('user_id', user.id).eq('hobby', 'fashion')
           .order('activity_at', { ascending: false })
       : Promise.resolve({ data: [] }),

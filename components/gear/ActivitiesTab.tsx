@@ -132,7 +132,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
 
   async function handleEdit() {
     if (!editAct) return
-    if (!editNote.trim()) return setEditError('Please add a note')
+    if (!editNote.trim() && !editAct.outfit_id) return setEditError('Please add a note')
     setEditError(''); setEditPending(true)
     const updated = {
       note: editNote.trim() || null,
@@ -200,6 +200,46 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
             const h = HOBBIES.find(x => x.value === act.hobby)
             const timeStr = formatTime(act.activity_at)
             const dateLabel = formatDateLabel(act.activity_at)
+
+            const outfitItems =
+              act.outfit_snapshot?.length
+                ? act.outfit_snapshot
+                : act.outfits?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+            const outfitLabel = act.outfits?.name ?? 'Outfit'
+
+            if (outfitItems.length > 0 && (act.outfit_snapshot?.length || act.outfits)) {
+              return (
+                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card }}>
+                  <div style={{ padding: '13px 14px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>👗 {outfitLabel}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel}</span>
+                      {user && (
+                        <>
+                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.3 : 1 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 14px 12px', scrollbarWidth: 'none' as 'none' }}>
+                    {outfitItems.map((item: { image_url: string; name: string }, i) => (
+                      <div key={i} style={{ width: 80, height: 80, flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.line}` }}>
+                        <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    ))}
+                  </div>
+                  {act.note && (
+                    <p style={{ margin: 0, padding: '0 14px 14px', fontSize: 14, fontWeight: 500, color: C.ink, lineHeight: 1.5 }}>{act.note}</p>
+                  )}
+                </div>
+              )
+            }
+
             const linkedPhoto = photos.find(p => p.hobby === act.hobby && p.note === act.note)
               ?? photos.find(p => p.hobby === act.hobby && !p.note)
 
