@@ -5,7 +5,7 @@ import { useTransition, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem } from '@/lib/types'
 import { WorthCard } from '@/components/worth/WorthCard'
-import { wearItem, setWardrobeItemWearCount } from '@/app/actions'
+import { wearItem, setWardrobeItemWearCount, setWardrobeItemTarget } from '@/app/actions'
 
 const C = {
   bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
@@ -42,6 +42,12 @@ export function FashionItemDetailClient({ item, user }: Props) {
   const [editUsesCount, setEditUsesCount] = useState<string>(String(item.wear_count))
   const [editUsesPending, setEditUsesPending] = useState(false)
 
+  // Inline target edit
+  const [target, setTarget]           = useState(item.target ?? 0)
+  const [editingTarget, setEditingTarget] = useState(false)
+  const [editTargetValue, setEditTargetValue] = useState<string>(String(item.target ?? 0))
+  const [targetPending, setTargetPending] = useState(false)
+
   const priceStr = item.price
     ? item.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })
     : null
@@ -69,6 +75,17 @@ export function FashionItemDetailClient({ item, user }: Props) {
     if (res.error) return
     setWearCount(count)
     setEditUsesOpen(false)
+    router.refresh()
+  }
+
+  async function handleSaveTarget() {
+    setTargetPending(true)
+    const val = Math.max(0, parseInt(editTargetValue) || 0)
+    const res = await setWardrobeItemTarget(item.id, val)
+    setTargetPending(false)
+    if (res.error) return
+    setTarget(val)
+    setEditingTarget(false)
     router.refresh()
   }
 
@@ -186,10 +203,45 @@ export function FashionItemDetailClient({ item, user }: Props) {
             {item.seasons && item.seasons.length > 0 && (
               <KVRow label="Seasons" value={item.seasons.join(', ')} divider />
             )}
+            {target > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: 13.5, borderTop: '1px solid var(--border)' }}>
+                <span style={{ color: C.muted, fontWeight: 500 }}>Defined target</span>
+                {editingTarget ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      value={editTargetValue}
+                      onChange={e => setEditTargetValue(e.target.value.replace(/[^0-9]/g, ''))}
+                      onFocus={e => e.target.select()}
+                      style={{ width: 72, background: 'var(--background)', border: '1.5px solid var(--border)', borderRadius: 10, color: C.ink, fontFamily: UI, fontSize: 13, fontWeight: 600, padding: '6px 10px', outline: 'none', textAlign: 'right' }}
+                    />
+                    <button onClick={handleSaveTarget} disabled={targetPending} style={{ border: 'none', borderRadius: 8, padding: '6px 10px', background: C.orange, color: 'var(--primary-foreground)', fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: targetPending ? 0.6 : 1 }}>
+                      Save
+                    </button>
+                    <button onClick={() => { setEditingTarget(false); setEditTargetValue(String(target)) }} style={{ border: 'none', borderRadius: 8, padding: '6px 10px', background: C.card2, color: C.muted, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 700, color: C.ink }}>{target} uses</span>
+                    {user && (
+                      <button onClick={() => { setEditTargetValue(String(target)); setEditingTarget(true) }} style={{ border: 'none', background: C.card2, borderRadius: 8, width: 28, height: 28, cursor: 'pointer', display: 'grid', placeItems: 'center', color: C.muted }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Worth card */}
-          <WorthCard purchasePrice={item.price} purchaseDate={item.purchase_date} totalUses={wearCount} />
+          <WorthCard purchasePrice={item.price} purchaseDate={item.purchase_date} totalUses={wearCount} targetOverride={target > 0 ? target : null} />
 
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.faint, marginTop: 16 }}>
             Added {addedStr}

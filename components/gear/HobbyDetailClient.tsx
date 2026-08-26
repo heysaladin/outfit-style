@@ -7,13 +7,7 @@ import type { HobbyItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { AddGearModal } from './AddGearModal'
 import { ActivitiesTab } from './ActivitiesTab'
 import { MomentsTab } from './MomentsTab'
-import { calcWorth, formatWPStatus } from '@/lib/worth'
-
-const WORTH_BADGE: Partial<Record<string, { icon: string; color: string }>> = {
-  'worth':     { icon: '✅', color: '#16a34a' },
-  'great':     { icon: '🔥', color: '#2563eb' },
-  'excellent': { icon: '💎', color: '#7c3aed' },
-}
+import { calcWorthIt } from '@/lib/worth'
 
 const C = {
   bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
@@ -179,22 +173,27 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                         {item.description}
                       </span>
                     )}
-                    <div style={{ marginTop: 8 }}>
-                      <div style={{ height: 3, borderRadius: 99, background: 'var(--muted)', overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%', borderRadius: 99,
-                          width: `${Math.min(item.use_count / 100, 1) * 100}%`,
-                          background: item.use_count >= 100 ? '#7c3aed' : item.use_count >= 50 ? '#2563eb' : item.use_count >= 20 ? '#16a34a' : item.use_count >= 10 ? '#d97706' : '#94a3b8',
-                        }} />
-                      </div>
-                      <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
-                        {item.use_count}× · {
-                          item.use_count >= 100 ? '💎 Excellent!'
-                          : item.use_count >= 20 ? `${100 - item.use_count} more to Excellent`
-                          : `${20 - item.use_count} more to Worth it`
-                        }
-                      </span>
-                    </div>
+                    {(() => {
+                      const w = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count })
+                      return (
+                        <div style={{ marginTop: 8 }}>
+                          <div style={{ height: 3, borderRadius: 99, background: 'var(--muted)', overflow: 'hidden' }}>
+                            <div style={{
+                              height: '100%', borderRadius: 99,
+                              width: `${w.worthItProgress}%`,
+                              background: w.isWorthIt ? '#059669' : w.worthItProgress >= 75 ? '#d97706' : '#94a3b8',
+                            }} />
+                          </div>
+                          <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
+                            {item.use_count}× · {
+                              w.isWorthIt
+                                ? '✅ Worth It!'
+                                : `${w.targetUses - item.use_count} more to Worth It`
+                            }
+                          </span>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </button>
               ))}

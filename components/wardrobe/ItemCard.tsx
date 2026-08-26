@@ -4,13 +4,7 @@ import { useState } from 'react'
 import { Trash2, RotateCcw } from 'lucide-react'
 import type { WardrobeItem } from '@/lib/types'
 import { DECLUTTER_STATUSES } from '@/lib/types'
-import { calcWorth, formatWPStatus, wpStatusColor, type WPStatus } from '@/lib/worth'
-
-const WORTH_BADGE: Partial<Record<WPStatus, { icon: string; bg: string }>> = {
-  'worth':     { icon: '✅', bg: '#DDF4EA' },
-  'great':     { icon: '🔥', bg: '#EFF6FF' },
-  'excellent': { icon: '💎', bg: '#F5F3FF' },
-}
+import { calcWorthIt } from '@/lib/worth'
 
 interface ItemCardProps {
   item: WardrobeItem
@@ -40,8 +34,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
   const src = showOriginal && item.original_image_url ? item.original_image_url : item.image_url
   const declutterColor = DECLUTTER_STATUSES.find(d => d.value === item.declutter_status)?.color
 
-  const { wpStatus } = calcWorth({ purchasePrice: item.price, purchaseDate: item.purchase_date, totalUses: item.wear_count })
-  const worthBadge = wpStatus ? WORTH_BADGE[wpStatus] : null
+  const { isWorthIt } = calcWorthIt({ purchasePrice: item.price, purchaseDate: item.purchase_date, actualUses: item.wear_count })
 
   const status = item.status ?? 'draft'
   const isDraft    = status === 'draft'
@@ -76,10 +69,10 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         )}
 
         {/* Worth badge */}
-        {worthBadge && (
+        {isWorthIt && (
           <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] shadow-sm"
-            style={{ background: worthBadge.bg }}>
-            {worthBadge.icon}
+            style={{ background: '#DDF4EA' }}>
+            ✅
           </div>
         )}
 
@@ -114,9 +107,9 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         <p className="text-muted-foreground text-[10px] mt-0.5">
           {item.wear_count > 0 ? `${item.wear_count}× worn` : 'Never worn'}
         </p>
-        {worthBadge && wpStatus && (
-          <p className={`text-[10px] font-semibold mt-0.5 ${wpStatusColor(wpStatus)}`}>
-            {worthBadge.icon} {formatWPStatus(wpStatus)}
+        {isWorthIt && (
+          <p className="text-[10px] font-semibold mt-0.5 text-green-600">
+            ✅ Worth It
           </p>
         )}
       </button>

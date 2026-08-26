@@ -969,6 +969,30 @@ export async function setHobbyItemUseCount(id: string, count: number): Promise<{
   return {}
 }
 
+export async function setWardrobeItemTarget(id: string, target: number): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+  const { error } = await supabase
+    .from('wardrobe_items')
+    .update({ target, updated_at: new Date().toISOString() })
+    .eq('id', id).eq('user_id', user.id)
+  if (error) return { error: error.message }
+  return {}
+}
+
+export async function setHobbyItemTarget(id: string, target: number): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+  const { error } = await supabase
+    .from('hobby_items')
+    .update({ target, updated_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) return { error: error.message }
+  return {}
+}
+
 export async function deleteHobbyItem(id: string, hobby: string): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

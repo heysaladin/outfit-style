@@ -168,6 +168,7 @@ export interface WardrobeItem {
   purchase_date: string | null
   wear_count: number
   last_worn: string | null
+  target: number
   image_url: string
   original_image_url: string | null
   declutter_status: DeclutterStatus | null
@@ -384,6 +385,7 @@ export interface HobbyItem {
   purchase_date: string | null
   use_count: number
   last_used: string | null
+  target: number
   status: 'draft' | 'verified'
   created_at: string
 }

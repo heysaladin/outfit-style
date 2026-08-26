@@ -2,13 +2,7 @@
 
 import type { HobbyItem } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
-import { calcWorth, formatWPStatus, wpStatusColor } from '@/lib/worth'
-
-const WORTH_BADGE: Partial<Record<string, { icon: string; bg: string }>> = {
-  'worth':     { icon: '✅', bg: '#DDF4EA' },
-  'great':     { icon: '🔥', bg: '#EFF6FF' },
-  'excellent': { icon: '💎', bg: '#F5F3FF' },
-}
+import { calcWorthIt } from '@/lib/worth'
 
 interface GearItemCardProps {
   item: HobbyItem
@@ -18,8 +12,7 @@ interface GearItemCardProps {
 export function GearItemCard({ item, onClick }: GearItemCardProps) {
   const hobbyDef = HOBBIES.find(h => h.value === item.category)
   const isDraft  = !item.status || item.status === 'draft'
-  const { wpStatus } = calcWorth({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, totalUses: item.use_count })
-  const worthBadge = wpStatus ? WORTH_BADGE[wpStatus] : null
+  const { worthItProgress, targetUses, isWorthIt } = calcWorthIt({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, actualUses: item.use_count })
 
   return (
     <div className="group relative flex flex-col gap-2">
@@ -68,16 +61,16 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
-                width: `${Math.min(item.use_count / 100, 1) * 100}%`,
-                background: item.use_count >= 100 ? '#7c3aed' : item.use_count >= 50 ? '#2563eb' : item.use_count >= 20 ? '#16a34a' : item.use_count >= 10 ? '#d97706' : '#94a3b8',
+                width: `${worthItProgress}%`,
+                background: isWorthIt ? '#059669' : worthItProgress >= 75 ? '#d97706' : '#94a3b8',
               }}
             />
           </div>
           <p className="text-[9px] text-muted-foreground font-medium mt-0.5 leading-none">
             {item.use_count}× · {
-              item.use_count >= 100 ? '💎 Excellent!'
-              : item.use_count >= 20 ? `${100 - item.use_count} more to Excellent`
-              : `${20 - item.use_count} more to Worth it`
+              isWorthIt
+                ? '✅ Worth It!'
+                : `${targetUses - item.use_count} more to Worth It`
             }
           </p>
         </div>
