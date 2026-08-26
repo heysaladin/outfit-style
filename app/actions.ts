@@ -1066,3 +1066,51 @@ export async function upsertBookProgress(
   revalidatePath('/literacy')
   return {}
 }
+
+// ─── Family Schedules ─────────────────────────────────────────────────────
+
+export async function createFamilySchedule(
+  memberName: string, dayOfWeek: number, subject: string,
+  startTime: string, endTime: string, note: string
+): Promise<{ error?: string; id?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { data, error } = await supabase
+    .from('family_schedules')
+    .insert({ user_id: user.id, member_name: memberName, day_of_week: dayOfWeek, subject, start_time: startTime, end_time: endTime, note: note || null })
+    .select('id')
+    .single()
+
+  if (error) return { error: error.message }
+  revalidatePath('/family')
+  return { id: data.id }
+}
+
+export async function updateFamilySchedule(
+  id: string, subject: string, startTime: string, endTime: string, note: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  const { error } = await supabase
+    .from('family_schedules')
+    .update({ subject, start_time: startTime, end_time: endTime, note: note || null })
+    .eq('id', id).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+  revalidatePath('/family')
+  return {}
+}
+
+export async function deleteFamilySchedule(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+
+  await supabase.from('family_schedules').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath('/family')
+  return {}
+}

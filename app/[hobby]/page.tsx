@@ -42,6 +42,7 @@ export default async function HobbyPage({
       photos={(photos ?? []) as HobbyPhoto[]}
       user={user ?? null}
       {...(hobby === 'reading' ? { wardrobeHref: '/literacy', wardrobeLabel: 'Library' } : {})}
+      {...(hobby === 'social'  ? { wardrobeHref: '/family',  wardrobeLabel: 'Family'  } : {})}
     />
   )
 }

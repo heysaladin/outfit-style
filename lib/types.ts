@@ -429,3 +429,33 @@ export interface BookProgress {
   created_at: string
   updated_at: string
 }
+
+// ─── Family ───────────────────────────────────────────────────────────────
+
+export type FamilyMemberName = 'Embun' | 'Langit' | 'Senja'
+
+export interface HardcodedMember {
+  name: FamilyMemberName
+  school: string
+  color: string
+  hasSchedule: boolean
+  emoji: string
+}
+
+export const FAMILY_MEMBERS: HardcodedMember[] = [
+  { name: 'Embun',  school: 'PAUD',          color: '#22C55E', hasSchedule: true,  emoji: '🌿' },
+  { name: 'Langit', school: 'Belum sekolah', color: '#3B82F6', hasSchedule: false, emoji: '☁️' },
+  { name: 'Senja',  school: 'SD',            color: '#F97316', hasSchedule: true,  emoji: '🌅' },
+]
+
+export interface FamilySchedule {
+  id: string
+  user_id: string
+  member_name: FamilyMemberName
+  day_of_week: number   // 1=Mon..6=Sat
+  subject: string
+  start_time: string    // 'HH:MM'
+  end_time: string      // 'HH:MM'
+  note: string | null
+  created_at: string
+}
