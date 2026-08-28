@@ -55,11 +55,6 @@ function LoginContent() {
           </button>
         </div>
 
-        {/* Footer */}
-        <p className="text-[13px] text-muted-foreground text-center">
-          New here?{' '}
-          <span className="text-foreground font-medium">Create an account</span>
-        </p>
       </div>
     </div>
   )

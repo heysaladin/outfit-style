@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
 
@@ -41,6 +42,10 @@ export const metadata: Metadata = {
       { url: '/startup-image?w=750&h=1334', media: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)' },
       // iPhone SE 2nd gen
       { url: '/startup-image?w=640&h=1136', media: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)' },
+      // iPhone 16 Pro Max
+      { url: '/startup-image?w=1320&h=2868', media: '(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3)' },
+      // iPhone 16 Pro
+      { url: '/startup-image?w=1206&h=2622', media: '(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3)' },
     ],
   },
   formatDetection: { telephone: false },
@@ -61,6 +66,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('theme');var p=t||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(p==='dark')document.documentElement.classList.add('dark')}catch{}`,
+          }}
+        />
+      </head>
       <body
         className={`${geist.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning

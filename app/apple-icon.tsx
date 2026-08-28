@@ -38,7 +38,7 @@ export default function AppleIcon() {
               letterSpacing: '-0.04em',
             }}
           >
-            OS
+            i
           </span>
         </div>
       </div>

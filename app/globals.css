@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source "../app";
 @source "../components";
+@source "../node_modules/cubicle-ds/src/components";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));

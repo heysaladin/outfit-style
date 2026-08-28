@@ -1,4 +1,4 @@
-const CACHE = 'outfit-style-v4'
+const CACHE = 'interestory-v1'
 
 const PRECACHE = [
   '/',

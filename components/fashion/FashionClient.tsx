@@ -9,14 +9,19 @@ import type { WardrobeItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { ActivitiesTab } from '@/components/gear/ActivitiesTab'
 import { MomentsTab } from '@/components/gear/MomentsTab'
 import { postOutfitActivity } from '@/app/actions'
+import { cn } from '@/lib/utils'
+import { ChevronLeft, AlignLeft, Shirt } from 'lucide-react'
 
-const C = {
-  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
-  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  shadow: 'none',
-}
-const DP = 'var(--font-sans), system-ui, sans-serif'
-const UI = DP
+// Cubicle mobileapp components
+import { MobileTopTabs } from 'cubicle-ds/src/components/mobileapp/MobileTopTabs'
+import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
+import { MobileSearchBar } from 'cubicle-ds/src/components/mobileapp/MobileSearchBar'
+
+// Existing UI
+import {
+  Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter,
+} from '@/components/ui/drawer'
+import { Button } from '@/components/ui/button'
 
 type Tab = 'items' | 'activities' | 'moments'
 type SortKey = 'wear' | 'price' | 'date'
@@ -29,17 +34,16 @@ interface FashionClientProps {
 
 export function FashionClient({ user, activities, photos }: FashionClientProps) {
   const router = useRouter()
-  const [tab, setTab]
-           = useState<Tab>('items')
-  const [items, setItems]       = useState<WardrobeItem[] | null>(null)
+  const [tab, setTab] = useState<Tab>('items')
+  const [items, setItems] = useState<WardrobeItem[] | null>(null)
   const [showNames, setShowNames] = useState(true)
   const [sort, setSort] = useState<SortKey>('wear')
-  const [qpOpen, setQpOpen]         = useState(false)
+  const [qpOpen, setQpOpen] = useState(false)
   const [qpSelected, setQpSelected] = useState<Set<string>>(new Set())
-  const [qpCaption, setQpCaption]   = useState('')
-  const [qpSearch, setQpSearch]     = useState('')
-  const [qpPending, setQpPending]   = useState(false)
-  const [qpError, setQpError]       = useState('')
+  const [qpCaption, setQpCaption] = useState('')
+  const [qpSearch, setQpSearch] = useState('')
+  const [qpPending, setQpPending] = useState(false)
+  const [qpError, setQpError] = useState('')
 
   useEffect(() => {
     createClient()
@@ -52,195 +56,173 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
       .then(({ data }) => setItems(data ?? []))
   }, [])
 
-  const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'items',      label: 'Items',      count: items?.length ?? 0 },
-    { key: 'activities', label: 'Activities', count: activities.length  },
-    { key: 'moments',    label: 'Moments',    count: photos.length      },
+  function openQP() {
+    setQpOpen(true)
+    setQpSelected(new Set())
+    setQpCaption('')
+    setQpSearch('')
+    setQpError('')
+  }
+
+  const tabItems = [
+    { key: 'items', label: 'Items', badge: items?.length || undefined },
+    { key: 'activities', label: 'Activities', badge: activities.length || undefined },
+    { key: 'moments', label: 'Moments', badge: photos.length || undefined },
   ]
 
+  const sortedItems = items ? [...items].sort((a, b) => {
+    if (sort === 'wear') return a.wear_count - b.wear_count || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    if (sort === 'price') return (b.price ?? -1) - (a.price ?? -1)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  }) : []
+
+  const filteredQPItems = items?.filter(i =>
+    !qpSearch.trim() ||
+    [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(qpSearch.toLowerCase())
+  ) ?? []
+
   return (
-    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink }}>
+    <div className="h-dvh overflow-y-auto bg-background text-foreground">
 
-      {/* ── Subhead ── */}
-      <div style={{
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
-        display: 'flex', alignItems: 'center', gap: 10,
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'color-mix(in srgb, var(--background) 95%, transparent)', backdropFilter: 'blur(12px)',
-      }}>
-        <IconBtn onClick={() => router.push('/')}>
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </IconBtn>
+      {/* ── Header — Cubicle MobileTopBar pattern ── */}
+      <div className="sticky top-0 z-10 bg-background border-b">
+        <div
+          className="px-4 pb-2"
+          style={{ paddingTop: 'calc(8px + env(safe-area-inset-top, 0px))' }}
+        >
+          <div className="flex items-center justify-between min-h-[44px]">
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-0.5 text-primary text-sm font-medium -ml-1 px-1 py-1 rounded-lg active:bg-muted"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              <span>Back</span>
+            </button>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontFamily: DP, fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            👔 Fashion
-          </h1>
-          <span style={{ fontSize: 'var(--text-para-xs)', fontWeight: 600, color: C.muted }}>
-            {items?.length ?? 0} items
-          </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowNames(v => !v)}
+                title={showNames ? 'Hide names' : 'Show names'}
+                className={cn(
+                  'h-8 w-8 rounded-lg flex items-center justify-center transition-colors',
+                  showNames ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground',
+                )}
+              >
+                <AlignLeft className="h-4 w-4" />
+              </button>
+              {user && (
+                <button
+                  onClick={openQP}
+                  className="h-8 px-3 rounded-full bg-card border border-border text-foreground text-xs font-semibold active:bg-muted"
+                >
+                  + Post
+                </button>
+              )}
+              <a
+                href="/ofit"
+                className="h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center active:opacity-90"
+              >
+                Wardrobe
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-1 pb-1">
+            <h1 className="text-2xl font-bold tracking-tight">Fashion</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">{items?.length ?? 0} items</p>
+          </div>
         </div>
 
-        {/* Show/hide names toggle */}
-        <IconBtn
-          onClick={() => setShowNames(v => !v)}
-          active={showNames}
-          title={showNames ? 'Hide names' : 'Show names'}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 6h16M4 12h16M4 18h10"/>
-          </svg>
-        </IconBtn>
-
-        {/* Post Outfit button */}
-        {user && (
-          <button
-            onClick={() => { setQpOpen(true); setQpSelected(new Set()); setQpCaption(''); setQpSearch(''); setQpError('') }}
-            style={{
-              display: 'flex', alignItems: 'center', height: 42,
-              padding: '0 14px', borderRadius: 'var(--radius-full)', border: 'none',
-              background: 'var(--card)', color: 'var(--foreground)',
-              fontFamily: UI, fontSize: 'var(--text-para-xs)', fontWeight: 700,
-              cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-            }}
-          >
-            + Post
-          </button>
-        )}
-
-        {/* Wardrobe link */}
-        <a
-          href="/ofit"
-          style={{
-            display: 'flex', alignItems: 'center', height: 42,
-            padding: '0 16px', borderRadius: 'var(--radius-full)', border: 'none',
-            background: 'var(--primary)', color: 'var(--primary-foreground)',
-            fontFamily: UI, fontSize: 'var(--text-para-xs)', fontWeight: 700,
-            textDecoration: 'none', whiteSpace: 'nowrap',
-            boxShadow: C.shadow,
-          }}
-        >
-          Wardrobe
-        </a>
-      </div>
-
-      {/* ── Segmented tabs ── */}
-      <div style={{ display: 'flex', gap: 6, padding: '6px 18px 12px' }}>
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            style={{
-              flex: 1, border: 'none', cursor: 'pointer', fontFamily: UI,
-              fontSize: 'var(--text-para-sm)', fontWeight: 700, padding: '11px 0', borderRadius: 'var(--radius-full)',
-              background: tab === t.key ? 'var(--primary)' : 'var(--card)',
-              color: tab === t.key ? 'var(--primary-foreground)' : C.muted,
-              boxShadow: C.shadow,
-            }}
-          >
-            {t.label}
-            {t.count > 0 && (
-              <b style={{ fontWeight: 700, fontSize: 11, marginLeft: 4, opacity: 0.6 }}>{t.count}</b>
-            )}
-          </button>
-        ))}
+        <MobileTopTabs
+          tabs={tabItems}
+          activeKey={tab}
+          onChange={(k) => setTab(k as Tab)}
+        />
       </div>
 
       {/* ── Items tab ── */}
       {tab === 'items' && (
-        <div style={{ padding: '0 18px 40px' }}>
+        <div className="px-4 pt-4 pb-24">
 
-          {/* Sort pills */}
           {items && items.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-              {([
-                { key: 'wear' as SortKey, label: 'Wear' },
-                { key: 'price' as SortKey, label: 'Price' },
-                { key: 'date' as SortKey, label: 'Date' },
-              ]).map(s => (
+            <div className="flex gap-2 mb-4">
+              {(['wear', 'price', 'date'] as SortKey[]).map(key => (
                 <button
-                  key={s.key}
-                  onClick={() => setSort(s.key)}
-                  style={{
-                    border: 'none', cursor: 'pointer', fontFamily: UI,
-                    fontSize: 'var(--text-para-xs)', fontWeight: 700,
-                    padding: '7px 14px', borderRadius: 'var(--radius-full)',
-                    background: sort === s.key ? 'var(--primary)' : 'var(--card)',
-                    color: sort === s.key ? 'var(--primary-foreground)' : C.muted,
-                  }}
+                  key={key}
+                  onClick={() => setSort(key)}
+                  className={cn(
+                    'h-8 px-4 rounded-full text-xs font-semibold capitalize transition-colors',
+                    sort === key
+                      ? 'bg-foreground text-background'
+                      : 'bg-muted text-muted-foreground active:opacity-70',
+                  )}
                 >
-                  {s.label}
+                  {key}
                 </button>
               ))}
             </div>
           )}
 
-          {items === null ? (
-            /* Skeleton */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+          {/* Skeleton */}
+          {items === null && (
+            <div className="grid grid-cols-2 gap-2.5">
               {[...Array(6)].map((_, i) => (
-                <div key={i} style={{
-                  background: C.card, borderRadius: 'var(--radius-xl)', aspectRatio: '1', opacity: 0.5,
-                }} />
+                <div key={i} className="bg-card rounded-xl aspect-square animate-pulse" />
               ))}
             </div>
-          ) : items.length === 0 ? (
-            <div style={{ padding: '50px 24px', textAlign: 'center', color: C.muted }}>
-              <div style={{ width: 60, height: 60, borderRadius: 'var(--radius-xl)', background: C.card, display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>👔</div>
-              <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No verified items yet</b>
-              <p style={{ fontSize: 13, lineHeight: 1.5 }}>Check back soon</p>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-              {[...items].sort((a, b) => {
-                if (sort === 'wear') return a.wear_count - b.wear_count || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                if (sort === 'price') return (b.price ?? -1) - (a.price ?? -1)
-                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-              }).map(item => (
+          )}
+
+          {/* Empty state */}
+          {items !== null && items.length === 0 && (
+            <MobileEmptyState
+              icon={<Shirt />}
+              title="No verified items yet"
+              description="Check back soon"
+            />
+          )}
+
+          {/* Grid */}
+          {items !== null && items.length > 0 && (
+            <div className="grid grid-cols-2 gap-2.5">
+              {sortedItems.map(item => (
                 <Link
                   key={item.id}
                   href={`/fashion/${item.id}`}
-                  style={{
-                    display: 'block', background: C.card, borderRadius: 'var(--radius-xl)',
-                    overflow: 'hidden', border: `1px solid var(--border)`,
-                    textDecoration: 'none', WebkitTapHighlightColor: 'transparent',
-                  }}
+                  className="block bg-card rounded-xl overflow-hidden border border-border"
                 >
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '1' }}
+                    className="w-full block object-cover aspect-square"
                   />
-                  <div style={{ padding: '10px 13px 13px' }}>
+                  <div className="p-3">
                     {showNames && (
                       <>
-                        <b style={{ display: 'block', fontFamily: DP, fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {item.name}
-                        </b>
+                        <p className="text-[13px] font-semibold truncate leading-tight">{item.name}</p>
                         {item.brand && (
-                          <span style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider truncate mt-0.5">
                             {item.brand}
-                          </span>
+                          </p>
                         )}
                       </>
                     )}
-                    <div style={{ marginTop: showNames ? 8 : 0 }}>
-                      <div style={{ height: 3, borderRadius: 'var(--radius-full)', background: 'var(--muted)', overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%', borderRadius: 'var(--radius-full)',
-                          width: `${Math.min(item.wear_count / 20, 1) * 100}%`,
-                          background: item.wear_count >= 20 ? '#16a34a' : item.wear_count >= 10 ? '#d97706' : '#94a3b8',
-                        }} />
+                    <div className={cn(showNames && 'mt-2')}>
+                      <div className="h-1 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn(
+                            'h-full rounded-full transition-all',
+                            item.wear_count >= 20 ? 'bg-emerald-600' : item.wear_count >= 10 ? 'bg-amber-600' : 'bg-neutral-400',
+                          )}
+                          style={{ width: `${Math.min(item.wear_count / 20, 1) * 100}%` }}
+                        />
                       </div>
-                      <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
+                      <p className="text-[10px] font-medium text-muted-foreground mt-1">
                         {item.wear_count}× · {
                           item.wear_count >= 100 ? '💎 Excellent!'
                           : item.wear_count >= 20 ? `${100 - item.wear_count} more to Excellent`
                           : `${20 - item.wear_count} more to Worth it`
                         }
-                      </span>
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -258,60 +240,56 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         <MomentsTab hobby="fashion" photos={photos} user={user} />
       )}
 
-      {/* ── Quick Post Outfit sheet ── */}
-      {qpOpen && items && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 50 }} onClick={() => setQpOpen(false)} />
-          <div style={{
-            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-            bottom: 0, width: '100%', maxWidth: 430, zIndex: 60,
-            background: 'var(--background)', borderRadius: '28px 28px 0 0',
-            maxHeight: '90dvh', display: 'flex', flexDirection: 'column',
-            paddingBottom: 'env(safe-area-inset-bottom,0px)',
-          }}>
-            <div style={{ width: 40, height: 5, borderRadius: 99, background: 'var(--border)', margin: '10px auto 2px', flexShrink: 0 }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px', flexShrink: 0 }}>
-              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Post Outfit</h2>
-              <button onClick={() => setQpOpen(false)} style={{ width: 36, height: 36, borderRadius: 12, border: 'none', background: 'var(--card)', cursor: 'pointer', display: 'grid', placeItems: 'center', color: 'var(--foreground)' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
-            </div>
+      {/* ── Quick Post Outfit Drawer ── */}
+      <Drawer open={qpOpen} onOpenChange={setQpOpen}>
+        <DrawerContent className="max-h-[92dvh] flex flex-col">
+          <DrawerHeader>
+            <DrawerTitle>Post Outfit</DrawerTitle>
+          </DrawerHeader>
 
-            <div style={{ overflowY: 'auto', flex: 1, padding: '0 18px 18px' }}>
-              {/* Selected preview */}
-              {qpSelected.size > 0 && (
-                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 14, paddingBottom: 4, scrollbarWidth: 'none' }}>
-                  {items.filter(i => qpSelected.has(i.id)).map(item => (
-                    <div key={item.id} style={{ width: 72, height: 72, flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: '2px solid var(--primary)', position: 'relative' }}>
-                      <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Search */}
-              <div style={{ position: 'relative', marginBottom: 10 }}>
-                <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                <input
-                  value={qpSearch}
-                  onChange={e => setQpSearch(e.target.value)}
-                  placeholder="Search items..."
-                  style={{ width: '100%', background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 14, padding: '10px 14px 10px 34px', color: 'var(--foreground)', fontFamily: UI, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
-                />
+          <div className="overflow-y-auto flex-1 px-4 pb-2">
+            {/* Selected preview strip */}
+            {qpSelected.size > 0 && items && (
+              <div className="flex gap-2 overflow-x-auto pb-3 mb-3" style={{ scrollbarWidth: 'none' }}>
+                {items.filter(i => qpSelected.has(i.id)).map(item => (
+                  <div key={item.id} className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 border-primary">
+                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                ))}
               </div>
+            )}
 
-              {/* Item grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
-                {items.filter(i => !qpSearch.trim() || [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(qpSearch.toLowerCase())).map(item => {
+            <MobileSearchBar
+              placeholder="Search items..."
+              value={qpSearch}
+              onChange={setQpSearch}
+              className="px-0 mb-3"
+            />
+
+            {items && (
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {filteredQPItems.map(item => {
                   const sel = qpSelected.has(item.id)
                   return (
-                    <button key={item.id} onClick={() => setQpSelected(s => { const n = new Set(s); sel ? n.delete(item.id) : n.add(item.id); return n })}
-                      style={{ position: 'relative', aspectRatio: '1', borderRadius: 14, overflow: 'hidden', border: `2px solid ${sel ? 'var(--primary)' : 'var(--border)'}`, background: 'none', cursor: 'pointer', padding: 0 }}>
-                      <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button
+                      key={item.id}
+                      onClick={() => setQpSelected(s => {
+                        const n = new Set(s)
+                        sel ? n.delete(item.id) : n.add(item.id)
+                        return n
+                      })}
+                      className={cn(
+                        'relative aspect-square rounded-xl overflow-hidden border-2 p-0',
+                        sel ? 'border-primary' : 'border-border',
+                      )}
+                    >
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                       {sel && (
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: 6 }}>
-                          <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        <div className="absolute inset-0 bg-black/15 flex items-end justify-center pb-1.5">
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                              <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
                           </div>
                         </div>
                       )}
@@ -319,52 +297,42 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                   )
                 })}
               </div>
+            )}
 
-              {/* Caption */}
-              <textarea
-                value={qpCaption}
-                onChange={e => setQpCaption(e.target.value)}
-                placeholder="Add a caption... (optional)"
-                rows={2}
-                style={{ width: '100%', background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 14, padding: '12px 14px', color: 'var(--foreground)', fontFamily: UI, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: 4 }}
-              />
-              {qpError && <p style={{ color: 'var(--destructive)', fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{qpError}</p>}
-            </div>
-
-            <div style={{ padding: '12px 18px 16px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
-              <button
-                disabled={qpPending || qpSelected.size === 0}
-                onClick={async () => {
-                  if (qpSelected.size === 0) return setQpError('Pilih minimal 1 item')
-                  setQpPending(true); setQpError('')
-                  const selectedItems = items.filter(i => qpSelected.has(i.id)).map(i => ({ id: i.id, image_url: i.image_url, name: i.name }))
-                  const res = await postOutfitActivity(selectedItems, qpCaption)
-                  if (res.error) { setQpError(res.error); setQpPending(false); return }
-                  setQpOpen(false); setQpSelected(new Set()); setQpCaption(''); setQpPending(false)
-                }}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 16, cursor: qpSelected.size === 0 ? 'not-allowed' : 'pointer', background: 'var(--primary)', color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: (qpPending || qpSelected.size === 0) ? 0.5 : 1 }}
-              >
-                {qpPending ? 'Posting...' : `Post & Log Wear (${qpSelected.size} item${qpSelected.size !== 1 ? 's' : ''})`}
-              </button>
-            </div>
+            <textarea
+              value={qpCaption}
+              onChange={e => setQpCaption(e.target.value)}
+              placeholder="Add a caption... (optional)"
+              rows={2}
+              className="w-full bg-card border border-border rounded-xl px-3.5 py-3 text-sm text-foreground outline-none resize-none placeholder:text-muted-foreground"
+            />
+            {qpError && <p className="text-destructive text-xs font-semibold mt-2">{qpError}</p>}
           </div>
-        </>
-      )}
+
+          <DrawerFooter>
+            <Button
+              disabled={qpPending || qpSelected.size === 0}
+              onClick={async () => {
+                if (!items || qpSelected.size === 0) return setQpError('Pilih minimal 1 item')
+                setQpPending(true)
+                setQpError('')
+                const selectedItems = items
+                  .filter(i => qpSelected.has(i.id))
+                  .map(i => ({ id: i.id, image_url: i.image_url, name: i.name }))
+                const res = await postOutfitActivity(selectedItems, qpCaption)
+                if (res.error) { setQpError(res.error); setQpPending(false); return }
+                setQpOpen(false)
+                setQpSelected(new Set())
+                setQpCaption('')
+                setQpPending(false)
+              }}
+              className="w-full h-12 text-[15px] font-bold"
+            >
+              {qpPending ? 'Posting…' : `Post & Log Wear (${qpSelected.size} item${qpSelected.size !== 1 ? 's' : ''})`}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
-  )
-}
-
-
-function IconBtn({ onClick, children, active, title }: { onClick: () => void; children: React.ReactNode; active?: boolean; title?: string }) {
-  return (
-    <button onClick={onClick} title={title} style={{
-      width: 42, height: 42, borderRadius: 'var(--radius-full)', border: 'none',
-      background: active ? 'var(--foreground)' : 'var(--card)',
-      color: active ? 'var(--background)' : 'var(--foreground)',
-      cursor: 'pointer', display: 'grid', placeItems: 'center',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.08)', flexShrink: 0,
-    }}>
-      {children}
-    </button>
   )
 }

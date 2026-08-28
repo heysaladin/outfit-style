@@ -61,20 +61,20 @@ export function FilterBar({
       <div className="flex items-center gap-2">
         <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
           <button onClick={() => { onCategoryChange(null); onSubcategoryChange(null) }}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+            className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
               !activeCategory
-                ? 'bg-foreground text-background'
-                : 'bg-muted text-muted-foreground hover:text-foreground'
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-background text-muted-foreground border-border'
             }`}>All</button>
           {CATEGORY_TREE.map(cat => (
             <button key={cat.value} onClick={() => {
               onCategoryChange(activeCategory === cat.value ? null : cat.value)
               onSubcategoryChange(null)
             }}
-              className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+              className={`flex-shrink-0 h-8 flex items-center gap-1.5 px-3.5 rounded-full text-xs font-medium border transition-all ${
                 activeCategory === cat.value
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-muted-foreground hover:text-foreground'
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'bg-background text-muted-foreground border-border'
               }`}>
               <span>{cat.icon}</span>{cat.label}
             </button>
@@ -99,13 +99,13 @@ export function FilterBar({
       {activeCategory && hasSubcategories && (
         <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           <button onClick={() => onSubcategoryChange(null)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              !activeSubcategory ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+            className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
+              !activeSubcategory ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
             }`}>All</button>
           {catDef!.subcategories.map(sub => (
             <button key={sub.value} onClick={() => onSubcategoryChange(activeSubcategory === sub.value ? null : sub.value)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                activeSubcategory === sub.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+              className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
+                activeSubcategory === sub.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
               }`}>{sub.label}</button>
           ))}
         </div>
@@ -114,17 +114,17 @@ export function FilterBar({
       {/* Status — always visible */}
       <div className="flex gap-1.5 items-center">
         <button onClick={() => onShowVerifiedChange(!showVerified)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            showVerified ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+            showVerified ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
           }`}>
-          <span className={`w-2.5 h-2.5 rounded-full ${showVerified ? 'bg-white' : 'bg-muted-foreground/30'}`} />
+          <span className={`w-2 h-2 rounded-full ${showVerified ? 'bg-background' : 'bg-muted-foreground/30'}`} />
           Verified
         </button>
         <button onClick={() => onShowDraftChange(!showDraft)}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-            showDraft ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+            showDraft ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
           }`}>
-          <span className={`w-2.5 h-2.5 rounded-full ${showDraft ? 'bg-white' : 'bg-muted-foreground/30'}`} />
+          <span className={`w-2 h-2 rounded-full ${showDraft ? 'bg-background' : 'bg-muted-foreground/30'}`} />
           Draft
         </button>
 
@@ -132,8 +132,8 @@ export function FilterBar({
         <div className="relative ml-auto">
           <button
             onClick={() => setSortOpen(v => !v)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-              sortOpen ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+            className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+              sortOpen ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
             }`}
           >
             <ArrowUpDown size={11} />
@@ -193,8 +193,8 @@ export function FilterBar({
           <div className="flex gap-1.5 flex-wrap">
             {SEASONS.map(s => (
               <button key={s.value} onClick={() => onSeasonChange(activeSeason === s.value ? null : s.value)}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                  activeSeason === s.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+                className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+                  activeSeason === s.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
                 }`}>
                 <span>{s.icon}</span>{s.label}
               </button>
@@ -205,8 +205,8 @@ export function FilterBar({
           <div className="flex gap-1.5 flex-wrap">
             {OCCASIONS.map(o => (
               <button key={o.value} onClick={() => onOccasionChange(activeOccasion === o.value ? null : o.value)}
-                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
-                  activeOccasion === o.value ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:text-foreground'
+                className={`h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+                  activeOccasion === o.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
                 }`}>{o.label}</button>
           ))}
           </div>

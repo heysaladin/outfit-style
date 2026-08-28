@@ -14,14 +14,19 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark')
+  // Read from DOM — the blocking script in layout.tsx already set the class before paint
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'dark'
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  })
 
   useEffect(() => {
+    // Sync state if localStorage differs from what the blocking script applied
     const stored = localStorage.getItem('theme') as Theme | null
-    const preferred =
-      stored ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    setTheme(preferred)
-    document.documentElement.classList.toggle('dark', preferred === 'dark')
+    if (stored && stored !== theme) {
+      setTheme(stored)
+      document.documentElement.classList.toggle('dark', stored === 'dark')
+    }
   }, [])
 
   function toggle() {

@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
               letterSpacing: '-0.04em',
             }}
           >
-            OS
+            i
           </span>
         </div>
       </div>
