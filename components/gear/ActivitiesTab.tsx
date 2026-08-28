@@ -1,22 +1,17 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { X, Pencil, Trash2, Camera } from 'lucide-react'
+import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { HOBBIES, type HobbyActivity, type HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
-import { formatRelative as fmtRelative, formatDateLabel, formatTime, defaultDatetimeLocal, daysDiff } from '@/lib/date'
+import { formatRelative as fmtRelative, formatDateLabel, formatTime, defaultDatetimeLocal } from '@/lib/date'
+import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileFormField } from 'cubicle-ds/src/components/mobileapp/MobileFormField'
+import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
 
-const C = {
-  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
-  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: 'var(--primary)', orangeSoft: 'var(--secondary)',
-  mint: '#059669', mintSoft: '#ECFDF5',
-  danger: 'var(--destructive)',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
-  shadowLg: '0 14px 34px rgba(84,62,32,.14)',
-}
-const DP = 'var(--font-sans), system-ui, sans-serif'
-const UI = "'Inter', -apple-system, system-ui, sans-serif"
+const inputCls = "w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none box-border"
 
 interface Props {
   hobby: string
@@ -186,16 +181,16 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
   }
 
   return (
-    <div style={{ padding: '0 18px 40px' }}>
+    <div className="px-4 pb-10">
       {/* Activity list */}
       {activities.length === 0 ? (
-        <div style={{ padding: '40px 0 20px', textAlign: 'center', color: C.muted }}>
-          <div style={{ width: 56, height: 56, borderRadius: 20, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 12px', fontSize: 24 }}>⏱️</div>
-          <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 15, fontWeight: 700, marginBottom: 3 }}>No activities yet</b>
-          <p style={{ fontSize: 13 }}>{user ? 'Log your first session below' : 'Sign in to log activities'}</p>
-        </div>
+        <MobileEmptyState
+          icon={<span className="text-4xl">⏱️</span>}
+          title="No activities yet"
+          description={user ? 'Log your first session below' : 'Sign in to log activities'}
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 11, paddingBottom: 12 }}>
+        <div className="flex flex-col gap-2.5 pb-3">
           {activities.map(act => {
             const h = HOBBIES.find(x => x.value === act.hobby)
             const timeStr = formatTime(act.activity_at)
@@ -204,37 +199,37 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
             const outfitItems =
               act.outfit_snapshot?.length
                 ? act.outfit_snapshot
-                : act.outfits?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+                : act.outfits?.outfit_items?.map((oi: { wardrobe_items: unknown }) => oi.wardrobe_items).filter(Boolean) ?? []
             const outfitLabel = act.outfits?.name ?? 'Outfit'
 
             if (outfitItems.length > 0 && (act.outfit_snapshot?.length || act.outfits)) {
               return (
-                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card }}>
-                  <div style={{ padding: '13px 14px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>👗 {outfitLabel}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel}</span>
+                <div key={act.id} className="rounded-3xl overflow-hidden bg-card">
+                  <div className="px-3.5 pt-3.5 pb-2.5 flex items-center justify-between">
+                    <span className="text-[12px] font-bold text-muted-foreground">👗 {outfitLabel}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground">{dateLabel}</span>
                       {user && (
                         <>
-                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          <button onClick={() => openEdit(act)} className="p-1 text-muted-foreground">
+                            <Pencil size={12} />
                           </button>
-                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.3 : 1 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} className="p-1 text-muted-foreground transition-opacity disabled:opacity-30">
+                            <Trash2 size={12} />
                           </button>
                         </>
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 14px 12px', scrollbarWidth: 'none' as 'none' }}>
-                    {outfitItems.map((item: { image_url: string; name: string }, i) => (
-                      <div key={i} style={{ width: 80, height: 80, flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.line}` }}>
-                        <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div className="flex gap-2 overflow-x-auto px-3.5 pb-3" style={{ scrollbarWidth: 'none' }}>
+                    {outfitItems.map((item: { image_url: string; name: string }, i: number) => (
+                      <div key={i} className="w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border border-border">
+                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
                   {act.note && (
-                    <p style={{ margin: 0, padding: '0 14px 14px', fontSize: 14, fontWeight: 500, color: C.ink, lineHeight: 1.5 }}>{act.note}</p>
+                    <p className="px-3.5 pb-3.5 text-[14px] font-medium text-foreground leading-relaxed m-0">{act.note}</p>
                   )}
                 </div>
               )
@@ -245,29 +240,29 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
 
             if (linkedPhoto) {
               return (
-                <div key={act.id} onClick={() => user && openEdit(act, linkedPhoto)} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, cursor: user ? 'pointer' : 'default' }}>
-                  <img src={linkedPhoto.image_url} alt={act.hobby} style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 300 }} />
-                  <div style={{ padding: '12px 13px 13px' }}>
-                    {act.note && <p style={{ fontSize: 15, color: C.ink, margin: '0 0 10px', lineHeight: 1.4, fontWeight: 600 }}>{act.note}</p>}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 20, flexShrink: 0 }}>{h?.icon ?? '📷'}</span>
-                        <b style={{ fontFamily: DP, fontSize: 13, fontWeight: 700 }}>{h?.label ?? act.hobby}</b>
+                <div
+                  key={act.id}
+                  onClick={() => user && openEdit(act, linkedPhoto)}
+                  className="rounded-3xl overflow-hidden bg-card"
+                  style={{ cursor: user ? 'pointer' : 'default' }}
+                >
+                  <img src={linkedPhoto.image_url} alt={act.hobby} className="w-full block object-cover max-h-[300px]" />
+                  <div className="px-3 pb-3 pt-3">
+                    {act.note && <p className="text-[15px] text-foreground mb-2.5 leading-snug font-semibold">{act.note}</p>}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl flex-shrink-0">{h?.icon ?? '📷'}</span>
+                        <b className="text-[13px] font-bold">{h?.label ?? act.hobby}</b>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: C.faint }}>{dateLabel} · {timeStr}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] font-semibold text-muted-foreground">{dateLabel} · {timeStr}</span>
                         {user && (
                           <>
-                            <button onClick={e => { e.stopPropagation(); openEdit(act, linkedPhoto) }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint }}>
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                              </svg>
+                            <button onClick={e => { e.stopPropagation(); openEdit(act, linkedPhoto) }} className="p-1 text-muted-foreground">
+                              <Pencil size={12} />
                             </button>
-                            <button onClick={e => { e.stopPropagation(); handleDelete(act.id) }} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.3 : 1 }}>
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
-                              </svg>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(act.id) }} disabled={deleting === act.id} className="p-1 text-muted-foreground transition-opacity disabled:opacity-30">
+                              <Trash2 size={12} />
                             </button>
                           </>
                         )}
@@ -294,34 +289,33 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                 })
               }
 
-              const editBtn = user && (
-                <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </button>
-              )
-              const deleteBtn = user && (
-                <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.faint, opacity: deleting === act.id ? 0.3 : 1 }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/>
-                  </svg>
-                </button>
+              const editDeleteBtns = user && (
+                <div className="flex items-center gap-0.5">
+                  <button onClick={() => openEdit(act)} className="p-1 text-muted-foreground">
+                    <Pencil size={12} />
+                  </button>
+                  <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} className="p-1 text-muted-foreground transition-opacity disabled:opacity-30">
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               )
 
               if (isVeryLong) return (
-                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ padding: '14px 16px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
-                      {editBtn}{deleteBtn}
+                <div key={act.id} className="rounded-3xl overflow-hidden bg-card flex flex-col">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                      <span className="text-[13px] font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
+                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">{dateLabel} · {timeStr}</span>
+                      {editDeleteBtns}
                     </div>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: isExpanded ? 'unset' as any : 5, overflow: 'hidden' }}>
+                    <p
+                      className="m-0 text-[14px] font-medium leading-relaxed text-foreground break-words text-left overflow-hidden"
+                      style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: isExpanded ? 'unset' as unknown as number : 5 }}
+                    >
                       {text}
                     </p>
-                    <button onClick={toggleExpand} style={{ background: 'none', border: 'none', padding: '6px 0 0', color: C.muted, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: UI }}>
+                    <button onClick={toggleExpand} className="mt-1.5 text-[13px] font-bold text-muted-foreground bg-transparent border-0 p-0 cursor-pointer">
                       {isExpanded ? 'Show less' : 'Read more'}
                     </button>
                   </div>
@@ -329,41 +323,32 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               )
 
               if (!isShort) return (
-                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ padding: '14px 16px 14px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
-                      {editBtn}{deleteBtn}
+                <div key={act.id} className="rounded-3xl overflow-hidden bg-card flex flex-col">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                      <span className="text-[13px] font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
+                      <span className="ml-auto text-[11px] font-semibold text-muted-foreground">{dateLabel} · {timeStr}</span>
+                      {editDeleteBtns}
                     </div>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, lineHeight: 1.6, color: C.ink, textAlign: 'left', wordBreak: 'break-word' }}>{text}</p>
+                    <p className="m-0 text-[14px] font-medium leading-relaxed text-foreground break-words text-left">{text}</p>
                   </div>
                 </div>
               )
 
               return (
-                <div key={act.id} style={{ borderRadius: 24, overflow: 'hidden', background: C.card, minHeight: 130, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <div style={{ padding: '20px 16px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                    <p style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.25, color: C.ink, fontFamily: DP, wordBreak: 'break-word' }}>{text}</p>
+                <div key={act.id} className="rounded-3xl overflow-hidden bg-card min-h-[130px] flex flex-col justify-between">
+                  <div className="px-4 pt-5 pb-3 flex-1 flex flex-col justify-center items-center text-center">
+                    <p className="m-0 text-[22px] font-extrabold leading-tight text-foreground break-words">{text}</p>
                   </div>
-                  <div style={{ padding: '0 16px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 18 }}>{h?.icon ?? '✨'}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{h?.label ?? act.hobby}</span>
+                  <div className="px-4 pb-3.5 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[18px]">{h?.icon ?? '✨'}</span>
+                      <span className="text-[12px] font-semibold text-muted-foreground">{h?.label ?? act.hobby}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{dateLabel} · {timeStr}</span>
-                      {user && (
-                        <>
-                          <button onClick={() => openEdit(act)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.muted }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                          </button>
-                          <button onClick={() => handleDelete(act.id)} disabled={deleting === act.id} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: C.muted, opacity: deleting === act.id ? 0.3 : 1 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
-                          </button>
-                        </>
-                      )}
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground">{dateLabel} · {timeStr}</span>
+                      {editDeleteBtns}
                     </div>
                   </div>
                 </div>
@@ -375,183 +360,161 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
 
       {/* Log activity button */}
       {user && (
-        <button
-          onClick={() => setAddOpen(true)}
-          style={{
-            width: '100%', border: 'none', borderRadius: 24, padding: 17,
-            cursor: 'pointer', marginTop: 6,
-            background: C.ink, color: C.bg,
-            fontFamily: UI, fontSize: 15, fontWeight: 800,
-          }}
-        >
-          ＋ Log activity
-        </button>
+        <MobileButton fullWidth onClick={() => setAddOpen(true)} className="rounded-2xl mt-1.5">
+          + Log activity
+        </MobileButton>
       )}
 
-      {/* ── Log activity sheet ── */}
+      {/* Log activity sheet */}
       {addOpen && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => { setAddOpen(false); resetForm() }} />
-          <div style={{
-            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
-            background: C.bg, borderRadius: '30px 30px 0 0',
-            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
-            maxHeight: '88dvh', display: 'flex', flexDirection: 'column',
-            paddingBottom: 'env(safe-area-inset-bottom,0px)',
-          }}>
-            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Log activity</h2>
-              <button onClick={() => { setAddOpen(false); resetForm() }} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
-            </div>
-            <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
-              <Field label="What did you do? *">
-                <textarea
-                  value={note}
-                  onChange={e => setNote(e.target.value)}
-                  placeholder="e.g. Cleaned bracelet, went for a ride"
-                  rows={3}
-                  style={inputStyle}
-                />
-              </Field>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Field label="Location" style={{ flex: 1 }}>
-                  <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Home, Garage" style={inputStyle} />
-                </Field>
-                <Field label="Date & time" style={{ flex: 1 }}>
-                  <input type="datetime-local" value={activityAt} onChange={e => setActivityAt(e.target.value)} style={inputStyle} />
-                </Field>
+        <Sheet title="Log activity" onClose={() => { setAddOpen(false); resetForm() }}>
+          <div className="space-y-4 pb-1">
+            <MobileFormField
+              label="What did you do? *"
+              value={note}
+              onChange={setNote}
+              placeholder="e.g. Cleaned bracelet, went for a ride"
+              multiline
+              rows={3}
+            />
+            <div className="grid grid-cols-2 gap-2.5">
+              <MobileFormField
+                label="Location"
+                value={location}
+                onChange={setLocation}
+                placeholder="e.g. Home, Garage"
+              />
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Date & time</label>
+                <input type="datetime-local" value={activityAt} onChange={e => setActivityAt(e.target.value)} className={inputCls} />
               </div>
-              <Field label="Photo (optional)">
-                <input ref={addFileRef} type="file" accept="image/*"  onChange={handleAddFileChange} style={{ display: 'none' }} />
-                {addPhoto ? (
-                  <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
-                    <img src={addPhoto} alt="captured" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 160 }} />
-                    <button onClick={() => { setAddPhoto(null); setAddPhotoFile(null) }} style={{ position: 'absolute', top: 8, right: 8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(34,25,15,.7)', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                    </button>
-                  </div>
-                ) : (
-                  <button onClick={() => addFileRef.current?.click()} style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 16, padding: 20, cursor: 'pointer', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: C.muted, fontFamily: UI, fontSize: 14, fontWeight: 700 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                      <circle cx="12" cy="13" r="4"/>
-                    </svg>
-                    Take photo
-                  </button>
-                )}
-              </Field>
-              {error && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{error}</p>}
-              <button
-                onClick={handleAdd}
-                disabled={isPending}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: isPending ? 0.6 : 1 }}
-              >
-                {isPending ? 'Saving…' : 'Save activity'}
-              </button>
             </div>
+
+            {/* Photo */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Photo (optional)</label>
+              <input ref={addFileRef} type="file" accept="image/*" onChange={handleAddFileChange} className="hidden" />
+              {addPhoto ? (
+                <div className="relative rounded-2xl overflow-hidden">
+                  <img src={addPhoto} alt="captured" className="w-full block object-cover max-h-[160px]" />
+                  <button
+                    onClick={() => { setAddPhoto(null); setAddPhotoFile(null) }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => addFileRef.current?.click()}
+                  className="w-full border-2 border-dashed border-border rounded-2xl py-5 flex items-center justify-center gap-2.5 bg-card text-muted-foreground text-[14px] font-bold"
+                >
+                  <Camera size={20} />
+                  Take photo
+                </button>
+              )}
+            </div>
+
+            {error && <p className="text-xs text-destructive font-semibold">{error}</p>}
+            <MobileButton fullWidth loading={isPending} onClick={handleAdd} className="rounded-xl">
+              Save activity
+            </MobileButton>
           </div>
-        </>
+        </Sheet>
       )}
 
-      {/* ── Edit activity sheet ── */}
+      {/* Edit activity sheet */}
       {editAct && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={closeEdit} />
-          <div style={{
-            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
-            background: C.bg, borderRadius: '30px 30px 0 0',
-            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
-            maxHeight: '88dvh', display: 'flex', flexDirection: 'column',
-            paddingBottom: 'env(safe-area-inset-bottom,0px)',
-          }}>
-            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Edit activity</h2>
-              <button onClick={closeEdit} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
-            </div>
-            <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
-              <Field label="What did you do? *">
-                <textarea
-                  value={editNote}
-                  onChange={e => setEditNote(e.target.value)}
-                  placeholder="e.g. Cleaned bracelet, went for a ride"
-                  rows={3}
-                  style={inputStyle}
-                />
-              </Field>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Field label="Location" style={{ flex: 1 }}>
-                  <input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="e.g. Home, Garage" style={inputStyle} />
-                </Field>
-                <Field label="Date & time" style={{ flex: 1 }}>
-                  <input type="datetime-local" value={editActivityAt} onChange={e => setEditActivityAt(e.target.value)} style={inputStyle} />
-                </Field>
+        <Sheet title="Edit activity" onClose={closeEdit}>
+          <div className="space-y-4 pb-1">
+            <MobileFormField
+              label="What did you do? *"
+              value={editNote}
+              onChange={setEditNote}
+              placeholder="e.g. Cleaned bracelet, went for a ride"
+              multiline
+              rows={3}
+            />
+            <div className="grid grid-cols-2 gap-2.5">
+              <MobileFormField
+                label="Location"
+                value={editLocation}
+                onChange={setEditLocation}
+                placeholder="e.g. Home, Garage"
+              />
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Date & time</label>
+                <input type="datetime-local" value={editActivityAt} onChange={e => setEditActivityAt(e.target.value)} className={inputCls} />
               </div>
-              <Field label="Photo (optional)">
-                <input ref={editFileRef} type="file" accept="image/*"  onChange={handleEditFileChange} style={{ display: 'none' }} />
-                {editDeletePhoto ? (
-                  <div style={{ borderRadius: 16, border: `2px dashed ${C.line}`, padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.card }}>
-                    <span style={{ fontSize: 13, color: C.danger, fontWeight: 600 }}>Photo will be deleted</span>
-                    <button onClick={() => setEditDeletePhoto(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: C.muted }}>Undo</button>
-                  </div>
-                ) : editPreview || editPhoto ? (
-                  <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden' }}>
-                    <img src={editPreview ?? editPhoto!.image_url} alt="" style={{ width: '100%', display: 'block', objectFit: 'cover', maxHeight: 160 }} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span onClick={() => editFileRef.current?.click()} style={{ color: '#fff', fontFamily: UI, fontSize: 13, fontWeight: 700, background: 'rgba(0,0,0,.4)', padding: '6px 14px', borderRadius: 20, cursor: 'pointer' }}>Change photo</span>
-                    </div>
-                    <button onClick={() => { setEditDeletePhoto(true); setEditNewFile(null); setEditPreview(null) }} style={{ position: 'absolute', top: 8, right: 8, zIndex: 1, width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(34,25,15,.7)', color: '#F87171', cursor: 'pointer', display: 'grid', placeItems: 'center' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
-                    </button>
-                  </div>
-                ) : (
-                  <button onClick={() => editFileRef.current?.click()} style={{ width: '100%', border: `2px dashed ${C.line}`, borderRadius: 16, padding: 20, cursor: 'pointer', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: C.muted, fontFamily: UI, fontSize: 14, fontWeight: 700 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                      <circle cx="12" cy="13" r="4"/>
-                    </svg>
-                    Take photo
-                  </button>
-                )}
-              </Field>
-              {editError && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{editError}</p>}
-              <button
-                onClick={handleEdit}
-                disabled={editPending}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', marginTop: 8, background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: editPending ? 0.6 : 1 }}
-              >
-                {editPending ? 'Saving…' : 'Save changes'}
-              </button>
             </div>
+
+            {/* Photo */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Photo (optional)</label>
+              <input ref={editFileRef} type="file" accept="image/*" onChange={handleEditFileChange} className="hidden" />
+              {editDeletePhoto ? (
+                <div className="rounded-2xl border-2 border-dashed border-border px-4 py-4 flex items-center justify-between bg-card">
+                  <span className="text-[13px] text-destructive font-semibold">Photo will be deleted</span>
+                  <button onClick={() => setEditDeletePhoto(false)} className="text-[12px] font-bold text-muted-foreground bg-transparent border-0 cursor-pointer">Undo</button>
+                </div>
+              ) : editPreview || editPhoto ? (
+                <div className="relative rounded-2xl overflow-hidden">
+                  <img src={editPreview ?? editPhoto!.image_url} alt="" className="w-full block object-cover max-h-[160px]" />
+                  <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+                    <span
+                      onClick={() => editFileRef.current?.click()}
+                      className="text-white text-[13px] font-bold bg-black/40 px-3.5 py-1.5 rounded-full cursor-pointer"
+                    >
+                      Change photo
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => { setEditDeletePhoto(true); setEditNewFile(null); setEditPreview(null) }}
+                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/60 text-red-400 flex items-center justify-center"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => editFileRef.current?.click()}
+                  className="w-full border-2 border-dashed border-border rounded-2xl py-5 flex items-center justify-center gap-2.5 bg-card text-muted-foreground text-[14px] font-bold"
+                >
+                  <Camera size={20} />
+                  Take photo
+                </button>
+              )}
+            </div>
+
+            {editError && <p className="text-xs text-destructive font-semibold">{editError}</p>}
+            <MobileButton fullWidth loading={editPending} onClick={handleEdit} className="rounded-xl">
+              Save changes
+            </MobileButton>
           </div>
-        </>
+        </Sheet>
       )}
     </div>
   )
 }
 
-function Field({ label, children, style }: { label: string; children: React.ReactNode; style?: React.CSSProperties }) {
+// ── Sheet primitive (fixed, Cubicle-styled) ────────────────────────────────
+
+function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
   return (
-    <div style={{ marginBottom: 16, ...style }}>
-      <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: 'var(--muted-foreground)', marginBottom: 8 }}>
-        {label}
-      </label>
-      {children}
+    <div className="fixed inset-0 z-50 flex items-end">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl">
+        <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30 flex-shrink-0" />
+        <div className="flex items-center justify-between px-5 pt-3 pb-2 flex-shrink-0">
+          <h2 className="text-xl font-extrabold tracking-tight">{title}</h2>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-card flex items-center justify-center text-foreground">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="overflow-y-auto flex-1 px-5" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom,0px))' }}>
+          {children}
+        </div>
+      </div>
     </div>
   )
-}
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', background: 'var(--background)', border: '1.5px solid var(--border)',
-  borderRadius: 16, color: 'var(--foreground)',
-  fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
-  fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none',
-  boxSizing: 'border-box', resize: 'none',
 }

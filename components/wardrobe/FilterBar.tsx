@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X, ArrowUpDown } from 'lucide-react'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef } from '@/lib/types'
+import { MobileChip } from 'cubicle-ds/src/components/mobileapp/MobileChip'
 
 type SortKey = 'wear_asc' | 'wear_desc' | 'price_asc' | 'price_desc' | 'date_asc' | 'date_desc'
 
@@ -60,24 +61,24 @@ export function FilterBar({
       {/* Category row */}
       <div className="flex items-center gap-2">
         <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
-          <button onClick={() => { onCategoryChange(null); onSubcategoryChange(null) }}
-            className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
-              !activeCategory
-                ? 'bg-foreground text-background border-foreground'
-                : 'bg-background text-muted-foreground border-border'
-            }`}>All</button>
+          <MobileChip
+            label="All"
+            type="filter"
+            selected={!activeCategory}
+            onSelect={() => { onCategoryChange(null); onSubcategoryChange(null) }}
+          />
           {CATEGORY_TREE.map(cat => (
-            <button key={cat.value} onClick={() => {
-              onCategoryChange(activeCategory === cat.value ? null : cat.value)
-              onSubcategoryChange(null)
-            }}
-              className={`flex-shrink-0 h-8 flex items-center gap-1.5 px-3.5 rounded-full text-xs font-medium border transition-all ${
-                activeCategory === cat.value
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'bg-background text-muted-foreground border-border'
-              }`}>
-              <span>{cat.icon}</span>{cat.label}
-            </button>
+            <MobileChip
+              key={cat.value}
+              label={cat.label}
+              type="filter"
+              icon={<span>{cat.icon}</span>}
+              selected={activeCategory === cat.value}
+              onSelect={sel => {
+                onCategoryChange(sel ? cat.value : null)
+                onSubcategoryChange(null)
+              }}
+            />
           ))}
         </div>
         <button onClick={() => setExpanded(v => !v)}
@@ -98,35 +99,38 @@ export function FilterBar({
       {/* Subcategory row */}
       {activeCategory && hasSubcategories && (
         <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          <button onClick={() => onSubcategoryChange(null)}
-            className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
-              !activeSubcategory ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-            }`}>All</button>
+          <MobileChip
+            label="All"
+            type="filter"
+            selected={!activeSubcategory}
+            onSelect={() => onSubcategoryChange(null)}
+          />
           {catDef!.subcategories.map(sub => (
-            <button key={sub.value} onClick={() => onSubcategoryChange(activeSubcategory === sub.value ? null : sub.value)}
-              className={`flex-shrink-0 h-8 px-3.5 rounded-full text-xs font-medium border transition-all ${
-                activeSubcategory === sub.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-              }`}>{sub.label}</button>
+            <MobileChip
+              key={sub.value}
+              label={sub.label}
+              type="filter"
+              selected={activeSubcategory === sub.value}
+              onSelect={sel => onSubcategoryChange(sel ? sub.value : null)}
+            />
           ))}
         </div>
       )}
 
       {/* Status — always visible */}
       <div className="flex gap-1.5 items-center">
-        <button onClick={() => onShowVerifiedChange(!showVerified)}
-          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
-            showVerified ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-          }`}>
-          <span className={`w-2 h-2 rounded-full ${showVerified ? 'bg-background' : 'bg-muted-foreground/30'}`} />
-          Verified
-        </button>
-        <button onClick={() => onShowDraftChange(!showDraft)}
-          className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
-            showDraft ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-          }`}>
-          <span className={`w-2 h-2 rounded-full ${showDraft ? 'bg-background' : 'bg-muted-foreground/30'}`} />
-          Draft
-        </button>
+        <MobileChip
+          label="Verified"
+          type="filter"
+          selected={showVerified}
+          onSelect={onShowVerifiedChange}
+        />
+        <MobileChip
+          label="Draft"
+          type="filter"
+          selected={showDraft}
+          onSelect={onShowDraftChange}
+        />
 
         {/* Sort button */}
         <div className="relative ml-auto">
@@ -192,23 +196,28 @@ export function FilterBar({
           {/* Seasons */}
           <div className="flex gap-1.5 flex-wrap">
             {SEASONS.map(s => (
-              <button key={s.value} onClick={() => onSeasonChange(activeSeason === s.value ? null : s.value)}
-                className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
-                  activeSeason === s.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-                }`}>
-                <span>{s.icon}</span>{s.label}
-              </button>
+              <MobileChip
+                key={s.value}
+                label={s.label}
+                type="filter"
+                icon={<span>{s.icon}</span>}
+                selected={activeSeason === s.value}
+                onSelect={sel => onSeasonChange(sel ? s.value : null)}
+              />
             ))}
           </div>
 
           {/* Occasions */}
           <div className="flex gap-1.5 flex-wrap">
             {OCCASIONS.map(o => (
-              <button key={o.value} onClick={() => onOccasionChange(activeOccasion === o.value ? null : o.value)}
-                className={`h-8 px-3 rounded-full text-xs font-medium border transition-all ${
-                  activeOccasion === o.value ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
-                }`}>{o.label}</button>
-          ))}
+              <MobileChip
+                key={o.value}
+                label={o.label}
+                type="filter"
+                selected={activeOccasion === o.value}
+                onSelect={sel => onOccasionChange(sel ? o.value : null)}
+              />
+            ))}
           </div>
 
           {(activeColor || activeSeason || activeOccasion) && (

@@ -15,6 +15,7 @@ import { ItemDetailModal } from './ItemDetailModal'
 import { BottomNav } from '@/components/BottomNav'
 import { MobileSearchBar } from 'cubicle-ds/src/components/mobileapp/MobileSearchBar'
 import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
+import { InputAccessoryView } from 'cubicle-ds/src/components/mobileapp/InputAccessoryView'
 
 interface WardrobeClientProps {
   items: WardrobeItem[]
@@ -173,53 +174,55 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       {/* Bulk select bar */}
       {selectMode && (
         <div
-          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-background border-t border-border"
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          {namingOutfit ? (
-            <div className="flex items-center gap-2 px-4 py-3">
-              <input
-                ref={nameInputRef}
-                autoFocus
-                value={outfitName}
-                onChange={e => setOutfitName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleCreateOutfit()}
-                placeholder="Outfit name…"
-                className="flex-1 bg-muted rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none"
-              />
-              <button
-                onClick={handleCreateOutfit}
-                disabled={!outfitName.trim() || outfitPending}
-                className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center disabled:opacity-40 transition-opacity"
-              >
-                <Check size={16} />
-              </button>
-              <button
-                onClick={() => { setNamingOutfit(false); setOutfitName('') }}
-                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 px-4 py-3">
-              <span className="text-foreground text-sm font-medium flex-1">
-                {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
-              </span>
-              {selected.size > 0 && (
+          <InputAccessoryView>
+            {namingOutfit ? (
+              <div className="flex items-center gap-2 px-2 py-1">
+                <input
+                  ref={nameInputRef}
+                  autoFocus
+                  value={outfitName}
+                  onChange={e => setOutfitName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleCreateOutfit()}
+                  placeholder="Outfit name…"
+                  className="flex-1 bg-background rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border"
+                />
                 <button
-                  onClick={() => { setNamingOutfit(true); setTimeout(() => nameInputRef.current?.focus(), 50) }}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-foreground text-background text-xs font-semibold transition-opacity"
+                  onClick={handleCreateOutfit}
+                  disabled={!outfitName.trim() || outfitPending}
+                  className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center disabled:opacity-40 transition-opacity"
                 >
-                  <Shirt size={13} />
-                  Save as Outfit
+                  <Check size={16} />
                 </button>
-              )}
-              <button onClick={exitSelectMode} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
-                <X size={16} />
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={() => { setNamingOutfit(false); setOutfitName('') }}
+                  className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-2 py-1">
+                <span className="text-foreground text-sm font-medium flex-1">
+                  {selected.size > 0 ? `${selected.size} selected` : 'Tap items to select'}
+                </span>
+                {selected.size > 0 && (
+                  <button
+                    onClick={() => { setNamingOutfit(true); setTimeout(() => nameInputRef.current?.focus(), 50) }}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-foreground text-background text-xs font-semibold transition-opacity"
+                  >
+                    <Shirt size={13} />
+                    Save as Outfit
+                  </button>
+                )}
+                <button onClick={exitSelectMode} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </InputAccessoryView>
         </div>
       )}
 

@@ -118,12 +118,12 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                   + Post
                 </button>
               )}
-              <a
+              <Link
                 href="/ofit"
                 className="h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center active:opacity-90"
               >
                 Wardrobe
-              </a>
+              </Link>
             </div>
           </div>
 

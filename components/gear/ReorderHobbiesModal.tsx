@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { X, ChevronUp, ChevronDown } from 'lucide-react'
+import type { ReactNode } from 'react'
 import type { HobbyValue } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
+import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
 
 export const HOBBY_ORDER_KEY = 'gear_hobby_order'
 
@@ -21,16 +24,6 @@ export function getOrderedHobbies() {
     return [...HOBBIES]
   }
 }
-
-const C = {
-  bg: 'var(--background)', card: 'var(--card)', card2: 'var(--muted)', line: 'var(--border)',
-  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  orange: 'var(--primary)',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
-  shadowLg: '0 14px 34px rgba(84,62,32,.14)',
-}
-const DP = 'var(--font-sans), system-ui, sans-serif'
-const UI = "'Inter', -apple-system, system-ui, sans-serif"
 
 interface ReorderHobbiesModalProps {
   initialOrder: typeof HOBBIES[number][]
@@ -58,98 +51,59 @@ export function ReorderHobbiesModal({ initialOrder, onClose, onSave }: ReorderHo
   }
 
   return (
-    <>
-      {/* Scrim */}
-      <div
-        style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }}
-        onClick={onClose}
-      />
+    <Sheet title="Reorder interests" onClose={onClose}>
+      <div className="flex flex-col gap-2.5 pb-4">
+        {items.map((h, i) => (
+          <div key={h.value} className="flex items-center gap-3 bg-card rounded-2xl px-3.5 py-3">
+            <span className="text-[19px]">{h.icon}</span>
+            <b className="flex-1 text-[14.5px] font-bold">{h.label}</b>
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-opacity disabled:opacity-30"
+                style={{ background: 'var(--muted)' }}
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                onClick={() => move(i, 1)}
+                disabled={i === items.length - 1}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-opacity disabled:opacity-30"
+                style={{ background: 'var(--muted)' }}
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* Sheet */}
-      <div style={{
-        position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-        bottom: 0, width: '100%', maxWidth: 430,
-        zIndex: 50, background: C.bg,
-        borderRadius: '30px 30px 0 0',
-        boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
-        maxHeight: '88dvh', display: 'flex', flexDirection: 'column',
-        paddingBottom: 'env(safe-area-inset-bottom,0px)',
-      }}>
-        {/* Grab handle */}
-        <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
+      <MobileButton fullWidth onClick={handleSave} className="rounded-xl">
+        Save order
+      </MobileButton>
+    </Sheet>
+  )
+}
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-          <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em', margin: 0 }}>
-            Reorder interests
-          </h2>
-          <button
-            onClick={onClose}
-            style={{
-              width: 42, height: 42, borderRadius: 16, border: 'none',
-              background: C.card, color: C.ink, cursor: 'pointer',
-              display: 'grid', placeItems: 'center', boxShadow: C.shadow,
-            }}
-          >
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M6 6l12 12M18 6L6 18"/>
-            </svg>
+// ── Sheet primitive (fixed, Cubicle-styled) ────────────────────────────────
+
+function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl">
+        <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30 flex-shrink-0" />
+        <div className="flex items-center justify-between px-5 pt-3 pb-2 flex-shrink-0">
+          <h2 className="text-xl font-extrabold tracking-tight">{title}</h2>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-card flex items-center justify-center text-foreground">
+            <X size={18} />
           </button>
         </div>
-
-        {/* List */}
-        <div style={{ overflowY: 'auto', padding: '0 18px 18px', flex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            {items.map((h, i) => (
-              <div key={h.value} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                background: C.card, boxShadow: C.shadow, borderRadius: 16,
-                padding: '12px 14px',
-              }}>
-                <span style={{ fontSize: 19 }}>{h.icon}</span>
-                <b style={{ flex: 1, fontSize: 14.5, fontWeight: 700, fontFamily: UI }}>{h.label}</b>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  <button
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0}
-                    style={{
-                      width: 34, height: 34, borderRadius: 12, border: 'none',
-                      background: i === 0 ? C.line : C.card2,
-                      color: i === 0 ? C.muted : C.ink,
-                      cursor: i === 0 ? 'default' : 'pointer',
-                      fontSize: 14, fontWeight: 700, display: 'grid', placeItems: 'center',
-                    }}
-                  >↑</button>
-                  <button
-                    onClick={() => move(i, 1)}
-                    disabled={i === items.length - 1}
-                    style={{
-                      width: 34, height: 34, borderRadius: 12, border: 'none',
-                      background: i === items.length - 1 ? C.line : C.card2,
-                      color: i === items.length - 1 ? C.muted : C.ink,
-                      cursor: i === items.length - 1 ? 'default' : 'pointer',
-                      fontSize: 14, fontWeight: 700, display: 'grid', placeItems: 'center',
-                    }}
-                  >↓</button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Save button */}
-          <button
-            onClick={handleSave}
-            style={{
-              width: '100%', border: 'none', borderRadius: 18, padding: 17,
-              cursor: 'pointer', marginTop: 14,
-              background: C.orange, color: 'var(--primary-foreground)',
-              fontFamily: UI, fontSize: 15, fontWeight: 800,
-            }}
-          >
-            Save order
-          </button>
+        <div className="overflow-y-auto flex-1 px-5" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom,0px))' }}>
+          {children}
         </div>
       </div>
-    </>
+    </div>
   )
 }

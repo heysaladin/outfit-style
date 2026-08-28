@@ -14,19 +14,13 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Read from DOM — the blocking script in layout.tsx already set the class before paint
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
-  })
+  // Start with server default ('dark') — updated after mount to avoid hydration mismatch
+  const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
-    // Sync state if localStorage differs from what the blocking script applied
-    const stored = localStorage.getItem('theme') as Theme | null
-    if (stored && stored !== theme) {
-      setTheme(stored)
-      document.documentElement.classList.toggle('dark', stored === 'dark')
-    }
+    // Sync to whatever the blocking script in layout.tsx already applied
+    const actual = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    setTheme(actual)
   }, [])
 
   function toggle() {

@@ -1,19 +1,15 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { X, Trash2 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
+import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileFormField } from 'cubicle-ds/src/components/mobileapp/MobileFormField'
+import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
 
-const C = {
-  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
-  ink: 'var(--foreground)', muted: 'var(--muted-foreground)', faint: 'var(--muted-foreground)',
-  orange: 'var(--primary)',
-  danger: 'var(--destructive)',
-  shadow: '0 6px 18px rgba(84,62,32,.08)',
-}
-const DP = 'var(--font-sans), system-ui, sans-serif'
-const UI = "'Inter', -apple-system, system-ui, sans-serif"
 const MAX_PHOTOS = 6
 
 interface Props {
@@ -90,32 +86,26 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
   }
 
   return (
-    <div style={{ padding: '0 18px 40px' }}>
+    <div className="px-4 pb-10">
       {/* Count + add */}
       {user && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: C.faint, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <div className="flex items-center justify-between mb-3.5">
+          <span className="text-[11.5px] font-semibold text-muted-foreground uppercase tracking-wider">
             {photos.length} / {MAX_PHOTOS} moments
           </span>
-          <button
-            onClick={() => setAddOpen(true)}
-            style={{
-              border: 'none', borderRadius: 99, padding: '9px 16px', cursor: 'pointer',
-              background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 13, fontWeight: 700,
-            }}
-          >
+          <MobileButton size="sm" onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-xl text-xs font-extrabold">
             📸 Add photo
-          </button>
+          </MobileButton>
         </div>
       )}
 
       {/* Empty */}
       {photos.length === 0 && (
-        <div style={{ padding: '40px 0 20px', textAlign: 'center', color: C.muted }}>
-          <div style={{ width: 56, height: 56, borderRadius: 20, background: C.card, boxShadow: C.shadow, display: 'grid', placeItems: 'center', margin: '0 auto 12px', fontSize: 24 }}>📸</div>
-          <b style={{ display: 'block', color: C.ink, fontFamily: DP, fontSize: 15, fontWeight: 700, marginBottom: 3 }}>No moments yet</b>
-          <p style={{ fontSize: 13 }}>{user ? `Capture up to ${MAX_PHOTOS} photos` : 'Sign in to add moments'}</p>
-        </div>
+        <MobileEmptyState
+          icon={<span className="text-4xl">📸</span>}
+          title="No moments yet"
+          description={user ? `Capture up to ${MAX_PHOTOS} photos` : 'Sign in to add moments'}
+        />
       )}
 
       {/* Masonry grid */}
@@ -125,14 +115,14 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
             <div
               key={p.id}
               onClick={() => setViewPhoto(p)}
-              style={{
-                borderRadius: 16, marginBottom: 11, overflow: 'hidden',
-                position: 'relative', breakInside: 'avoid', boxShadow: C.shadow, cursor: 'pointer',
-              }}
+              className="rounded-2xl mb-2.5 overflow-hidden relative cursor-pointer break-inside-avoid"
             >
-              <img src={p.image_url} alt={p.note ?? ''} style={{ width: '100%', display: 'block', objectFit: 'cover' }} />
+              <img src={p.image_url} alt={p.note ?? ''} className="w-full block object-cover" />
               {p.note && (
-                <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '24px 11px 9px', fontSize: 11, fontWeight: 700, color: '#fff', background: 'linear-gradient(transparent,rgba(30,20,5,.72))' }}>
+                <div
+                  className="absolute left-0 right-0 bottom-0 px-3 pb-2 pt-6 text-[11px] font-bold text-white"
+                  style={{ background: 'linear-gradient(transparent,rgba(30,20,5,.72))' }}
+                >
                   {p.note}
                 </div>
               )}
@@ -141,99 +131,116 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
         </div>
       )}
 
-      {/* ── Add photo sheet ── */}
+      {/* Add photo sheet */}
       {addOpen && (
-        <>
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(50,35,15,.4)', zIndex: 40 }} onClick={() => { setAddOpen(false); resetForm() }} />
-          <div style={{
-            position: 'fixed', left: '50%', transform: 'translateX(-50%)',
-            bottom: 0, width: '100%', maxWidth: 430, zIndex: 50,
-            background: C.bg, borderRadius: '30px 30px 0 0',
-            boxShadow: '0 -10px 40px rgba(60,40,15,.18)',
-            maxHeight: '88dvh', display: 'flex', flexDirection: 'column',
-            paddingBottom: 'env(safe-area-inset-bottom,0px)',
-          }}>
-            <div style={{ width: 40, height: 5, borderRadius: 99, background: C.line, margin: '10px auto 2px' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 18px 12px' }}>
-              <h2 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, margin: 0 }}>Add moment</h2>
-              <button onClick={() => { setAddOpen(false); resetForm() }} style={{ width: 42, height: 42, borderRadius: 16, border: 'none', background: C.card, cursor: 'pointer', display: 'grid', placeItems: 'center', boxShadow: C.shadow }}>
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-              </button>
-            </div>
-            <div style={{ overflowY: 'auto', padding: '0 18px 18px' }}>
-              {/* Photo picker */}
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                style={{
-                  width: '100%', aspectRatio: '16/9', border: preview ? 'none' : '2px dashed var(--border)',
-                  borderRadius: 16, background: preview ? 'transparent' : C.card,
-                  display: 'grid', placeItems: 'center', cursor: 'pointer',
-                  overflow: 'hidden', marginBottom: 16, color: C.muted, padding: 0,
-                }}
-              >
-                {preview ? (
-                  <img src={preview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 22, marginBottom: 6 }}>📷</div>
-                    <b style={{ fontSize: 13, fontWeight: 700, color: C.muted }}>Tap to add photo</b>
-                  </div>
-                )}
-              </button>
-              <input ref={fileRef} type="file" accept="image/*"  onChange={handleFileChange} style={{ display: 'none' }} />
-
-              {photos.length >= MAX_PHOTOS && (
-                <p style={{ fontSize: 12, color: '#D97706', background: '#FEF3C7', borderRadius: 12, padding: '10px 14px', marginBottom: 12 }}>
-                  Oldest photo will be removed automatically.
-                </p>
-              )}
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' as const, color: C.muted, marginBottom: 8 }}>Note (optional)</label>
-                <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Add a caption…" rows={2} style={{ width: '100%', background: C.card, border: '1.5px solid var(--border)', borderRadius: 16, color: C.ink, fontFamily: UI, fontSize: 15, fontWeight: 500, padding: '13px 15px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+        <Sheet title="Add moment" onClose={() => { setAddOpen(false); resetForm() }}>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="w-full mb-4 rounded-2xl overflow-hidden cursor-pointer grid place-items-center"
+            style={{
+              aspectRatio: '16/9',
+              border: preview ? 'none' : '2px dashed var(--border)',
+              background: preview ? 'transparent' : 'var(--card)',
+            }}
+          >
+            {preview ? (
+              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center text-muted-foreground">
+                <div className="text-2xl mb-1.5">📷</div>
+                <b className="text-[13px] font-bold">Tap to add photo</b>
               </div>
+            )}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
-              {error && <p style={{ color: C.danger, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{error}</p>}
+          {photos.length >= MAX_PHOTOS && (
+            <p className="text-[12px] text-amber-600 bg-amber-50 dark:bg-amber-950/30 rounded-xl px-3.5 py-2.5 mb-3">
+              Oldest photo will be removed automatically.
+            </p>
+          )}
 
-              <button
-                onClick={handleAdd}
-                disabled={isPending || !file}
-                style={{ width: '100%', border: 'none', borderRadius: 18, padding: 17, cursor: 'pointer', background: C.orange, color: 'var(--primary-foreground)', fontFamily: UI, fontSize: 15, fontWeight: 800, opacity: isPending || !file ? 0.5 : 1 }}
-              >
-                {isPending ? 'Uploading…' : 'Save moment'}
-              </button>
-            </div>
-          </div>
-        </>
+          <MobileFormField
+            label="Note (optional)"
+            value={note}
+            onChange={setNote}
+            placeholder="Add a caption…"
+            multiline
+            rows={2}
+          />
+
+          {error && <p className="text-xs text-destructive font-semibold mb-2">{error}</p>}
+
+          <MobileButton fullWidth loading={isPending} onClick={handleAdd} disabled={!file} className="rounded-xl mt-2">
+            Save moment
+          </MobileButton>
+        </Sheet>
       )}
 
-      {/* ── View photo ── */}
+      {/* View photo */}
       {viewPhoto && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,.9)', display: 'flex', flexDirection: 'column' }} onClick={() => setViewPhoto(null)}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'calc(14px + env(safe-area-inset-top,0px)) 18px 12px' }} onClick={e => e.stopPropagation()}>
-            <span style={{ color: 'rgba(255,255,255,.6)', fontSize: 13 }}>{new Date(viewPhoto.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-            <div style={{ display: 'flex', gap: 10 }}>
+        <div
+          className="fixed inset-0 z-[60] bg-black/90 flex flex-col"
+          onClick={() => setViewPhoto(null)}
+        >
+          <div
+            className="flex items-center justify-between px-4 pb-3 flex-shrink-0"
+            style={{ paddingTop: 'calc(14px + env(safe-area-inset-top,0px))' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <span className="text-white/60 text-[13px]">
+              {new Date(viewPhoto.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+            <div className="flex gap-2.5">
               {user && (
-                <button onClick={() => handleDelete(viewPhoto)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F87171', padding: 8 }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
+                <button onClick={() => handleDelete(viewPhoto)} className="p-2 text-red-400">
+                  <Trash2 size={18} />
                 </button>
               )}
-              <button onClick={() => setViewPhoto(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.6)', padding: 8 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              <button onClick={() => setViewPhoto(null)} className="p-2 text-white/60">
+                <X size={20} />
               </button>
             </div>
           </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 18px' }} onClick={() => setViewPhoto(null)}>
-            <img src={viewPhoto.image_url} alt={viewPhoto.note ?? ''} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 22, objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
+          <div className="flex-1 flex items-center justify-center px-4 min-h-0" onClick={() => setViewPhoto(null)}>
+            <img
+              src={viewPhoto.image_url}
+              alt={viewPhoto.note ?? ''}
+              className="max-w-full max-h-full rounded-3xl object-contain"
+              onClick={e => e.stopPropagation()}
+            />
           </div>
           {viewPhoto.note && (
-            <div style={{ padding: '12px 18px calc(env(safe-area-inset-bottom,0px) + 24px)' }} onClick={e => e.stopPropagation()}>
-              <p style={{ color: '#fff', fontSize: 14, lineHeight: 1.5 }}>{viewPhoto.note}</p>
+            <div
+              className="px-4 pt-3 text-white text-[14px] leading-relaxed flex-shrink-0"
+              style={{ paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 24px)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              {viewPhoto.note}
             </div>
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── Sheet primitive (fixed, Cubicle-styled) ────────────────────────────────
+
+function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl">
+        <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30 flex-shrink-0" />
+        <div className="px-5 pt-3 pb-2 flex-shrink-0">
+          <h2 className="text-xl font-extrabold tracking-tight">{title}</h2>
+        </div>
+        <div className="overflow-y-auto flex-1 px-5" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom,0px))' }}>
+          {children}
+        </div>
+      </div>
     </div>
   )
 }

@@ -66,19 +66,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('theme');var p=t||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(p==='dark')document.documentElement.classList.add('dark')}catch{}`,
-          }}
-        />
-      </head>
       <body
         className={`${geist.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <Providers>
           <div className="mx-auto w-full max-w-[430px] relative">
             {children}

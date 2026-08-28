@@ -2,24 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { ChevronLeft, Plus } from 'lucide-react'
+import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { AddGearModal } from './AddGearModal'
 import { ActivitiesTab } from './ActivitiesTab'
 import { MomentsTab } from './MomentsTab'
 import { calcWorthIt } from '@/lib/worth'
-
-const C = {
-  bg: 'var(--background)', card: 'var(--card)', line: 'var(--border)',
-  ink: 'var(--foreground)', muted: 'var(--muted-foreground)',
-  shadow: 'none',
-}
-const DP = 'var(--font-sans), system-ui, sans-serif'
-const UI = "'Inter', -apple-system, system-ui, sans-serif"
-
-const ITEM_TINTS = [
-  '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5', '#F5F5F5',
-]
+import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
+import { SegmentedControl } from 'cubicle-ds/src/components/mobileapp/SegmentedControl'
 
 type Tab = 'items' | 'activities' | 'moments'
 
@@ -49,147 +42,107 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
-  if (!mounted) return <div style={{ minHeight: '100dvh', background: C.bg }} />
+  if (!mounted) return <div className="min-h-dvh bg-background" />
 
-  const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'items',      label: 'Items',      count: items.length      },
-    { key: 'activities', label: 'Activities', count: activities.length },
-    { key: 'moments',    label: 'Moments',    count: photos.length     },
-  ]
+  const tabValue = tab === 'items' ? 'Items' : tab === 'activities' ? 'Activities' : 'Moments'
 
   return (
-    <div style={{ background: C.bg, height: '100dvh', overflowY: 'auto', fontFamily: UI, color: C.ink, maxWidth: 430, margin: '0 auto' }}>
+    <div className="bg-background h-dvh overflow-y-auto text-foreground max-w-[430px] mx-auto">
 
-      {/* ── Subhead ── */}
-      <div style={{
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 14px 10px',
-        display: 'flex', alignItems: 'center', gap: 10,
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(12px)',
-      }}>
-        <IconBtn onClick={() => router.push('/')}>
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </IconBtn>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontFamily: DP, fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {hobby.label}
-          </h1>
-          <span style={{ fontSize: 11.5, fontWeight: 600, color: C.muted }}>
+      {/* Header */}
+      <header
+        className="sticky top-0 z-10 flex items-center gap-2.5 px-3.5 pb-2.5 bg-background/95 backdrop-blur-sm border-b border-border"
+        style={{ paddingTop: 'calc(14px + env(safe-area-inset-top,0px))' }}
+      >
+        <MobileButton
+          variant="ghost" size="sm"
+          icon={<ChevronLeft size={18} />}
+          onClick={() => router.push('/')}
+          className="w-9 h-9 rounded-xl p-0 justify-center"
+        />
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl font-extrabold tracking-tight leading-none truncate">{hobby.label}</h1>
+          <span className="text-[11.5px] font-semibold text-muted-foreground">
             {items.length} items · last active {lastActiveLabel(activities)}
           </span>
         </div>
 
         {user && tab === 'items' && (
-          <IconBtn onClick={() => setAddOpen(true)}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-          </IconBtn>
+          <MobileButton
+            variant="ghost" size="sm"
+            icon={<Plus size={18} />}
+            onClick={() => setAddOpen(true)}
+            className="w-9 h-9 rounded-xl p-0 justify-center"
+          />
         )}
 
         {wardrobeHref && (
-          <a
-            href={wardrobeHref}
-            style={{
-              display: 'flex', alignItems: 'center', height: 42,
-              padding: '0 16px', borderRadius: 16, border: 'none',
-              background: C.ink, color: '#FAFAFA',
-              fontFamily: UI, fontSize: 12, fontWeight: 800,
-              textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            {wardrobeLabel ?? 'Library'}
-          </a>
+          <Link href={wardrobeHref}>
+            <MobileButton size="sm" className="h-9 px-4 rounded-xl text-xs font-extrabold">
+              {wardrobeLabel ?? 'Library'}
+            </MobileButton>
+          </Link>
         )}
+      </header>
+
+      {/* Tab selector */}
+      <div className="px-4 pt-3 pb-3">
+        <SegmentedControl
+          segments={['Items', 'Activities', 'Moments']}
+          value={tabValue}
+          onChange={v => setTab(v.toLowerCase() as Tab)}
+        />
       </div>
 
-      {/* ── Segmented tabs ── */}
-      <div style={{ display: 'flex', gap: 6, padding: '6px 18px 12px' }}>
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            style={{
-              flex: 1, border: 'none', cursor: 'pointer', fontFamily: UI,
-              fontSize: 13, fontWeight: 700, padding: '11px 0', borderRadius: 99,
-              background: tab === t.key ? C.ink : C.card,
-              color: tab === t.key ? '#FAFAFA' : C.muted,
-              boxShadow: C.shadow,
-            }}
-          >
-            {t.label}
-            {t.count > 0 && (
-              <b style={{ fontWeight: 700, fontSize: 11, marginLeft: 4, opacity: 0.6 }}>{t.count}</b>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Items tab ── */}
+      {/* Items tab */}
       {tab === 'items' && (
-        <div style={{ padding: '0 18px 40px' }}>
+        <div className="px-4 pb-10">
           {items.length === 0 ? (
-            <EmptyState icon={hobby.icon} title={`No ${hobby.label} items yet`} desc={user ? 'Tap + to add your first item' : 'Sign in to add items'} />
+            <MobileEmptyState
+              icon={<span className="text-4xl">{hobby.icon}</span>}
+              title={`No ${hobby.label} items yet`}
+              description={user ? 'Tap + to add your first item' : 'Sign in to add items'}
+            />
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-              {items.map((item, i) => (
+            <div className="grid grid-cols-2 gap-2.5">
+              {items.map(item => (
                 <button
                   key={item.id}
                   onClick={() => router.push(`/${hobby.value}/${item.id}`)}
-                  style={{
-                    background: C.card, border: `1px solid var(--border)`, borderRadius: 12,
-                    overflow: 'hidden', cursor: 'pointer', color: C.ink, textAlign: 'left', padding: 0,
-                    WebkitTapHighlightColor: 'transparent', display: 'block', width: '100%',
-                  }}
+                  className="bg-card border border-border rounded-xl overflow-hidden text-left w-full block"
                 >
-                  <div style={{
-                    aspectRatio: '1', display: 'grid', placeItems: 'center',
-                    fontSize: 52, position: 'relative',
-                    background: item.image_url ? undefined : ITEM_TINTS[i % ITEM_TINTS.length],
-                  }}>
+                  <div className="aspect-square grid place-items-center text-5xl relative bg-muted">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
                       <span>{hobby.icon}</span>
                     )}
-                    <span style={{
-                      position: 'absolute', bottom: 8, right: 8,
-                      fontSize: 10.5, fontWeight: 700,
-                      padding: '4px 9px', borderRadius: 99,
-                      background: 'rgba(255,255,255,.9)', color: C.ink,
-                    }}>
+                    <span className="absolute bottom-2 right-2 text-[10.5px] font-bold px-2.5 py-1 rounded-full bg-background/80 text-foreground">
                       {item.use_count} uses
                     </span>
                   </div>
-                  <div style={{ padding: '11px 13px 13px' }}>
-                    <b style={{ display: 'block', fontFamily: DP, fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {item.name}
-                    </b>
+                  <div className="p-3">
+                    <b className="block text-[13.5px] font-bold truncate">{item.name}</b>
                     {item.description && (
-                      <span style={{ display: 'block', fontSize: 11, fontWeight: 500, color: C.muted, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span className="block text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
                         {item.description}
                       </span>
                     )}
                     {(() => {
                       const w = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count })
                       return (
-                        <div style={{ marginTop: 8 }}>
-                          <div style={{ height: 3, borderRadius: 99, background: 'var(--muted)', overflow: 'hidden' }}>
-                            <div style={{
-                              height: '100%', borderRadius: 99,
-                              width: `${w.worthItProgress}%`,
-                              background: w.isWorthIt ? '#059669' : w.worthItProgress >= 75 ? '#d97706' : '#94a3b8',
-                            }} />
+                        <div className="mt-2">
+                          <div className="h-[3px] rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${w.worthItProgress}%`,
+                                background: w.isWorthIt ? '#059669' : w.worthItProgress >= 75 ? '#d97706' : '#94a3b8',
+                              }}
+                            />
                           </div>
-                          <span style={{ display: 'block', fontSize: 9.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>
-                            {item.use_count}× · {
-                              w.isWorthIt
-                                ? '✅ Worth It!'
-                                : `${w.targetUses - item.use_count} more to Worth It`
-                            }
+                          <span className="block text-[9.5px] font-semibold text-muted-foreground mt-1">
+                            {item.use_count}× · {w.isWorthIt ? '✅ Worth It!' : `${w.targetUses - item.use_count} more to Worth It`}
                           </span>
                         </div>
                       )
@@ -213,29 +166,6 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
       {addOpen && user && (
         <AddGearModal defaultHobby={hobby.value} onClose={() => setAddOpen(false)} />
       )}
-    </div>
-  )
-}
-
-function IconBtn({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} style={{
-      width: 42, height: 42, borderRadius: 16, border: 'none',
-      background: 'var(--card)', color: 'var(--foreground)', cursor: 'pointer',
-      display: 'grid', placeItems: 'center',
-      flexShrink: 0,
-    }}>
-      {children}
-    </button>
-  )
-}
-
-function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div style={{ padding: '50px 24px', textAlign: 'center', color: 'var(--muted-foreground)' }}>
-      <div style={{ width: 60, height: 60, borderRadius: 12, background: 'var(--card)', display: 'grid', placeItems: 'center', margin: '0 auto 14px', fontSize: 26 }}>{icon}</div>
-      <b style={{ display: 'block', color: 'var(--foreground)', fontFamily: 'var(--font-sans), system-ui', fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{title}</b>
-      <p style={{ fontSize: 13, lineHeight: 1.5 }}>{desc}</p>
     </div>
   )
 }

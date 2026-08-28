@@ -696,7 +696,7 @@ export default function Home() {
                     activities.some(a => a.hobby === value && isSameDayWIB(a.activity_at, d))
                   )
                   return (
-                    <Link key={label} href={href} prefetch={false} className="block no-underline min-w-0">
+                    <Link key={label} href={href} className="block no-underline min-w-0">
                       <div className="border border-border rounded-[8px] bg-card hover:bg-neutral-50 transition-colors h-full overflow-hidden">
                         <div className="bg-neutral-100 w-full aspect-[4/3] flex items-center justify-center text-[48px]">{icon}</div>
                         <div className="p-3 pt-2.5">

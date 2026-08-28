@@ -2,9 +2,9 @@
 
 import { Plus, CheckSquare, Sun, Moon, ChevronLeft } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
-import { useState } from 'react'
 import Link from 'next/link'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
+import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
 
 interface HeaderProps {
   user: { email?: string; user_metadata?: { full_name?: string; avatar_url?: string } } | null
@@ -26,31 +26,21 @@ export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
 
       <div className="flex items-center gap-2">
         {user && onSelectMode && (
-          <button onClick={onSelectMode}
-            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <CheckSquare size={15} className="text-foreground" />
-          </button>
+          <MobileButton variant="ghost" size="sm" icon={<CheckSquare size={15} />} onClick={onSelectMode} className="w-8 h-8 rounded-full p-0 justify-center" />
         )}
-        <button onClick={toggle}
-          className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
-          aria-label="Toggle theme">
-          {theme === 'dark'
-            ? <Sun size={15} className="text-foreground" />
-            : <Moon size={15} className="text-foreground" />}
-        </button>
+        <MobileButton variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />} onClick={toggle} aria-label="Toggle theme" className="w-8 h-8 rounded-full p-0 justify-center" />
         {user ? (
           <>
-            <button onClick={onUpload}
-              className="h-8 px-4 rounded-full bg-foreground flex items-center gap-1.5">
-              <Plus size={14} className="text-background" strokeWidth={2.5} />
-              <span className="text-background text-[11px] font-bold">Add</span>
-            </button>
+            <MobileButton size="sm" icon={<Plus size={14} strokeWidth={2.5} />} onClick={onUpload} className="h-8 px-4 rounded-full bg-foreground text-background text-[11px] font-bold">
+              Add
+            </MobileButton>
             <UserAvatarMenu />
           </>
         ) : (
-          <Link href="/login"
-            className="h-8 px-4 rounded-full bg-foreground flex items-center">
-            <span className="text-background text-[11px] font-bold">Sign in</span>
+          <Link href="/login">
+            <MobileButton size="sm" className="h-8 px-4 rounded-full bg-foreground text-background text-[11px] font-bold">
+              Sign in
+            </MobileButton>
           </Link>
         )}
       </div>
