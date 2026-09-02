@@ -20,7 +20,7 @@ export default async function HobbyPage({
     .from('hobby_items')
     .select('*')
     .eq('category', hobby)
-    .order('created_at', { ascending: false })
+    .order('use_count', { ascending: false })
 
   const [{ data: activities }, { data: photos }] = user
     ? await Promise.all([

@@ -12,7 +12,7 @@ interface GearItemCardProps {
 export function GearItemCard({ item, onClick }: GearItemCardProps) {
   const hobbyDef = HOBBIES.find(h => h.value === item.category)
   const isDraft  = !item.status || item.status === 'draft'
-  const { worthItProgress, targetUses, isWorthIt } = calcWorthIt({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, actualUses: item.use_count })
+  const { worthItProgress, targetUses, isWorthIt } = calcWorthIt({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, actualUses: item.use_count, targetOverride: item.target })
 
   return (
     <div className="group relative flex flex-col gap-2">

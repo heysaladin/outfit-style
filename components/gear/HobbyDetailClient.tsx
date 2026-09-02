@@ -129,7 +129,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                       </span>
                     )}
                     {(() => {
-                      const w = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count })
+                      const w = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count, targetOverride: item.target })
                       return (
                         <div className="mt-2">
                           <div className="h-[3px] rounded-full bg-muted overflow-hidden">

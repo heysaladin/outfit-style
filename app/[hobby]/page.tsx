@@ -31,7 +31,7 @@ export default async function HobbyPage({
       : Promise.resolve({ data: [] }),
     supabase.from('hobby_items').select('*')
       .eq('category', hobby)
-      .order('created_at', { ascending: false }),
+      .order('use_count', { ascending: false }),
   ])
 
   return (

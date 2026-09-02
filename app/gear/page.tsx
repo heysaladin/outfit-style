@@ -12,7 +12,7 @@ export default async function GearPage() {
   const { data: items } = await supabase
     .from('hobby_items')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('use_count', { ascending: false })
 
   return <GearClient items={(items ?? []) as HobbyItem[]} user={user} />
 }
