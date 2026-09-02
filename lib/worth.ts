@@ -1,6 +1,5 @@
 const HIGH_VALUE_THRESHOLD = 100_000_000
 const DEFAULT_OWNERSHIP_YEARS = 3
-const FREE_TARGET_USES = 10
 
 export type WorthItStatus = 'not_worth_it' | 'worth_it'
 
@@ -14,6 +13,21 @@ export interface WorthItResult {
   isHighValue: boolean
   cpd: number | null
   daysOwned: number | null
+}
+
+function calcTargetUses(price: number): number {
+  if (price <     5_000) return   5
+  if (price <    50_000) return  10
+  if (price <   100_000) return  15
+  if (price <   250_000) return  25
+  if (price <   500_000) return  30
+  if (price <  1_000_000) return  35
+  if (price <  2_000_000) return  40
+  if (price <  5_000_000) return  45
+  if (price < 10_000_000) return  50
+  if (price < 25_000_000) return  75
+  if (price < 50_000_000) return 100
+  return 150
 }
 
 export function calcWorthIt({
@@ -41,12 +55,10 @@ export function calcWorthIt({
   let targetUses: number
   if (targetOverride && targetOverride > 0) {
     targetUses = targetOverride
-  } else if (isFree) {
-    targetUses = FREE_TARGET_USES
-  } else if (!isHighValue) {
-    targetUses = Math.max(10, Math.round(20 * Math.pow(price / 1_000_000, 0.6)))
-  } else {
+  } else if (isHighValue) {
     targetUses = Math.round(ownershipYears * 52 * wpw)
+  } else {
+    targetUses = calcTargetUses(price)
   }
 
   let costPerUse: number | null

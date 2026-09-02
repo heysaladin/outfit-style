@@ -9,6 +9,7 @@ import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { cn } from '@/lib/utils'
+import { calcWorthIt } from '@/lib/worth'
 import { dateStrWIB, daysDiff, formatDateLabel, formatTime, defaultDatetimeLocal, isSameDayWIB } from '@/lib/date'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -78,6 +79,7 @@ export default function Home() {
   const [activities, setActivities] = useState<HobbyActivity[]>([])
   const [photos, setPhotos]         = useState<HobbyPhoto[]>([])
   const [gearCounts, setGearCounts] = useState<Record<string, number>>({})
+  const [hobbyProgress, setHobbyProgress] = useState<Record<string, number>>({})
 
   // Search
   const [searchQ, setSearchQ] = useState('')
@@ -129,16 +131,25 @@ export default function Home() {
       const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }] = await Promise.all([
         supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at,outfit_id,outfit_snapshot,outfits(id,name,outfit_items(item_id,wardrobe_items(*)))').eq('user_id', u.id).order('activity_at', { ascending: false }),
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
-        supabase.from('hobby_items').select('category'),
+        supabase.from('hobby_items').select('category, use_count, purchase_price'),
         supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
       ])
       setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
       const counts: Record<string, number> = { fashion: wardrobeCount ?? 0 }
+      const progressBuckets: Record<string, number[]> = {}
       for (const item of (gear ?? [])) {
         counts[item.category] = (counts[item.category] ?? 0) + 1
+        const { worthItProgress } = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count })
+        if (!progressBuckets[item.category]) progressBuckets[item.category] = []
+        progressBuckets[item.category].push(worthItProgress)
       }
       setGearCounts(counts)
+      const avgProgress: Record<string, number> = {}
+      for (const [cat, vals] of Object.entries(progressBuckets)) {
+        avgProgress[cat] = vals.reduce((a, b) => a + b, 0) / vals.length
+      }
+      setHobbyProgress(avgProgress)
 
       try {
         const [{ data: goalsData }, { data: tasksData }] = await Promise.all([
@@ -692,6 +703,7 @@ export default function Home() {
                 {hobbyLinks.map(({ label, icon, href, value }, i) => {
                   const count = gearCounts[value] ?? 0
                   const last = lastActive[value]
+                  const progress = hobbyProgress[value] ?? 0
                   const dots = weekDays.map(d =>
                     activities.some(a => a.hobby === value && isSameDayWIB(a.activity_at, d))
                   )
@@ -704,7 +716,10 @@ export default function Home() {
                             {value === 'social' ? 'Life' : label}
                           </p>
                           <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-foreground rounded-full" style={{ width: last ? '40%' : '0%' }} />
+                            <div className="h-full rounded-full transition-all duration-500" style={{
+                              width: `${progress}%`,
+                              background: progress >= 100 ? '#059669' : progress >= 75 ? '#d97706' : 'var(--foreground)',
+                            }} />
                           </div>
                         </div>
                       </div>

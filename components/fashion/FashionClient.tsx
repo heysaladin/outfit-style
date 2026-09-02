@@ -10,7 +10,8 @@ import { ActivitiesTab } from '@/components/gear/ActivitiesTab'
 import { MomentsTab } from '@/components/gear/MomentsTab'
 import { postOutfitActivity } from '@/app/actions'
 import { cn } from '@/lib/utils'
-import { ChevronLeft, AlignLeft, Shirt } from 'lucide-react'
+import { calcWorthIt } from '@/lib/worth'
+import { ChevronLeft, AlignLeft, Shirt, ArrowUpDown, Search } from 'lucide-react'
 
 // Cubicle mobileapp components
 import { MobileTopTabs } from 'cubicle-ds/src/components/mobileapp/MobileTopTabs'
@@ -24,7 +25,19 @@ import {
 import { Button } from '@/components/ui/button'
 
 type Tab = 'items' | 'activities' | 'moments'
-type SortKey = 'wear' | 'price' | 'date'
+type SortKey = 'wear_asc' | 'wear_desc' | 'price_desc' | 'price_asc' | 'date_desc' | 'date_asc'
+
+const SORT_GROUPS: { label: string; options: { key: SortKey; desc: string }[] }[] = [
+  { label: 'Wear',  options: [{ key: 'wear_asc',   desc: 'Least worn first' }, { key: 'wear_desc',  desc: 'Most worn first'  }] },
+  { label: 'Price', options: [{ key: 'price_desc',  desc: 'Most expensive'  }, { key: 'price_asc',  desc: 'Cheapest first'   }] },
+  { label: 'Date',  options: [{ key: 'date_desc',   desc: 'Newest first'    }, { key: 'date_asc',   desc: 'Oldest first'     }] },
+]
+
+const SORT_LABEL: Record<SortKey, string> = {
+  wear_asc: 'Wear ↑', wear_desc: 'Wear ↓',
+  price_asc: 'Price ↑', price_desc: 'Price ↓',
+  date_asc: 'Date ↑', date_desc: 'Date ↓',
+}
 
 interface FashionClientProps {
   user: User | null
@@ -37,7 +50,9 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   const [tab, setTab] = useState<Tab>('items')
   const [items, setItems] = useState<WardrobeItem[] | null>(null)
   const [showNames, setShowNames] = useState(true)
-  const [sort, setSort] = useState<SortKey>('wear')
+  const [sort, setSort] = useState<SortKey>('wear_asc')
+  const [sortOpen, setSortOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const [qpOpen, setQpOpen] = useState(false)
   const [qpSelected, setQpSelected] = useState<Set<string>>(new Set())
   const [qpCaption, setQpCaption] = useState('')
@@ -70,11 +85,19 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
     { key: 'moments', label: 'Moments', badge: photos.length || undefined },
   ]
 
-  const sortedItems = items ? [...items].sort((a, b) => {
-    if (sort === 'wear') return a.wear_count - b.wear_count || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    if (sort === 'price') return (b.price ?? -1) - (a.price ?? -1)
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  }) : []
+  const sortedItems = items ? [...items]
+    .filter(i =>
+      !search.trim() ||
+      [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sort === 'wear_asc') return a.wear_count - b.wear_count
+      if (sort === 'wear_desc') return b.wear_count - a.wear_count
+      if (sort === 'price_desc') return (b.price ?? -1) - (a.price ?? -1)
+      if (sort === 'price_asc') return (a.price ?? Infinity) - (b.price ?? Infinity)
+      if (sort === 'date_asc') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    }) : []
 
   const filteredQPItems = items?.filter(i =>
     !qpSearch.trim() ||
@@ -145,21 +168,61 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         <div className="px-4 pt-4 pb-24">
 
           {items && items.length > 0 && (
-            <div className="flex gap-2 mb-4">
-              {(['wear', 'price', 'date'] as SortKey[]).map(key => (
+            <div className="flex items-center gap-2 mb-4">
+              {/* Search bar */}
+              <div className="flex flex-1 items-center gap-2 rounded-xl bg-muted px-3 h-9">
+                <Search className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+                <input
+                  placeholder="Search by name, brand, tag…"
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  type="search"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+
+              {/* Sort button */}
+              <div className="relative shrink-0">
                 <button
-                  key={key}
-                  onClick={() => setSort(key)}
+                  onClick={() => setSortOpen(v => !v)}
                   className={cn(
-                    'h-8 px-4 rounded-full text-xs font-semibold capitalize transition-colors',
-                    sort === key
-                      ? 'bg-foreground text-background'
-                      : 'bg-muted text-muted-foreground active:opacity-70',
+                    'flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all',
+                    sortOpen ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border',
                   )}
                 >
-                  {key}
+                  <ArrowUpDown size={11} aria-hidden="true" />
+                  {SORT_LABEL[sort]}
                 </button>
-              ))}
+
+                {sortOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+                    <div className="absolute right-0 top-full mt-1.5 z-20 bg-card border border-border rounded-xl shadow-md overflow-hidden min-w-[180px]">
+                      {SORT_GROUPS.map((group, gi) => (
+                        <div key={group.label}>
+                          {gi > 0 && <div className="border-t border-border mx-3" />}
+                          <div className="px-3.5 pt-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{group.label}</div>
+                          {group.options.map(opt => (
+                            <button
+                              key={opt.key}
+                              onClick={() => { setSort(opt.key); setSortOpen(false) }}
+                              className="w-full flex items-center justify-between gap-3 px-3.5 py-2 text-left hover:bg-muted transition-colors"
+                            >
+                              <span className="text-[13px] font-medium text-foreground">{opt.desc}</span>
+                              {sort === opt.key && (
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-foreground">
+                                  <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                      <div className="pb-1" />
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -206,24 +269,25 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                         )}
                       </>
                     )}
-                    <div className={cn(showNames && 'mt-2')}>
-                      <div className="h-1 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={cn(
-                            'h-full rounded-full transition-all',
-                            item.wear_count >= 20 ? 'bg-emerald-600' : item.wear_count >= 10 ? 'bg-amber-600' : 'bg-neutral-400',
-                          )}
-                          style={{ width: `${Math.min(item.wear_count / 20, 1) * 100}%` }}
-                        />
-                      </div>
-                      <p className="text-[10px] font-medium text-muted-foreground mt-1">
-                        {item.wear_count}× · {
-                          item.wear_count >= 100 ? '💎 Excellent!'
-                          : item.wear_count >= 20 ? `${100 - item.wear_count} more to Excellent`
-                          : `${20 - item.wear_count} more to Worth it`
-                        }
-                      </p>
-                    </div>
+                    {(() => {
+                      const { worthItProgress, isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count })
+                      return (
+                        <div className={cn(showNames && 'mt-2')}>
+                          <div className="h-1 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all"
+                              style={{
+                                width: `${worthItProgress}%`,
+                                background: isWorthIt ? '#059669' : worthItProgress >= 75 ? '#d97706' : '#94a3b8',
+                              }}
+                            />
+                          </div>
+                          <p className="text-[10px] font-medium text-muted-foreground mt-1">
+                            {item.wear_count}× · {isWorthIt ? '✅ Worth It!' : `${targetUses - item.wear_count} more to Worth It`}
+                          </p>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </Link>
               ))}
