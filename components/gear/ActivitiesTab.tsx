@@ -196,10 +196,11 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
             const timeStr = formatTime(act.activity_at)
             const dateLabel = formatDateLabel(act.activity_at)
 
-            const outfitItems =
+            const outfitItems = (
               act.outfit_snapshot?.length
                 ? act.outfit_snapshot
                 : act.outfits?.outfit_items?.map((oi: { wardrobe_items: unknown }) => oi.wardrobe_items).filter(Boolean) ?? []
+            ) as { image_url: string; name: string }[]
             const outfitLabel = act.outfits?.name ?? 'Outfit'
 
             if (outfitItems.length > 0 && (act.outfit_snapshot?.length || act.outfits)) {
@@ -222,7 +223,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                     </div>
                   </div>
                   <div className="flex gap-2 overflow-x-auto px-3.5 pb-3" style={{ scrollbarWidth: 'none' }}>
-                    {outfitItems.map((item: { image_url: string; name: string }, i: number) => (
+                    {outfitItems.map((item, i) => (
                       <div key={i} className="w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border border-border">
                         <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                       </div>

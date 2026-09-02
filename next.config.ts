@@ -1,7 +1,13 @@
+import path from 'path'
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ['cubicle-ds'],
+  turbopack: {
+    resolveAlias: {
+      'cubicle-ds': path.resolve(__dirname, '../cubicle'),
+    },
+  },
   async headers() {
     return [
       {
