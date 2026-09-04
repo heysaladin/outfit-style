@@ -2,17 +2,12 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { FamilySchedule, FamilyMemberName } from '@/lib/types'
 import { FAMILY_MEMBERS } from '@/lib/types'
 import { createFamilySchedule, updateFamilySchedule, deleteFamilySchedule } from '@/app/actions'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
-import { MobileFormField } from 'cubicle-ds/src/components/mobileapp/MobileFormField'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
-import { ListItem } from 'cubicle-ds/src/components/mobileapp/ListItem'
-import { SegmentedControl } from 'cubicle-ds/src/components/mobileapp/SegmentedControl'
 
 const DAYS = [
   { num: 1, short: 'Sen', long: 'Senin' },
@@ -67,12 +62,12 @@ export function FamilyClient({ user: _user, schedules: initSchedules }: Props) {
         className="sticky top-0 z-20 flex items-center gap-2.5 px-3.5 pb-2.5 bg-background/95 backdrop-blur-sm border-b border-border"
         style={{ paddingTop: 'calc(14px + env(safe-area-inset-top,0px))' }}
       >
-        <MobileButton
-          variant="ghost" size="sm"
-          icon={<ChevronLeft size={18} />}
+        <button
           onClick={() => router.push('/social')}
-          className="w-9 h-9 rounded-xl p-0 justify-center"
-        />
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          <ChevronLeft size={18} />
+        </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-extrabold tracking-tight leading-none">Family</h1>
           <span className="text-[11.5px] font-semibold text-muted-foreground">Embun · Langit · Senja</span>
@@ -116,42 +111,49 @@ export function FamilyClient({ user: _user, schedules: initSchedules }: Props) {
         {currentMember.hasSchedule ? (
           <>
             {/* Day selector */}
-            <SegmentedControl
-              segments={DAYS.map(d => d.short)}
-              value={DAYS.find(d => d.num === activeDay)!.short}
-              onChange={v => setActiveDay(DAYS.find(d => d.short === v)!.num)}
-              className="mb-3.5"
-            />
+            <div className="flex rounded-xl bg-muted p-1 gap-1 mb-3.5">
+              {DAYS.map(d => (
+                <button
+                  key={d.num}
+                  onClick={() => setActiveDay(d.num)}
+                  className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+                  style={activeDay === d.num
+                    ? { background: 'var(--background)', color: 'var(--foreground)', boxShadow: '0 1px 4px rgba(0,0,0,.12)' }
+                    : { color: 'var(--muted-foreground)' }}
+                >
+                  {d.short}
+                </button>
+              ))}
+            </div>
 
             {/* Schedule list */}
             <div className="flex flex-col gap-2 pb-28">
               {daySchedules.length === 0 && (
-                <MobileEmptyState
-                  icon={<span className="text-2xl">📭</span>}
-                  title={`Kosong hari ${DAYS.find(d => d.num === activeDay)?.long}`}
-                  description=""
-                />
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <span className="text-2xl mb-2">📭</span>
+                  <p className="text-sm font-semibold text-foreground">
+                    Kosong hari {DAYS.find(d => d.num === activeDay)?.long}
+                  </p>
+                </div>
               )}
               {daySchedules.map(s => (
                 <div
                   key={s.id}
-                  className="bg-card rounded-2xl shadow-sm cursor-pointer overflow-hidden"
+                  className="bg-card rounded-2xl shadow-sm cursor-pointer overflow-hidden flex items-center gap-3 px-4 py-3"
                   style={{ borderLeft: `4px solid ${currentMember.color}` }}
                   onClick={() => setEditItem(s)}
                 >
-                  <ListItem
-                    leading={
-                      <div className="min-w-[48px]">
-                        <div className="text-[11px] font-bold leading-tight" style={{ color: currentMember.color }}>
-                          {s.start_time}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">{s.end_time}</div>
-                      </div>
-                    }
-                    title={s.subject}
-                    subtitle={s.note ?? undefined}
-                    showChevron
-                  />
+                  <div className="min-w-[48px]">
+                    <div className="text-[11px] font-bold leading-tight" style={{ color: currentMember.color }}>
+                      {s.start_time}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{s.end_time}</div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{s.subject}</p>
+                    {s.note && <p className="text-xs text-muted-foreground truncate mt-0.5">{s.note}</p>}
+                  </div>
+                  <ChevronRight size={16} className="text-muted-foreground flex-shrink-0" />
                 </div>
               ))}
               <button
@@ -163,11 +165,10 @@ export function FamilyClient({ user: _user, schedules: initSchedules }: Props) {
             </div>
           </>
         ) : (
-          <MobileEmptyState
-            icon={<span className="text-4xl">{currentMember.emoji}</span>}
-            title="Belum ada jadwal sekolah"
-            description=""
-          />
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-4xl mb-3">{currentMember.emoji}</span>
+            <p className="text-sm font-semibold text-foreground">Belum ada jadwal sekolah</p>
+          </div>
         )}
       </div>
 
@@ -272,50 +273,70 @@ function ScheduleModal({ memberName, defaultDay, existing, onClose, onSaved, onD
           </div>
         </div>
 
-        <MobileFormField
-          label="Nama Pelajaran"
-          value={subject}
-          onChange={setSubject}
-          placeholder="cth. Matematika"
-          required
-        />
+        <FormField label="Nama Pelajaran" required>
+          <input
+            value={subject}
+            onChange={e => setSubject(e.target.value)}
+            placeholder="cth. Matematika"
+            className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary transition-colors"
+          />
+        </FormField>
 
         <div className="grid grid-cols-2 gap-3">
-          <MobileFormField label="Mulai" type="time" value={start} onChange={setStart} />
-          <MobileFormField label="Selesai" type="time" value={end} onChange={setEnd} />
+          <FormField label="Mulai">
+            <input type="time" value={start} onChange={e => setStart(e.target.value)}
+              className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:border-primary transition-colors" />
+          </FormField>
+          <FormField label="Selesai">
+            <input type="time" value={end} onChange={e => setEnd(e.target.value)}
+              className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:border-primary transition-colors" />
+          </FormField>
         </div>
 
-        <MobileFormField
-          label="Catatan (opsional)"
-          value={note}
-          onChange={setNote}
-          placeholder="cth. Ruang 5, Bu Sari"
-        />
+        <FormField label="Catatan (opsional)">
+          <input
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            placeholder="cth. Ruang 5, Bu Sari"
+            className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary transition-colors"
+          />
+        </FormField>
 
         {err && <p className="text-xs text-destructive">{err}</p>}
 
-        <MobileButton
-          fullWidth loading={saving} onClick={handleSave}
-          className="rounded-xl"
+        <button
+          onClick={handleSave} disabled={saving}
+          className="w-full py-3.5 rounded-xl text-sm font-semibold disabled:opacity-40 transition-opacity"
           style={{ background: member.color, color: '#fff' }}
         >
-          Simpan
-        </MobileButton>
+          {saving ? 'Menyimpan...' : 'Simpan'}
+        </button>
 
         {existing && onDeleted && (
-          <MobileButton
-            variant="destructive" fullWidth loading={deleting} onClick={handleDelete}
-            className="rounded-xl"
+          <button
+            onClick={handleDelete} disabled={deleting}
+            className="w-full py-3.5 rounded-xl text-sm font-semibold bg-destructive/10 text-destructive border border-destructive/20 disabled:opacity-40 transition-opacity"
           >
-            Hapus
-          </MobileButton>
+            {deleting ? 'Menghapus...' : 'Hapus'}
+          </button>
         )}
       </div>
     </Sheet>
   )
 }
 
-// ── Sheet primitive (fixed, Cubicle-styled) ────────────────────────────────
+function FormField({ label, required, children }: { label: string; required?: boolean; children: ReactNode }) {
+  return (
+    <div>
+      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+        {label}{required && <span className="text-destructive ml-0.5">*</span>}
+      </p>
+      {children}
+    </div>
+  )
+}
+
+// ── Sheet primitive ────────────────────────────────────────────────────────
 
 function Sheet({ children, onClose }: { children: ReactNode; onClose: () => void }) {
   return (
