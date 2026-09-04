@@ -31,7 +31,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
   const hasOriginal = !!item.original_image_url && item.original_image_url !== item.image_url
   const [showOriginal, setShowOriginal] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const src = showOriginal && item.original_image_url ? item.original_image_url : item.image_url
+  const src = (showOriginal && item.original_image_url ? item.original_image_url : item.image_url) || null
   const declutterColor = DECLUTTER_STATUSES.find(d => d.value === item.declutter_status)?.color
 
   const { isWorthIt } = calcWorthIt({ purchasePrice: item.price, purchaseDate: item.purchase_date, actualUses: item.wear_count })
@@ -51,7 +51,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         dimmed ? 'opacity-50' : ''
       } ${selected ? 'ring-2 ring-foreground ring-offset-2 ring-offset-background' : ''}`}>
         <button onClick={onClick} className="w-full block">
-          <img src={src} alt={item.name} className="w-full h-auto object-contain mix-blend-multiply dark:mix-blend-normal" />
+          {src && <img src={src} alt={item.name} className="w-full h-auto object-contain mix-blend-multiply dark:mix-blend-normal" />}
         </button>
 
         {/* Status badge */}

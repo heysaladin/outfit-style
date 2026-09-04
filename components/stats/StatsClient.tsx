@@ -17,10 +17,12 @@ export function StatsClient({ items }: StatsClientProps) {
     .map(i => ({ ...i, cpw: i.price! / i.wear_count }))
     .sort((a, b) => a.cpw - b.cpw)
 
-  const byCategory = CATEGORY_TREE.map(cat => ({
-    ...cat,
-    count: items.filter(i => i.category === cat.value).length,
-  })).filter(c => c.count > 0)
+  const byCategory = CATEGORY_TREE
+    .filter(cat => cat.value !== 'fashion')
+    .map(cat => ({
+      ...cat,
+      count: items.filter(i => i.category === cat.value).length,
+    })).filter(c => c.count > 0)
 
   const maxCat = Math.max(...byCategory.map(c => c.count), 1)
 

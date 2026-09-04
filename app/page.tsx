@@ -257,8 +257,11 @@ export default function Home() {
     }
   }
 
+  // Fashion activity count for stats
+  const fashionActivityCount = activities.filter(a => a.hobby === 'fashion').length
+
   // Sorted hobby list for stats
-  const hobbiesByActivity = [{ value: 'fashion', label: 'Fashion', icon: '👔' }, ...HOBBIES].map(h => ({
+  const hobbiesByActivity = HOBBIES.map(h => ({
     ...h, count: activities.filter(a => a.hobby === h.value).length,
   })).sort((a, b) => b.count - a.count).filter(h => h.count > 0)
 
@@ -759,6 +762,23 @@ export default function Home() {
                       </Card>
                     ))}
                   </div>
+
+                  {fashionActivityCount > 0 && (
+                    <Card className="mt-3">
+                      <CardContent className="p-[17px_15px]">
+                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Fashion</h3>
+                        <div className="flex items-center gap-3 py-3 px-0.5">
+                          <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">1</span>
+                          <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👔</span>
+                          <div className="flex-1 min-w-0">
+                            <b className="text-para-sm font-bold block">Fashion</b>
+                            <span className="text-para-xs font-medium text-muted-foreground">{fashionActivityCount} activities</span>
+                            <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {hobbiesByActivity.length > 0 && (
                     <Card className="mt-3">

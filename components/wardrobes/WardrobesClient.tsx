@@ -96,7 +96,7 @@ export function WardrobesClient({ wardrobes, items }: WardrobesClientProps) {
             <p className="text-muted-foreground text-sm mt-1">Tap + to add your first closet</p>
           </div>
         ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext id="wardrobes-dnd" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={order} strategy={verticalListSortingStrategy}>
               {sorted.map(w => (
                 <SortableWardrobe
