@@ -50,6 +50,7 @@ export const CATEGORY_TREE: Category[] = [
       { value: 'boots', label: 'Boots' },
       { value: 'sandals', label: 'Sandals' },
       { value: 'socks', label: 'Socks' },
+      { value: 'misc', label: 'Misc' },
     ],
   },
   {
@@ -71,6 +72,10 @@ export const CATEGORY_TREE: Category[] = [
       { value: 'ring', label: 'Ring', types: [] },
       { value: 'necklace', label: 'Necklace', types: [] },
       { value: 'misc', label: 'Misc', types: [] },
+      { value: 'strap', label: 'Strap', types: [] },
+      { value: 'tie', label: 'Tie', types: [] },
+      { value: 'pocket-square', label: 'Pocket Square', types: [] },
+      { value: 'handkerchief', label: 'Handkerchief', types: [] },
     ],
     types: [],
   },
