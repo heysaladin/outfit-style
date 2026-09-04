@@ -1,12 +1,30 @@
 'use client'
 
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 
 function LoginContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const error = searchParams.get('error')
+
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [signInError, setSignInError] = useState('')
+  const [loading, setLoading]   = useState(false)
+
+  async function signInWithEmail() {
+    if (!email || !password) return
+    setLoading(true)
+    setSignInError('')
+    const supabase = createClient()
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (err) setSignInError(err.message)
+    else router.push('/')
+  }
 
   async function signInWithGoogle() {
     const supabase = createClient()
@@ -18,43 +36,96 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-[342px] flex flex-col gap-8">
-        {/* Wordmark + subhead */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-[30px] leading-[32px] tracking-[-1px] font-semibold text-foreground m-0">
-            interestory
-          </h1>
-          <p className="text-[16px] leading-[24px] text-neutral-500 m-0">
-            Log what you&apos;re into. Build the story of your interests over time.
-          </p>
-        </div>
+    <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: 'Geist, system-ui, sans-serif' }}>
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
+        <div className="w-full max-w-[342px] flex flex-col gap-8">
 
-        {/* Auth section */}
-        <div className="flex flex-col gap-3">
-          {error && (
-            <p className="text-[13px] text-destructive">
-              Sign in failed. Please try again.
+          {/* Wordmark + subhead */}
+          <div className="flex flex-col gap-3">
+            <h1 className="text-[30px] leading-[32px] tracking-[-1px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
+              interestory
+            </h1>
+            <p className="text-[16px] leading-[24px] m-0" style={{ color: '#737373' }}>
+              Log what you&apos;re into. Build the story of your interests over time.
             </p>
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-[12px] text-muted-foreground">or</span>
-            <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Google */}
-          <button
-            onClick={signInWithGoogle}
-            className="w-full h-12 rounded-[6px] border border-border bg-card text-foreground text-[15px] font-medium flex items-center justify-center gap-3 hover:bg-neutral-50 transition-colors cursor-pointer"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
-        </div>
+          {/* Form */}
+          <div className="flex flex-col gap-3">
+            {(error || signInError) && (
+              <p className="text-[13px]" style={{ color: '#DC2626' }}>
+                {signInError || 'Sign in failed. Please try again.'}
+              </p>
+            )}
 
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium" style={{ color: '#171717' }}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="h-11 border rounded-[6px] px-[14px] text-[15px] outline-none transition-colors"
+                style={{ borderColor: '#E5E5E5', color: '#171717', background: '#FFFFFF' }}
+                onFocus={e => (e.target.style.borderColor = '#171717')}
+                onBlur={e => (e.target.style.borderColor = '#E5E5E5')}
+                onKeyDown={e => e.key === 'Enter' && signInWithEmail()}
+              />
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium" style={{ color: '#171717' }}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="h-11 border rounded-[6px] px-[14px] text-[15px] outline-none transition-colors"
+                style={{ borderColor: '#E5E5E5', color: '#171717', background: '#FFFFFF' }}
+                onFocus={e => (e.target.style.borderColor = '#171717')}
+                onBlur={e => (e.target.style.borderColor = '#E5E5E5')}
+                onKeyDown={e => e.key === 'Enter' && signInWithEmail()}
+              />
+            </div>
+
+            {/* Sign in button */}
+            <button
+              onClick={signInWithEmail}
+              disabled={loading || !email || !password}
+              className="h-12 rounded-[6px] text-[15px] font-medium transition-opacity disabled:opacity-40 cursor-pointer border-0 mt-1"
+              style={{ background: '#171717', color: '#FAFAFA' }}
+            >
+              {loading ? 'Signing in…' : 'Sign in'}
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 py-1">
+              <div className="flex-1 h-px" style={{ background: '#E5E5E5' }} />
+              <span className="text-[12px]" style={{ color: '#A3A3A3' }}>or</span>
+              <div className="flex-1 h-px" style={{ background: '#E5E5E5' }} />
+            </div>
+
+            {/* Google */}
+            <button
+              onClick={signInWithGoogle}
+              className="w-full h-12 rounded-[6px] border text-[15px] font-medium flex items-center justify-center gap-3 transition-colors cursor-pointer"
+              style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
+              onMouseEnter={e => ((e.target as HTMLElement).style.background = '#F5F5F5')}
+              onMouseLeave={e => ((e.target as HTMLElement).style.background = '#FFFFFF')}
+            >
+              <GoogleIcon />
+              Continue with Google
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="pb-8 text-center text-[13px]" style={{ color: '#A3A3A3' }}>
+        New here? Create an account
       </div>
     </div>
   )

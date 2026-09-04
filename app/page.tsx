@@ -449,18 +449,18 @@ export default function Home() {
 
         {/* ── Sticky Header ── */}
         <header
-          className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between"
-          style={{ background: tab === 'home' ? '#0A0A0A' : 'var(--background)' }}
+          className="flex-shrink-0 px-6 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between border-b"
+          style={{ background: '#FFFFFF', borderColor: tab === 'home' ? 'transparent' : '#E5E5E5' }}
         >
           <span
-            className="font-sans font-semibold text-[19px] tracking-[-0.5px]"
-            style={{ color: tab === 'home' ? '#f1f252' : 'var(--foreground)' }}
+            className="font-semibold text-[19px] tracking-[-0.5px]"
+            style={{ color: '#0A0A0A' }}
           >
             interestory
           </span>
           <UserAvatarMenu
-            buttonClassName="w-9 h-9 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-            buttonStyle={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '2px solid var(--border)' }}
+            buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+            buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
             onReorderInterests={() => setReorderOpen(true)}
           />
         </header>
@@ -468,47 +468,49 @@ export default function Home() {
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain"
-          style={{ paddingBottom: 104, background: 'var(--background)' }}
+          style={{ paddingBottom: 96, background: '#FFFFFF' }}
         >
 
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* ── Dark hero section ── */}
-              <div style={{ background: '#0A0A0A', margin: '0 0 3.25rem', padding: '20px 18px 24px', borderRadius: '0 0 28px 28px', height: '15rem' }}>
+              {/* ── Light hero section ── */}
+              <div className="px-6 pt-5 flex flex-col gap-5" style={{ background: '#FFFFFF' }}>
                 {/* Greeting */}
-                <div className="mb-5">
-                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
-                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#fff' }}>
-                    Hey {firstName},<br />let&apos;s add to your{' '}
-                    <em className="not-italic" style={{ color: '#f1f252' }}>story</em>
+                <div className="flex flex-col gap-2">
+                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0" style={{ color: '#A3A3A3' }}>{dateStr}</p>
+                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
+                    Hey {firstName}, let&apos;s add to your{' '}
+                    <em className="italic" style={{ color: '#737373' }}>story</em>
                   </h1>
                 </div>
 
                 {/* Momo strip */}
-                <div className="rounded-[12px] flex items-center gap-3 p-3 mb-3" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                  <img src="/momo.png" alt="Momo" className="w-10 h-10 object-contain flex-shrink-0" />
-                  <div>
-                    <p className="text-[14px] leading-[18px] font-medium m-0" style={{ color: '#fff' }}>
-                      {streak > 1 ? `${streak}-day streak! You're on fire 🔥` : 'Start logging to build your story'}
+                <div className="rounded-[8px] flex items-center gap-3 px-[14px] py-3 border" style={{ background: '#FAFAFA', borderColor: '#E5E5E5' }}>
+                  <img src="/momo.png" alt="Momo" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ background: '#F5F5F5' }} />
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <p className="text-[14px] leading-[18px] m-0" style={{ color: '#171717' }}>
+                      {streak > 1 ? `${streak}-day streak! Keep it up.` : 'Start logging to build your story'}
                     </p>
-                    <span className="text-[12px] leading-[16px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
+                    <span className="text-[12px] leading-[16px]" style={{ color: '#A3A3A3' }}>Momo · your interest friend</span>
                   </div>
                 </div>
 
                 {/* Streak card */}
-                <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1a1a1a' }}>
-                  <div>
-                    <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>🔥 {streak}</span>
-                    <span className="text-[13px] ml-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
+                <div className="rounded-[8px] flex items-center justify-between px-[18px] py-4 border" style={{ borderColor: '#E5E5E5' }}>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-mono text-[22px] font-medium" style={{ color: '#0A0A0A' }}>{streak}</span>
+                    <span className="text-[13px]" style={{ color: '#737373' }}>day streak</span>
                   </div>
-                  <div className="flex gap-[9px]">
+                  <div className="flex gap-2">
                     {weekDots.map((d, i) => (
-                      <div key={i} className="flex flex-col items-center gap-[5px]">
-                        <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{d.label}</span>
+                      <div key={i} className="flex flex-col items-center gap-[6px]">
+                        <span className="text-[11px] font-medium" style={{ color: d.isToday ? '#171717' : '#A3A3A3', fontWeight: d.isToday ? 600 : 500 }}>{d.label}</span>
                         <div className="w-2 h-2 rounded-full" style={{
-                          background: d.active ? '#f1f252' : (d.isToday ? 'transparent' : '#333'),
-                          border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
+                          background: d.active ? '#171717' : 'transparent',
+                          border: d.isToday && !d.active ? '2px solid #171717' : d.active ? 'none' : '0',
+                          backgroundColor: d.active ? '#171717' : d.isToday ? 'transparent' : '#E5E5E5',
+                          boxSizing: 'border-box',
                         }} />
                       </div>
                     ))}
@@ -517,15 +519,15 @@ export default function Home() {
               </div>
 
               {/* ── Light content section ── */}
-              <div className="px-[18px]">
+              <div className="px-6 pb-6" style={{ background: '#FFFFFF' }}>
 
               {/* Recent Activities */}
               {activities.length > 0 && (
                 <>
-                  <div className="flex items-baseline justify-between mt-5 mb-2 mx-0.5">
-                    <h2 className="text-[15px] font-semibold text-foreground m-0">Recent</h2>
+                  <div className="flex items-baseline justify-between mt-5 mb-2.5">
+                    <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>Recent</h2>
                   </div>
-                  <div className="border border-border rounded-[8px] overflow-hidden bg-card">
+                  <div className="rounded-[8px] overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
                     {activities.slice(0, 3).map((act, idx) => {
                       const h = HOBBIES.find(x => x.value === act.hobby)
                       const diff = daysDiff(act.activity_at, now)
@@ -534,19 +536,18 @@ export default function Home() {
                       return (
                         <div
                           key={act.id}
-                          className={cn('flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors', idx > 0 ? 'border-t border-border' : '')}
+                          className="flex items-center gap-3 cursor-pointer transition-colors"
+                          style={{ padding: '14px 16px', borderBottom: idx < 2 ? '1px solid #F5F5F5' : 'none' }}
                           onClick={() => openActivity(act)}
                         >
-                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 bg-muted text-[11px] font-semibold text-muted-foreground">
+                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 text-[12px] font-semibold" style={{ background: '#F5F5F5', color: '#525252' }}>
                             {initials}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center gap-2">
-                              <span className="text-[15px] font-medium text-foreground">{h?.label ?? act.hobby}</span>
-                              <span className="text-[12px] text-muted-foreground flex-shrink-0">{timeAgo}</span>
-                            </div>
-                            <p className="text-[12px] text-muted-foreground m-0 overflow-hidden text-ellipsis whitespace-nowrap">{act.note}</p>
+                          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                            <div className="text-[15px] font-medium" style={{ color: '#171717' }}>{h?.label ?? act.hobby}</div>
+                            <p className="text-[13px] m-0 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: '#A3A3A3' }}>{act.note}</p>
                           </div>
+                          <span className="text-[12px] flex-shrink-0" style={{ color: '#A3A3A3' }}>{timeAgo}</span>
                         </div>
                       )
                     })}
@@ -556,16 +557,16 @@ export default function Home() {
 
 
               {/* Monthly Goals */}
-              <div className="flex items-baseline justify-between mt-[22px] mb-3 mx-1">
-                <h2 className="text-para-lg font-bold tracking-h2 m-0 font-sans">
+              <div className="flex items-center justify-between mt-[22px] mb-3">
+                <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
                   Monthly Goals
                 </h2>
                 <button
                   onClick={() => setGoalSheetOpen(true)}
-                  className="bg-transparent border-0 cursor-pointer text-para-sm font-bold px-1 py-1"
-                  style={{ color: 'var(--foreground)' }}
+                  className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium cursor-pointer transition-colors"
+                  style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
                 >
-                  + Add
+                  Add
                 </button>
               </div>
 
@@ -1050,51 +1051,57 @@ export default function Home() {
           )}
         </div>
 
-        {/* ── Bottom tab bar (floating pill) ── */}
+        {/* ── Bottom tab bar ── */}
         <nav
-          className="fixed left-1/2 -translate-x-1/2 z-30 grid"
+          className="fixed left-1/2 -translate-x-1/2 z-30"
           style={{
-            bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
-            width: 'calc(100% - 32px)',
-            maxWidth: 398,
+            bottom: 0,
+            width: '100%',
+            maxWidth: 480,
+            height: 80,
+            background: '#FFFFFF',
+            borderTop: '1px solid #E5E5E5',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            display: 'grid',
             gridTemplateColumns: 'repeat(5, 1fr)',
-            height: 64,
-            background: '#171717',
-            borderRadius: 9999,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            alignItems: 'center',
           }}
         >
           {/* Home */}
-          <button onClick={() => setTab('home')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+          <button onClick={() => setTab('home')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#171717' : '#A3A3A3' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/></svg>
+            <span className="text-[11px] font-medium">Home</span>
           </button>
 
-          {/* Activity */}
-          <button onClick={() => setTab('gallery')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-4-9 8"/></svg>
+          {/* Gallery */}
+          <button onClick={() => setTab('gallery')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#171717' : '#A3A3A3' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-4 4 3 3-2 6 5"/></svg>
+            <span className="text-[11px] font-medium">Gallery</span>
           </button>
 
           {/* FAB */}
           <div className="flex items-center justify-center">
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(defaultDatetimeLocal()) }}
-              className="w-11 h-11 rounded-full border-0 cursor-pointer flex items-center justify-center"
-              style={{ background: '#f1f252' }}
+              className="border-0 cursor-pointer flex items-center justify-center"
+              style={{ width: 48, height: 48, borderRadius: 12, background: '#171717' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FAFAFA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
           </div>
 
           {/* Stats */}
-          <button onClick={() => setTab('stats')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+          <button onClick={() => setTab('stats')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#171717' : '#A3A3A3' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 20V10M12 20V4M19 20v-6"/></svg>
+            <span className="text-[11px] font-medium">Stats</span>
           </button>
 
-          {/* Hobby */}
-          <button onClick={() => setTab('hobby')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/></svg>
+          {/* Explore/Hobby */}
+          <button onClick={() => setTab('hobby')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#171717' : '#A3A3A3' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2.5 5.5L7 17l2.5-5.5z"/></svg>
+            <span className="text-[11px] font-medium">Explore</span>
           </button>
         </nav>
 
