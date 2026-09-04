@@ -7,6 +7,7 @@ import { useRef } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
 import { setItemStatus, deleteItem, createOutfit } from '@/app/actions'
+import { calcWorthIt } from '@/lib/worth'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
@@ -41,6 +42,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [activeOccasion,    setActiveOccasion]    = useState<string | null>(null)
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
+  const [showAchieved,      setShowAchieved]      = useState(false)
   const [search,            setSearch]            = useState('')
   const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'>('wear_asc')
 
@@ -66,6 +68,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (s !== 'verified'  && !showDraft)    return false
     if (item.declutter_status === 'non-fashion') return false
     if (item.declutter_status && !showDraft) return false
+    if (showAchieved && !calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
     if (tagTokens.length > 0) {
       const itemTags = (item.tags ?? []).map(t => t.toLowerCase())
       if (!tagTokens.every(t => itemTags.includes(t))) return false
@@ -147,12 +150,12 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       <FilterBar
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}
         activeColor={activeColor} activeSeason={activeSeason} activeOccasion={activeOccasion}
-        showVerified={showVerified} showDraft={showDraft}
+        showVerified={showVerified} showDraft={showDraft} showAchieved={showAchieved}
         sort={sort} onSortChange={setSort}
         onCategoryChange={v => { setActiveCategory(v); setActiveSubcategory(null) }}
         onSubcategoryChange={setActiveSubcategory}
         onColorChange={setActiveColor} onSeasonChange={setActiveSeason} onOccasionChange={setActiveOccasion}
-        onShowVerifiedChange={setShowVerified} onShowDraftChange={setShowDraft}
+        onShowVerifiedChange={setShowVerified} onShowDraftChange={setShowDraft} onShowAchievedChange={setShowAchieved}
       />
 
       {filtered.length === 0 ? (

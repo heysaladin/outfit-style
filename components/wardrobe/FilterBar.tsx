@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { SlidersHorizontal, X, ArrowUpDown } from 'lucide-react'
+import { SlidersHorizontal, X, ArrowUpDown, Trophy } from 'lucide-react'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef } from '@/lib/types'
 import { MobileChip } from '@/components/ui/mobile-shims'
 
@@ -36,14 +36,16 @@ interface FilterBarProps {
   onOccasionChange: (v: string | null) => void
   onShowVerifiedChange: (v: boolean) => void
   onShowDraftChange: (v: boolean) => void
+  showAchieved?: boolean
+  onShowAchievedChange?: (v: boolean) => void
   showStatusFilter?: boolean
 }
 
 export function FilterBar({
   activeCategory, activeSubcategory, activeColor, activeSeason, activeOccasion,
-  showVerified, showDraft, sort, onSortChange,
+  showVerified, showDraft, showAchieved = false, sort, onSortChange,
   onCategoryChange, onSubcategoryChange, onColorChange, onSeasonChange, onOccasionChange,
-  onShowVerifiedChange, onShowDraftChange,
+  onShowVerifiedChange, onShowDraftChange, onShowAchievedChange,
   showStatusFilter = true,
 }: FilterBarProps & { showStatusFilter?: boolean }) {
   const [expanded, setExpanded] = useState(false)
@@ -55,7 +57,7 @@ export function FilterBar({
   function clearAll() {
     onCategoryChange(null); onSubcategoryChange(null); onColorChange(null)
     onSeasonChange(null); onOccasionChange(null)
-    onShowVerifiedChange(true); onShowDraftChange(false)
+    onShowVerifiedChange(true); onShowDraftChange(false); onShowAchievedChange?.(false)
   }
 
   return (
@@ -134,6 +136,13 @@ export function FilterBar({
               type="filter"
               selected={showDraft}
               onSelect={onShowDraftChange}
+            />
+            <MobileChip
+              label="Achieved"
+              type="filter"
+              icon={<Trophy size={11} />}
+              selected={showAchieved}
+              onSelect={v => onShowAchievedChange?.(v)}
             />
           </>
         )}
