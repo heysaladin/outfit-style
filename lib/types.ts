@@ -71,6 +71,7 @@ export const CATEGORY_TREE: Category[] = [
       ]},
       { value: 'ring', label: 'Ring', types: [] },
       { value: 'necklace', label: 'Necklace', types: [] },
+      { value: 'belt', label: 'Belt', types: [] },
       { value: 'strap', label: 'Strap', types: [] },
       { value: 'tie', label: 'Tie', types: [] },
       { value: 'pocket-square', label: 'Pocket Square', types: [] },
