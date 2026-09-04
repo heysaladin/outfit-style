@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition, useState } from 'react'
-import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2 } from 'lucide-react'
+import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2, Search } from 'lucide-react'
 import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus } from '@/app/actions'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
 import { EditClothModal } from './EditClothModal'
@@ -18,6 +18,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useState<'info' | 'storage' | 'declutter'>('info')
   const [editOpen, setEditOpen] = useState(false)
+  const [wardrobeSearch, setWardrobeSearch] = useState('')
 
   if (!item) return null
 
@@ -261,7 +262,20 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
               ) : (
                 <>
                   <p className="text-muted-foreground text-xs mb-3">Assign to a wardrobe:</p>
-                  {wardrobes.map(w => (
+                  <div className="relative mb-3">
+                    <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search storage..."
+                      value={wardrobeSearch}
+                      onChange={e => setWardrobeSearch(e.target.value)}
+                      className="w-full bg-muted text-foreground text-sm pl-8 pr-3 py-2 rounded-xl outline-none placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                  {wardrobes.filter(w =>
+                    w.name.toLowerCase().includes(wardrobeSearch.toLowerCase()) ||
+                    w.code.toLowerCase().includes(wardrobeSearch.toLowerCase())
+                  ).map(w => (
                     <button key={w.id} onClick={() => handleAssign(w.id)} disabled={isPending}
                       className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 ${
                         item.wardrobe_id === w.id

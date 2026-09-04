@@ -232,7 +232,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             onClick={() => setView('wardrobes')}
             className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${view === 'wardrobes' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            Wardrobes
+            Collections
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         )
       )}
 
-      {/* ── Wardrobes view ───────────────────────────────────────────────── */}
+      {/* ── Collections view ─────────────────────────────────────────────── */}
       {view === 'wardrobes' && (
         wardrobeCollections.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center px-6">
