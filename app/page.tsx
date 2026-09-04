@@ -153,7 +153,7 @@ export default function Home() {
 
       try {
         const [{ data: goalsData }, { data: tasksData }] = await Promise.all([
-          supabase.from('monthly_goals').select('*').eq('user_id', u.id).order('created_at'),
+          supabase.from('monthly_goals').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
           supabase.from('goal_tasks').select('*').eq('user_id', u.id).order('created_at'),
         ])
         setGoals(goalsData ?? [])

@@ -199,6 +199,14 @@ export interface OutfitLog {
   outfits?: Outfit | null
 }
 
+export interface WardrobeCollection {
+  id: string
+  user_id: string
+  name: string
+  created_at: string
+  wardrobe_collection_items?: { item_id: string; wardrobe_items: WardrobeItem }[]
+}
+
 export interface PlanEntry {
   id: string
   user_id: string

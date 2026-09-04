@@ -488,6 +488,67 @@ export async function updateOutfit(
   return {}
 }
 
+// ─── Wardrobe Collections ─────────────────────────────────────────────────
+
+export async function createWardrobeCollection(
+  name: string, itemIds: string[]
+): Promise<{ error?: string; id?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: col, error } = await supabase
+    .from('wardrobe_collections')
+    .insert({ user_id: user.id, name })
+    .select().single()
+
+  if (error || !col) return { error: error?.message ?? 'Failed' }
+
+  if (itemIds.length > 0) {
+    await supabase.from('wardrobe_collection_items').insert(
+      itemIds.map(item_id => ({ wardrobe_collection_id: col.id, item_id }))
+    )
+  }
+
+  revalidatePath('/outfits')
+  return { id: col.id }
+}
+
+export async function updateWardrobeCollection(
+  id: string, name: string, itemIds: string[]
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { error } = await supabase
+    .from('wardrobe_collections')
+    .update({ name })
+    .eq('id', id).eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+
+  await supabase.from('wardrobe_collection_items').delete().eq('wardrobe_collection_id', id)
+  if (itemIds.length > 0) {
+    await supabase.from('wardrobe_collection_items').insert(
+      itemIds.map(item_id => ({ wardrobe_collection_id: id, item_id }))
+    )
+  }
+
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function deleteWardrobeCollection(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  await supabase.from('wardrobe_collections').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath('/outfits')
+  return {}
+}
+
 // ─── Calendar / Outfit Logs ───────────────────────────────────────────────
 
 export async function logOutfit(

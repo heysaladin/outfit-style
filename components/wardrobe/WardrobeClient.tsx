@@ -44,7 +44,9 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [search,            setSearch]            = useState('')
   const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'>('wear_asc')
 
-  const q = search.toLowerCase().trim()
+  const rawQ = search.toLowerCase().trim()
+  const tagTokens = rawQ.match(/#\w+/g)?.map(t => t.slice(1)) ?? []
+  const textQ = rawQ.replace(/#\w+/g, '').trim()
   const statusRank = (s: string) => {
     if (s === 'verified')  return 0
     if (s === 'draft')     return 1
@@ -64,9 +66,13 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (s !== 'verified'  && !showDraft)    return false
     if (item.declutter_status === 'non-fashion') return false
     if (item.declutter_status && !showDraft) return false
-    if (q) {
+    if (tagTokens.length > 0) {
+      const itemTags = (item.tags ?? []).map(t => t.toLowerCase())
+      if (!tagTokens.every(t => itemTags.includes(t))) return false
+    }
+    if (textQ) {
       const hay = [item.name, item.brand, ...(item.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
-      if (!hay.includes(q)) return false
+      if (!hay.includes(textQ)) return false
     }
     return true
   }).sort((a, b) => {

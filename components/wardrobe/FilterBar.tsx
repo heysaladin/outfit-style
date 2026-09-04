@@ -36,6 +36,7 @@ interface FilterBarProps {
   onOccasionChange: (v: string | null) => void
   onShowVerifiedChange: (v: boolean) => void
   onShowDraftChange: (v: boolean) => void
+  showStatusFilter?: boolean
 }
 
 export function FilterBar({
