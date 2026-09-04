@@ -61,7 +61,7 @@ export function FilterBar({
     <div className="border-b border-border px-5 py-3 space-y-3">
       {/* Category row */}
       <div className="flex items-center gap-2">
-        <div className="flex gap-1.5 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-1.5 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
           <MobileChip
             label="All"
             type="filter"

@@ -102,7 +102,7 @@ export function MobileChip({ label, selected, onSelect, icon, className = '' }: 
   return (
     <button
       onClick={() => onSelect?.(!selected)}
-      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+      className={`inline-flex shrink-0 items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
         selected
           ? 'bg-primary text-primary-foreground border-primary'
           : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
