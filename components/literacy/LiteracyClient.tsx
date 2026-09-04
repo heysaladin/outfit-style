@@ -7,11 +7,11 @@ import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyItem, BookProgress, BookStatus } from '@/lib/types'
 import { updateBookNote, upsertBookProgress } from '@/app/actions'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
-import { MobileFormField } from 'cubicle-ds/src/components/mobileapp/MobileFormField'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
-import { ProgressRing } from 'cubicle-ds/src/components/mobileapp/ProgressRing'
-import { SegmentedControl } from 'cubicle-ds/src/components/mobileapp/SegmentedControl'
+import { MobileButton } from '@/components/ui/mobile-shims'
+import { MobileFormField } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
+import { ProgressRing } from '@/components/ui/mobile-shims'
+import { SegmentedControl } from '@/components/ui/mobile-shims'
 
 const STATUS_OPTS: { value: BookStatus; label: string; color: string }[] = [
   { value: 'unread',  label: 'Unread',  color: '#94A3B8' },

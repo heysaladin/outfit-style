@@ -10,9 +10,9 @@ import { AddGearModal } from './AddGearModal'
 import { ActivitiesTab } from './ActivitiesTab'
 import { MomentsTab } from './MomentsTab'
 import { calcWorthIt } from '@/lib/worth'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
-import { SegmentedControl } from 'cubicle-ds/src/components/mobileapp/SegmentedControl'
+import { MobileButton } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
+import { SegmentedControl } from '@/components/ui/mobile-shims'
 
 type Tab = 'items' | 'activities' | 'moments'
 

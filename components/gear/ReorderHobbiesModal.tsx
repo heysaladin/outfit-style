@@ -5,7 +5,7 @@ import { X, ChevronUp, ChevronDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { HobbyValue } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileButton } from '@/components/ui/mobile-shims'
 
 export const HOBBY_ORDER_KEY = 'gear_hobby_order'
 

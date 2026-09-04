@@ -7,9 +7,9 @@ import type { User } from '@supabase/supabase-js'
 import { HOBBIES, type HobbyActivity, type HobbyPhoto } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import { formatRelative as fmtRelative, formatDateLabel, formatTime, defaultDatetimeLocal } from '@/lib/date'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
-import { MobileFormField } from 'cubicle-ds/src/components/mobileapp/MobileFormField'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
+import { MobileButton } from '@/components/ui/mobile-shims'
+import { MobileFormField } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
 
 const inputCls = "w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none box-border"
 

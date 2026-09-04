@@ -8,7 +8,7 @@ import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem } from '@/lib/types'
 import { WorthCard } from '@/components/worth/WorthCard'
 import { wearItem, setWardrobeItemWearCount, setWardrobeItemTarget } from '@/app/actions'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileButton } from '@/components/ui/mobile-shims'
 
 const inputCls = "w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none box-border"
 

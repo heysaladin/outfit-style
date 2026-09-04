@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { HOBBIES } from '@/lib/types'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileButton } from '@/components/ui/mobile-shims'
 
 interface AddGearModalProps {
   onClose: () => void

@@ -13,9 +13,9 @@ import { ItemCard } from './ItemCard'
 import { UploadModal } from './UploadModal'
 import { ItemDetailModal } from './ItemDetailModal'
 import { BottomNav } from '@/components/BottomNav'
-import { MobileSearchBar } from 'cubicle-ds/src/components/mobileapp/MobileSearchBar'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
-import { InputAccessoryView } from 'cubicle-ds/src/components/mobileapp/InputAccessoryView'
+import { MobileSearchBar } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
+import { InputAccessoryView } from '@/components/ui/mobile-shims'
 
 interface WardrobeClientProps {
   items: WardrobeItem[]

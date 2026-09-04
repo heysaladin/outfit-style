@@ -14,9 +14,9 @@ import { calcWorthIt } from '@/lib/worth'
 import { ChevronLeft, AlignLeft, Shirt, ArrowUpDown, Search } from 'lucide-react'
 
 // Cubicle mobileapp components
-import { MobileTopTabs } from 'cubicle-ds/src/components/mobileapp/MobileTopTabs'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
-import { MobileSearchBar } from 'cubicle-ds/src/components/mobileapp/MobileSearchBar'
+import { MobileTopTabs } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
+import { MobileSearchBar } from '@/components/ui/mobile-shims'
 
 // Existing UI
 import {

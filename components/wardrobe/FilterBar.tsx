@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X, ArrowUpDown } from 'lucide-react'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef } from '@/lib/types'
-import { MobileChip } from 'cubicle-ds/src/components/mobileapp/MobileChip'
+import { MobileChip } from '@/components/ui/mobile-shims'
 
 type SortKey = 'wear_asc' | 'wear_desc' | 'price_asc' | 'price_desc' | 'date_asc' | 'date_desc'
 

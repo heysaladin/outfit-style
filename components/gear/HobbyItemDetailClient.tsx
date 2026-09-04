@@ -9,7 +9,7 @@ import type { HobbyItem, HobbyItemUse } from '@/lib/types'
 import { HOBBIES } from '@/lib/types'
 import { WorthCard } from '@/components/worth/WorthCard'
 import { updateHobbyItem, deleteHobbyItem, useHobbyItem, getHobbyItemUses, setHobbyItemUseCount, setHobbyItemTarget } from '@/app/actions'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileButton } from '@/components/ui/mobile-shims'
 
 const HERO_TINTS = [
   'radial-gradient(120% 100% at 30% 20%,#FFF0DC,#FFDFC2)',

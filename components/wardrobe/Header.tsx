@@ -4,7 +4,7 @@ import { Plus, CheckSquare, Sun, Moon, ChevronLeft } from 'lucide-react'
 import { useTheme } from '@/components/ThemeProvider'
 import Link from 'next/link'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
+import { MobileButton } from '@/components/ui/mobile-shims'
 
 interface HeaderProps {
   user: { email?: string; user_metadata?: { full_name?: string; avatar_url?: string } } | null

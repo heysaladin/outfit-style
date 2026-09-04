@@ -9,8 +9,8 @@ import { GearItemCard } from './GearItemCard'
 import { AddGearModal } from './AddGearModal'
 import { BottomNav } from '@/components/BottomNav'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
-import { MobileButton } from 'cubicle-ds/src/components/mobileapp/MobileButton'
-import { MobileEmptyState } from 'cubicle-ds/src/components/mobileapp/MobileEmptyState'
+import { MobileButton } from '@/components/ui/mobile-shims'
+import { MobileEmptyState } from '@/components/ui/mobile-shims'
 
 interface GearClientProps {
   items: HobbyItem[]
