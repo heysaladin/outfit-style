@@ -29,6 +29,7 @@ export const CATEGORY_TREE: Category[] = [
       { value: 'pants', label: 'Pants' },
       { value: 'jeans', label: 'Jeans' },
       { value: 'trousers', label: 'Trousers' },
+      { value: 'underwear', label: 'Underwear' },
       { value: 'misc', label: 'Misc' },
     ],
   },
