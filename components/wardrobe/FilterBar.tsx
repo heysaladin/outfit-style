@@ -44,7 +44,8 @@ export function FilterBar({
   showVerified, showDraft, sort, onSortChange,
   onCategoryChange, onSubcategoryChange, onColorChange, onSeasonChange, onOccasionChange,
   onShowVerifiedChange, onShowDraftChange,
-}: FilterBarProps) {
+  showStatusFilter = true,
+}: FilterBarProps & { showStatusFilter?: boolean }) {
   const [expanded, setExpanded] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
   const catDef = getCategoryDef(activeCategory ?? '')
@@ -118,20 +119,24 @@ export function FilterBar({
         </div>
       )}
 
-      {/* Status — always visible */}
+      {/* Status — optional */}
       <div className="flex gap-1.5 items-center">
-        <MobileChip
-          label="Verified"
-          type="filter"
-          selected={showVerified}
-          onSelect={onShowVerifiedChange}
-        />
-        <MobileChip
-          label="Draft"
-          type="filter"
-          selected={showDraft}
-          onSelect={onShowDraftChange}
-        />
+        {showStatusFilter && (
+          <>
+            <MobileChip
+              label="Verified"
+              type="filter"
+              selected={showVerified}
+              onSelect={onShowVerifiedChange}
+            />
+            <MobileChip
+              label="Draft"
+              type="filter"
+              selected={showDraft}
+              onSelect={onShowDraftChange}
+            />
+          </>
+        )}
 
         {/* Sort button */}
         <div className="relative ml-auto">

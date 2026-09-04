@@ -194,6 +194,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           onOccasionChange={setActiveOccasion}
           onShowVerifiedChange={setShowVerified}
           onShowDraftChange={setShowDraft}
+          showStatusFilter={false}
         />
         <div className="px-4 pt-4 pb-24">
 
