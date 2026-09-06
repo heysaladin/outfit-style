@@ -1,14 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+function corsHeaders(request: Request) {
+  const origin = request.headers.get('Origin') ?? '*'
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: CORS })
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, { status: 204, headers: corsHeaders(request) })
 }
 
 // POST /api/mobile/use
@@ -21,7 +25,7 @@ export async function POST(request: Request) {
 
   const body = await request.json()
   const items: { id: string; type: 'hobby' | 'wardrobe' }[] = body.items ?? []
-  if (!items.length) return NextResponse.json({ error: 'No items' }, { status: 400, headers: CORS })
+  if (!items.length) return NextResponse.json({ error: 'No items' }, { status: 400, headers: corsHeaders(request) })
 
   const hobbyIds    = items.filter(i => i.type === 'hobby').map(i => i.id)
   const wardrobeIds = items.filter(i => i.type === 'wardrobe').map(i => i.id)
@@ -50,5 +54,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, updated }, { headers: CORS })
+  return NextResponse.json({ ok: true, updated }, { headers: corsHeaders(request) })
 }

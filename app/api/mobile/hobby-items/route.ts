@@ -1,14 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+function corsHeaders(request: Request) {
+  const origin = request.headers.get('Origin') ?? '*'
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: CORS })
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, { status: 204, headers: corsHeaders(request) })
 }
 
 export async function GET(request: Request) {
@@ -29,7 +33,7 @@ export async function GET(request: Request) {
   if (hobby) query = query.eq('category', hobby)
 
   const { data, error } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: CORS })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) })
 
-  return NextResponse.json({ items: data ?? [] }, { headers: CORS })
+  return NextResponse.json({ items: data ?? [] }, { headers: corsHeaders(request) })
 }
