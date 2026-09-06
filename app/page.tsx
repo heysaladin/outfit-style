@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { Shirt } from 'lucide-react'
 import { HOBBIES } from '@/lib/types'
-import type { HobbyActivity, HobbyPhoto } from '@/lib/types'
+import type { HobbyActivity, HobbyPhoto, WardrobeItem } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
@@ -78,6 +79,7 @@ export default function Home() {
   const [hobbyOrder, setHobbyOrder] = useState(() => [...HOBBIES])
   const [activities, setActivities] = useState<HobbyActivity[]>([])
   const [photos, setPhotos]         = useState<HobbyPhoto[]>([])
+  const [worthItItems, setWorthItItems] = useState<WardrobeItem[]>([])
   const [gearCounts, setGearCounts] = useState<Record<string, number>>({})
   const [hobbyProgress, setHobbyProgress] = useState<Record<string, number>>({})
 
@@ -128,14 +130,20 @@ export default function Home() {
       const u = data.user
       setUser(u)
       if (!u) return
-      const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }] = await Promise.all([
+      const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }, { data: wardrobeData }] = await Promise.all([
         supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at,outfit_id,outfit_snapshot,outfits(id,name,outfit_items(item_id,wardrobe_items(*)))').eq('user_id', u.id).order('activity_at', { ascending: false }),
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
         supabase.from('hobby_items').select('category, use_count, purchase_price'),
         supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
+        supabase.from('wardrobe_items').select('id,name,category,price,purchase_date,wear_count,target,image_url,last_worn,status').eq('user_id', u.id).eq('status', 'verified').gt('wear_count', 0),
       ])
       setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
+      const worthIt = (wardrobeData ?? []).filter(item => {
+        const { isWorthIt } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
+        return isWorthIt && item.last_worn
+      }) as unknown as WardrobeItem[]
+      setWorthItItems(worthIt)
       const counts: Record<string, number> = { fashion: wardrobeCount ?? 0 }
       const progressBuckets: Record<string, number[]> = {}
       for (const item of (gear ?? [])) {
@@ -461,11 +469,20 @@ export default function Home() {
           >
             interestory
           </span>
-          <UserAvatarMenu
-            buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-            buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
-            onReorderInterests={() => setReorderOpen(true)}
-          />
+          <div className="flex items-center gap-2">
+            <Link
+              href="/outfits"
+              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
+              style={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
+            >
+              <Shirt size={16} color="#0A0A0A" />
+            </Link>
+            <UserAvatarMenu
+              buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+              buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
+              onReorderInterests={() => setReorderOpen(true)}
+            />
+          </div>
         </header>
 
         {/* ── Scrollable content ── */}
@@ -903,6 +920,7 @@ export default function Home() {
                 const feed: Array<
                   | { type: 'photo'; date: string; photo: HobbyPhoto }
                   | { type: 'activity'; date: string; act: HobbyActivity }
+                  | { type: 'worth_it'; date: string; item: WardrobeItem }
                 > = [
                   ...photos.map(p => {
                     const linked = activities.find(a => a.hobby === p.hobby && a.note === p.note)
@@ -910,6 +928,7 @@ export default function Home() {
                     return { type: 'photo' as const, date: linked?.activity_at ?? p.created_at, photo: p }
                   }),
                   ...noPhotoActs.map(a => ({ type: 'activity' as const, date: a.activity_at, act: a })),
+                  ...worthItItems.filter(i => i.last_worn).map(i => ({ type: 'worth_it' as const, date: i.last_worn!, item: i })),
                 ].sort((a, b) => b.date.localeCompare(a.date))
 
                 if (feed.length === 0) {
@@ -947,6 +966,39 @@ export default function Home() {
                               </div>
                             </CardContent>
                           </Card>
+                        )
+                      } else if (item.type === 'worth_it') {
+                        const wi = item.item
+                        return (
+                          <Link
+                            key={`wi-${wi.id}`}
+                            href={`/wardrobes?item=${wi.id}`}
+                            className="no-underline"
+                          >
+                            <div
+                              className="rounded-xl overflow-hidden border border-border flex gap-3 items-center p-3"
+                              style={{ background: 'linear-gradient(135deg, #FFF9E6 0%, #FFF3D1 100%)' }}
+                            >
+                              {wi.image_url && (
+                                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-black/10">
+                                  <img src={wi.image_url} alt={wi.name} className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="text-[15px]">🏆</span>
+                                  <span className="text-para-xs font-bold" style={{ color: '#B45309' }}>Worth It!</span>
+                                </div>
+                                <p className="m-0 text-para-sm font-bold leading-snug truncate" style={{ color: '#0A0A0A' }}>{wi.name}</p>
+                                <p className="m-0 text-para-xs font-medium mt-0.5" style={{ color: '#78716C' }}>
+                                  {wi.category} · {formatDateLabel(wi.last_worn!, now)}
+                                </p>
+                                <p className="m-0 text-para-xs font-medium mt-1" style={{ color: '#92400E' }}>
+                                  Selamat! Item ini sudah mencapai batas worth it 🎉
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
                         )
                       } else {
                         const act = item.act

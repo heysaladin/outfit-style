@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { User, Sun, Moon, AlignJustify, Layers, PenLine } from 'lucide-react'
+import { User, Sun, Moon, AlignJustify, Layers, PenLine, Shirt, BarChart2, Scissors, CalendarDays, ListChecks } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/components/ThemeProvider'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -81,6 +81,29 @@ export function UserAvatarMenu({ buttonClassName, buttonStyle, onReorderInterest
             Reorder interests
           </button>
         )}
+
+        <div className="border-t border-border mx-4 my-1" />
+
+        <Link href="/wardrobes" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5">
+          <Shirt size={18} className="text-muted-foreground" />
+          Collections
+        </Link>
+        <Link href="/stats" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5">
+          <BarChart2 size={18} className="text-muted-foreground" />
+          Stats
+        </Link>
+        <Link href="/declutter" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5">
+          <Scissors size={18} className="text-muted-foreground" />
+          Declutter
+        </Link>
+        <Link href="/plan" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5">
+          <ListChecks size={18} className="text-muted-foreground" />
+          Plan
+        </Link>
+        <Link href="/calendar" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 h-11 text-[15px] text-foreground hover:bg-muted transition-colors no-underline rounded-[6px] mx-1 my-0.5">
+          <CalendarDays size={18} className="text-muted-foreground" />
+          Calendar
+        </Link>
 
         <div className="border-t border-border mx-4 my-1" />
 

@@ -63,41 +63,26 @@ export function FilterBar({
   return (
     <div className="border-b border-border px-5 py-3 space-y-3">
       {/* Category row */}
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1.5 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        <MobileChip
+          label="All"
+          type="filter"
+          selected={!activeCategory}
+          onSelect={() => { onCategoryChange(null); onSubcategoryChange(null) }}
+        />
+        {CATEGORY_TREE.map(cat => (
           <MobileChip
-            label="All"
+            key={cat.value}
+            label={cat.label}
             type="filter"
-            selected={!activeCategory}
-            onSelect={() => { onCategoryChange(null); onSubcategoryChange(null) }}
+            icon={<span>{cat.icon}</span>}
+            selected={activeCategory === cat.value}
+            onSelect={sel => {
+              onCategoryChange(sel ? cat.value : null)
+              onSubcategoryChange(null)
+            }}
           />
-          {CATEGORY_TREE.map(cat => (
-            <MobileChip
-              key={cat.value}
-              label={cat.label}
-              type="filter"
-              icon={<span>{cat.icon}</span>}
-              selected={activeCategory === cat.value}
-              onSelect={sel => {
-                onCategoryChange(sel ? cat.value : null)
-                onSubcategoryChange(null)
-              }}
-            />
-          ))}
-        </div>
-        <button onClick={() => setExpanded(v => !v)}
-          className={`flex-shrink-0 relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-            expanded || activeCount > 0
-              ? 'bg-foreground text-background'
-              : 'bg-muted text-muted-foreground hover:text-foreground'
-          }`}>
-          <SlidersHorizontal size={13} />
-          {activeCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
-              {activeCount}
-            </span>
-          )}
-        </button>
+        ))}
       </div>
 
       {/* Subcategory row */}
@@ -121,34 +106,10 @@ export function FilterBar({
         </div>
       )}
 
-      {/* Status — optional */}
-      <div className="flex gap-1.5 items-center">
-        {showStatusFilter && (
-          <>
-            <MobileChip
-              label="Verified"
-              type="filter"
-              selected={showVerified}
-              onSelect={onShowVerifiedChange}
-            />
-            <MobileChip
-              label="Draft"
-              type="filter"
-              selected={showDraft}
-              onSelect={onShowDraftChange}
-            />
-            <MobileChip
-              label="Achieved"
-              type="filter"
-              icon={<Trophy size={11} />}
-              selected={showAchieved}
-              onSelect={v => onShowAchievedChange?.(v)}
-            />
-          </>
-        )}
-
-        {/* Sort button */}
-        <div className="relative ml-auto">
+      {/* Sort (left) + Status chips (middle) + Filter button (right) */}
+      <div className="flex items-center gap-2">
+        {/* Sort button — left */}
+        <div className="relative">
           <button
             onClick={() => setSortOpen(v => !v)}
             className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
@@ -162,7 +123,7 @@ export function FilterBar({
           {sortOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
-              <div className="absolute right-0 top-full mt-1.5 z-20 bg-card border border-border rounded-xl shadow-md overflow-hidden min-w-[180px]">
+              <div className="absolute left-0 top-full mt-1.5 z-20 bg-card border border-border rounded-xl shadow-md overflow-hidden min-w-[180px]">
                 {SORT_GROUPS.map((group, gi) => (
                   <div key={group.label}>
                     {gi > 0 && <div className="border-t border-border mx-3" />}
@@ -188,6 +149,48 @@ export function FilterBar({
             </>
           )}
         </div>
+
+        {/* Status chips — middle (optional) */}
+        {showStatusFilter && (
+          <div className="flex gap-1.5 items-center overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
+            <MobileChip
+              label="Verified"
+              type="filter"
+              selected={showVerified}
+              onSelect={onShowVerifiedChange}
+            />
+            <MobileChip
+              label="Draft"
+              type="filter"
+              selected={showDraft}
+              onSelect={onShowDraftChange}
+            />
+            <MobileChip
+              label="Achieved"
+              type="filter"
+              icon={<Trophy size={11} />}
+              selected={showAchieved}
+              onSelect={v => onShowAchievedChange?.(v)}
+            />
+          </div>
+        )}
+
+        {/* Filter button — right */}
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className={`flex-shrink-0 relative ml-auto w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+            expanded || activeCount > 0
+              ? 'bg-foreground text-background'
+              : 'bg-muted text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <SlidersHorizontal size={13} />
+          {activeCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
+              {activeCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Expanded filters */}
