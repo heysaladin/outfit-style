@@ -26,7 +26,7 @@ import {
 import { Button } from '@/components/ui/button'
 
 type Tab = 'items' | 'activities' | 'moments'
-type SortKey = 'wear_asc' | 'wear_desc' | 'price_desc' | 'price_asc' | 'date_desc' | 'date_asc'
+type SortKey = 'wear_asc' | 'wear_desc' | 'price_desc' | 'price_asc' | 'date_desc' | 'date_asc' | 'last_used_desc' | 'worth_it_desc'
 
 interface FashionClientProps {
   user: User | null
@@ -102,11 +102,22 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
       return true
     })
     .sort((a, b) => {
-      if (sort === 'wear_asc')   return a.wear_count - b.wear_count
-      if (sort === 'wear_desc')  return b.wear_count - a.wear_count
-      if (sort === 'price_desc') return (b.price ?? -1) - (a.price ?? -1)
-      if (sort === 'price_asc')  return (a.price ?? Infinity) - (b.price ?? Infinity)
-      if (sort === 'date_asc')   return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      if (sort === 'wear_asc')       return a.wear_count - b.wear_count
+      if (sort === 'wear_desc')      return b.wear_count - a.wear_count
+      if (sort === 'price_desc')     return (b.price ?? -1) - (a.price ?? -1)
+      if (sort === 'price_asc')      return (a.price ?? Infinity) - (b.price ?? Infinity)
+      if (sort === 'date_asc')       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      if (sort === 'last_used_desc') {
+        if (!a.last_worn && !b.last_worn) return 0
+        if (!a.last_worn) return 1
+        if (!b.last_worn) return -1
+        return new Date(b.last_worn).getTime() - new Date(a.last_worn).getTime()
+      }
+      if (sort === 'worth_it_desc') {
+        const wa = calcWorthIt({ purchasePrice: a.price, actualUses: a.wear_count, targetOverride: a.target })
+        const wb = calcWorthIt({ purchasePrice: b.price, actualUses: b.wear_count, targetOverride: b.target })
+        return wb.worthItProgress - wa.worthItProgress
+      }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     }) : []
 

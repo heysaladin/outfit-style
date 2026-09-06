@@ -5,18 +5,20 @@ import { SlidersHorizontal, X, ArrowUpDown, Trophy } from 'lucide-react'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef } from '@/lib/types'
 import { MobileChip } from '@/components/ui/mobile-shims'
 
-type SortKey = 'wear_asc' | 'wear_desc' | 'price_asc' | 'price_desc' | 'date_asc' | 'date_desc'
+type SortKey = 'wear_asc' | 'wear_desc' | 'price_asc' | 'price_desc' | 'date_asc' | 'date_desc' | 'last_used_desc' | 'worth_it_desc'
 
 const SORT_GROUPS: { label: string; options: { key: SortKey; desc: string }[] }[] = [
-  { label: 'Wear',  options: [{ key: 'wear_asc',   desc: 'Least worn first' }, { key: 'wear_desc',  desc: 'Most worn first'      }] },
-  { label: 'Price', options: [{ key: 'price_desc',  desc: 'Most expensive'   }, { key: 'price_asc',  desc: 'Cheapest first'       }] },
-  { label: 'Date',  options: [{ key: 'date_desc',   desc: 'Newest first'     }, { key: 'date_asc',   desc: 'Oldest first'         }] },
+  { label: 'Wear',     options: [{ key: 'wear_asc',      desc: 'Least worn first'          }, { key: 'wear_desc',     desc: 'Most worn first'      }] },
+  { label: 'Price',    options: [{ key: 'price_desc',    desc: 'Most expensive'             }, { key: 'price_asc',     desc: 'Cheapest first'       }] },
+  { label: 'Date',     options: [{ key: 'date_desc',     desc: 'Newest first'               }, { key: 'date_asc',      desc: 'Oldest first'         }] },
+  { label: 'Lainnya', options: [{ key: 'last_used_desc', desc: 'Terakhir dipakai'           }, { key: 'worth_it_desc', desc: 'Mendekati Worth It'   }] },
 ]
 
 const SORT_LABEL: Record<SortKey, string> = {
   wear_asc: 'Wear ↑', wear_desc: 'Wear ↓',
   price_asc: 'Price ↑', price_desc: 'Price ↓',
   date_asc: 'Date ↑', date_desc: 'Date ↓',
+  last_used_desc: 'Terakhir dipakai', worth_it_desc: 'Worth It ↑',
 }
 
 interface FilterBarProps {

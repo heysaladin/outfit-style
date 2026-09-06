@@ -35,6 +35,15 @@ function lastActiveLabel(activities: HobbyActivity[]): string {
   return `${Math.floor(diff / 7)}w ago`
 }
 
+function lastUsedLabel(lastUsed: string | null): string {
+  if (!lastUsed) return 'Belum pernah digunakan'
+  const diff = Math.floor((Date.now() - new Date(lastUsed).getTime()) / 86400000)
+  if (diff === 0) return 'Digunakan hari ini'
+  if (diff === 1) return 'Digunakan kemarin'
+  if (diff < 30) return `${diff} hari yang lalu`
+  return `${new Date(lastUsed).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`
+}
+
 export function HobbyDetailClient({ hobby, items, activities, photos, user, wardrobeHref, wardrobeLabel }: Props) {
   const router = useRouter()
   const [tab, setTab]       = useState<Tab>('items')
@@ -123,11 +132,9 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                   </div>
                   <div className="p-3">
                     <b className="block text-[13.5px] font-bold truncate">{item.name}</b>
-                    {item.description && (
-                      <span className="block text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
-                        {item.description}
-                      </span>
-                    )}
+                    <span className="block text-[10px] font-medium text-muted-foreground mt-0.5 truncate">
+                      {lastUsedLabel(item.last_used)}
+                    </span>
                     {(() => {
                       const w = calcWorthIt({ purchasePrice: item.purchase_price, actualUses: item.use_count, targetOverride: item.target })
                       return (

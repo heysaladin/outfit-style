@@ -44,7 +44,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [showDraft,         setShowDraft]         = useState(false)
   const [showAchieved,      setShowAchieved]      = useState(false)
   const [search,            setSearch]            = useState('')
-  const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'>('wear_asc')
+  const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'|'last_used_desc'|'worth_it_desc'>('wear_asc')
 
   const rawQ = search.toLowerCase().trim()
   const tagTokens = rawQ.match(/#\w+/g)?.map(t => t.slice(1)) ?? []
@@ -79,11 +79,22 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     }
     return true
   }).sort((a, b) => {
-    if (sort === 'price_desc') return (b.price ?? -1) - (a.price ?? -1)
-    if (sort === 'price_asc')  return (a.price ?? Infinity) - (b.price ?? Infinity)
-    if (sort === 'date_desc')  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    if (sort === 'date_asc')   return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
-    if (sort === 'wear_desc')  return b.wear_count - a.wear_count
+    if (sort === 'price_desc')     return (b.price ?? -1) - (a.price ?? -1)
+    if (sort === 'price_asc')      return (a.price ?? Infinity) - (b.price ?? Infinity)
+    if (sort === 'date_desc')      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    if (sort === 'date_asc')       return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+    if (sort === 'wear_desc')      return b.wear_count - a.wear_count
+    if (sort === 'last_used_desc') {
+      if (!a.last_worn && !b.last_worn) return 0
+      if (!a.last_worn) return 1
+      if (!b.last_worn) return -1
+      return new Date(b.last_worn).getTime() - new Date(a.last_worn).getTime()
+    }
+    if (sort === 'worth_it_desc') {
+      const wa = calcWorthIt({ purchasePrice: a.price, actualUses: a.wear_count, targetOverride: a.target })
+      const wb = calcWorthIt({ purchasePrice: b.price, actualUses: b.wear_count, targetOverride: b.target })
+      return wb.worthItProgress - wa.worthItProgress
+    }
     const wearDiff = a.wear_count - b.wear_count
     if (wearDiff !== 0) return wearDiff
     return statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
