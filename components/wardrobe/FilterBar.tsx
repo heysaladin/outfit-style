@@ -11,14 +11,14 @@ const SORT_GROUPS: { label: string; options: { key: SortKey; desc: string }[] }[
   { label: 'Wear',     options: [{ key: 'wear_asc',      desc: 'Least worn first'          }, { key: 'wear_desc',     desc: 'Most worn first'      }] },
   { label: 'Price',    options: [{ key: 'price_desc',    desc: 'Most expensive'             }, { key: 'price_asc',     desc: 'Cheapest first'       }] },
   { label: 'Date',     options: [{ key: 'date_desc',     desc: 'Newest first'               }, { key: 'date_asc',      desc: 'Oldest first'         }] },
-  { label: 'Lainnya', options: [{ key: 'last_used_desc', desc: 'Terakhir dipakai'           }, { key: 'worth_it_desc', desc: 'Mendekati Worth It'   }] },
+  { label: 'Other',   options: [{ key: 'last_used_desc', desc: 'Last used'                  }, { key: 'worth_it_desc', desc: 'Closest to worth it'  }] },
 ]
 
 const SORT_LABEL: Record<SortKey, string> = {
   wear_asc: 'Wear ↑', wear_desc: 'Wear ↓',
   price_asc: 'Price ↑', price_desc: 'Price ↓',
   date_asc: 'Date ↑', date_desc: 'Date ↓',
-  last_used_desc: 'Terakhir dipakai', worth_it_desc: 'Worth It ↑',
+  last_used_desc: 'Last used', worth_it_desc: 'Worth it ↑',
 }
 
 interface FilterBarProps {
