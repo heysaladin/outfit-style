@@ -15,6 +15,8 @@ export default async function OutfitsPage() {
       .order('created_at', { ascending: false }),
     supabase.from('wardrobe_items')
       .select('*').eq('user_id', user.id)
+      .eq('status', 'verified')
+      .is('declutter_status', null)
       .order('created_at', { ascending: false }),
     supabase.from('wardrobe_collections')
       .select('*, wardrobe_collection_items(item_id, wardrobe_items(*))')
