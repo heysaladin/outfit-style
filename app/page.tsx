@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Shirt } from 'lucide-react'
 import { HOBBIES } from '@/lib/types'
 import type { HobbyActivity, HobbyPhoto, WardrobeItem } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
@@ -469,20 +468,11 @@ export default function Home() {
           >
             interestory
           </span>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/outfits"
-              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
-              style={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
-            >
-              <Shirt size={16} color="#0A0A0A" />
-            </Link>
-            <UserAvatarMenu
-              buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-              buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
-              onReorderInterests={() => setReorderOpen(true)}
-            />
-          </div>
+          <UserAvatarMenu
+            buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+            buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
+            onReorderInterests={() => setReorderOpen(true)}
+          />
         </header>
 
         {/* ── Scrollable content ── */}
@@ -527,9 +517,8 @@ export default function Home() {
                       <div key={i} className="flex flex-col items-center gap-[6px]">
                         <span className="text-[11px] font-medium" style={{ color: d.isToday ? '#171717' : '#A3A3A3', fontWeight: d.isToday ? 600 : 500 }}>{d.label}</span>
                         <div className="w-2 h-2 rounded-full" style={{
-                          background: d.active ? '#171717' : 'transparent',
-                          border: d.isToday && !d.active ? '2px solid #171717' : d.active ? 'none' : '0',
                           backgroundColor: d.active ? '#171717' : d.isToday ? 'transparent' : '#E5E5E5',
+                          border: d.isToday && !d.active ? '2px solid #171717' : 'none',
                           boxSizing: 'border-box',
                         }} />
                       </div>
