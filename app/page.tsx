@@ -79,6 +79,7 @@ export default function Home() {
   const [activities, setActivities] = useState<HobbyActivity[]>([])
   const [photos, setPhotos]         = useState<HobbyPhoto[]>([])
   const [worthItItems, setWorthItItems] = useState<WardrobeItem[]>([])
+  const [totalPoints, setTotalPoints] = useState(0)
   const [gearCounts, setGearCounts] = useState<Record<string, number>>({})
   const [hobbyProgress, setHobbyProgress] = useState<Record<string, number>>({})
 
@@ -139,10 +140,16 @@ export default function Home() {
       setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
       const worthIt = (wardrobeData ?? []).filter(item => {
-        const { isWorthIt } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
-        return isWorthIt && item.last_worn
+        const { isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
+        return isWorthIt && item.last_worn && item.wear_count === targetUses
       }) as unknown as WardrobeItem[]
       setWorthItItems(worthIt)
+      let points = 0
+      for (const item of (wardrobeData ?? [])) {
+        const { isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
+        if (isWorthIt) { points += targetUses }
+      }
+      setTotalPoints(points)
       const counts: Record<string, number> = { fashion: wardrobeCount ?? 0 }
       const progressBuckets: Record<string, number[]> = {}
       for (const item of (gear ?? [])) {
@@ -266,9 +273,12 @@ export default function Home() {
 
   // Fashion activity count for stats
   const fashionActivityCount = activities.filter(a => a.hobby === 'fashion').length
+  const socialActivityCount = activities.filter(a => a.hobby === 'social').length
+  const readingActivityCount = activities.filter(a => a.hobby === 'reading').length
+  const workoutActivityCount = activities.filter(a => a.hobby === 'workout').length
 
   // Sorted hobby list for stats
-  const hobbiesByActivity = HOBBIES.map(h => ({
+  const hobbiesByActivity = HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
     ...h, count: activities.filter(a => a.hobby === h.value).length,
   })).sort((a, b) => b.count - a.count).filter(h => h.count > 0)
 
@@ -459,67 +469,91 @@ export default function Home() {
 
         {/* ── Sticky Header ── */}
         <header
-          className="flex-shrink-0 px-6 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between border-b"
-          style={{ background: '#FFFFFF', borderColor: tab === 'home' ? 'transparent' : '#E5E5E5' }}
+          className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between"
+          style={{ background: tab === 'home' ? '#0A0A0A' : 'var(--background)' }}
         >
           <span
-            className="font-semibold text-[19px] tracking-[-0.5px]"
-            style={{ color: '#0A0A0A' }}
+            className="font-sans font-semibold text-[19px] tracking-[-0.5px]"
+            style={{ color: tab === 'home' ? '#f1f252' : 'var(--foreground)' }}
           >
             interestory
           </span>
-          <UserAvatarMenu
-            buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-            buttonStyle={{ border: '1px solid #E5E5E5', background: '#F5F5F5' }}
-            onReorderInterests={() => setReorderOpen(true)}
-          />
+          <div className="flex items-center gap-2">
+            <Link
+              href="/ofit"
+              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
+              style={{ background: tab === 'home' ? 'rgba(255,255,255,0.08)' : 'var(--muted)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={tab === 'home' ? 'rgba(255,255,255,0.7)' : 'var(--foreground)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+            </Link>
+            <UserAvatarMenu
+              buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+              buttonStyle={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '1px solid #E5E5E5' }}
+              onReorderInterests={() => setReorderOpen(true)}
+            />
+          </div>
         </header>
 
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain"
-          style={{ paddingBottom: 96, background: '#FFFFFF' }}
+          style={{ paddingBottom: 104, background: '#FFFFFF' }}
         >
 
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
             <>
-              {/* ── Light hero section ── */}
-              <div className="px-6 pt-5 flex flex-col gap-5" style={{ background: '#FFFFFF' }}>
+              {/* ── Dark hero section ── */}
+              <div style={{ background: '#0A0A0A', padding: '20px 18px 28px', borderRadius: '0 0 28px 28px' }}>
                 {/* Greeting */}
-                <div className="flex flex-col gap-2">
-                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0" style={{ color: '#A3A3A3' }}>{dateStr}</p>
-                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
-                    Hey {firstName}, let&apos;s add to your{' '}
-                    <em className="italic" style={{ color: '#737373' }}>story</em>
+                <div className="mb-5">
+                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
+                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#fff' }}>
+                    Hey {firstName},<br />let&apos;s add to your{' '}
+                    <em className="not-italic" style={{ color: '#f1f252' }}>story</em>
                   </h1>
                 </div>
 
                 {/* Momo strip */}
-                <div className="rounded-[8px] flex items-center gap-3 px-[14px] py-3 border" style={{ background: '#FAFAFA', borderColor: '#E5E5E5' }}>
-                  <img src="/momo.png" alt="Momo" className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ background: '#F5F5F5' }} />
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <p className="text-[14px] leading-[18px] m-0" style={{ color: '#171717' }}>
-                      {streak > 1 ? `${streak}-day streak! Keep it up.` : 'Start logging to build your story'}
+                <div className="rounded-[12px] flex items-center gap-3 p-3" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                  <img src="/momo.png" alt="Momo" className="w-10 h-10 object-contain flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] leading-[18px] font-medium m-0" style={{ color: '#fff' }}>
+                      {streak > 1 ? `${streak}-day streak! You're on fire 🔥` : 'Start logging to build your story'}
                     </p>
-                    <span className="text-[12px] leading-[16px]" style={{ color: '#A3A3A3' }}>Momo · your interest friend</span>
+                    <span className="text-[12px] leading-[16px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
                   </div>
+                  {totalPoints > 0 && (
+                    <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(241,242,82,0.15)' }}>
+                      <span className="text-[13px]">⭐</span>
+                      <span className="text-[13px] font-bold leading-none" style={{ color: '#f1f252' }}>{totalPoints}</span>
+                      <span className="text-[10px] font-medium leading-none" style={{ color: 'rgba(241,242,82,0.6)' }}>pts</span>
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Streak card */}
-                <div className="rounded-[8px] flex items-center justify-between px-[18px] py-4 border" style={{ borderColor: '#E5E5E5' }}>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-mono text-[22px] font-medium" style={{ color: '#0A0A0A' }}>{streak}</span>
-                    <span className="text-[13px]" style={{ color: '#737373' }}>day streak</span>
+              {/* ── Floating streak card ── */}
+              <div style={{ margin: '-1px 18px 0', position: 'relative', zIndex: 2, transform: 'translateY(-50%)', marginBottom: '-1.5rem' }}>
+                <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1e1e1e', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[22px]">🔥</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>{streak}</span>
+                      <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-[9px]">
                     {weekDots.map((d, i) => (
-                      <div key={i} className="flex flex-col items-center gap-[6px]">
-                        <span className="text-[11px] font-medium" style={{ color: d.isToday ? '#171717' : '#A3A3A3', fontWeight: d.isToday ? 600 : 500 }}>{d.label}</span>
+                      <div key={i} className="flex flex-col items-center gap-[5px]">
+                        <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{d.label}</span>
                         <div className="w-2 h-2 rounded-full" style={{
-                          backgroundColor: d.active ? '#171717' : d.isToday ? 'transparent' : '#E5E5E5',
-                          border: d.isToday && !d.active ? '2px solid #171717' : 'none',
-                          boxSizing: 'border-box',
+                          background: d.active ? '#f1f252' : (d.isToday ? 'transparent' : '#333'),
+                          border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
                         }} />
                       </div>
                     ))}
@@ -723,7 +757,7 @@ export default function Home() {
                         <div className="bg-neutral-100 w-full aspect-[4/3] flex items-center justify-center text-[48px]">{icon}</div>
                         <div className="p-3 pt-2.5">
                           <p className="text-[14px] font-semibold text-foreground m-0 mb-1 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
-                            {value === 'social' ? 'Life' : label}
+                            {label}
                           </p>
                           <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all duration-500" style={{
@@ -771,13 +805,11 @@ export default function Home() {
 
                   {fashionActivityCount > 0 && (
                     <Card className="mt-3">
-                      <CardContent className="p-[17px_15px]">
-                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Fashion</h3>
-                        <div className="flex items-center gap-3 py-3 px-0.5">
-                          <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">1</span>
-                          <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👔</span>
+                      <CardContent className="p-[14px_13px]">
+                        <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Fashion</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👔</span>
                           <div className="flex-1 min-w-0">
-                            <b className="text-para-sm font-bold block">Fashion</b>
                             <span className="text-para-xs font-medium text-muted-foreground">{fashionActivityCount} activities</span>
                             <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
                           </div>
@@ -786,10 +818,43 @@ export default function Home() {
                     </Card>
                   )}
 
+                  {(readingActivityCount > 0 || workoutActivityCount > 0) && (
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      {readingActivityCount > 0 && (
+                        <Card>
+                          <CardContent className="p-[14px_13px]">
+                            <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Reading</h3>
+                            <div className="flex items-center gap-2">
+                              <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>📚</span>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-para-xs font-medium text-muted-foreground">{readingActivityCount} activities</span>
+                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                      {workoutActivityCount > 0 && (
+                        <Card>
+                          <CardContent className="p-[14px_13px]">
+                            <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Workout</h3>
+                            <div className="flex items-center gap-2">
+                              <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>🏋️</span>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-para-xs font-medium text-muted-foreground">{workoutActivityCount} activities</span>
+                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  )}
+
                   {hobbiesByActivity.length > 0 && (
                     <Card className="mt-3">
                       <CardContent className="p-[17px_15px]">
-                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Top hobbies</h3>
+                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Interesting hobbies</h3>
                         {hobbiesByActivity.map((h, i) => {
                           const maxC = hobbiesByActivity[0].count
                           const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
@@ -805,6 +870,21 @@ export default function Home() {
                             </div>
                           )
                         })}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {socialActivityCount > 0 && (
+                    <Card className="mt-3">
+                      <CardContent className="p-[14px_13px]">
+                        <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Life</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👥</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-para-xs font-medium text-muted-foreground">{socialActivityCount} activities</span>
+                            <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
@@ -958,6 +1038,7 @@ export default function Home() {
                         )
                       } else if (item.type === 'worth_it') {
                         const wi = item.item
+                        const { targetUses: wiTarget } = calcWorthIt({ purchasePrice: wi.price, actualUses: wi.wear_count, targetOverride: wi.target })
                         return (
                           <Link
                             key={`wi-${wi.id}`}
@@ -974,9 +1055,15 @@ export default function Home() {
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className="text-[15px]">🏆</span>
-                                  <span className="text-para-xs font-bold" style={{ color: '#B45309' }}>Worth It!</span>
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[15px]">🏆</span>
+                                    <span className="text-para-xs font-bold" style={{ color: '#B45309' }}>Worth It!</span>
+                                  </div>
+                                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a' }}>
+                                    <span className="text-[10px]">⭐</span>
+                                    <span className="text-[11px] font-bold" style={{ color: '#f1f252' }}>+{wiTarget} pts</span>
+                                  </div>
                                 </div>
                                 <p className="m-0 text-para-sm font-bold leading-snug truncate" style={{ color: '#0A0A0A' }}>{wi.name}</p>
                                 <p className="m-0 text-para-xs font-medium mt-0.5" style={{ color: '#78716C' }}>
@@ -1114,55 +1201,49 @@ export default function Home() {
 
         {/* ── Bottom tab bar ── */}
         <nav
-          className="fixed left-1/2 -translate-x-1/2 z-30"
+          className="fixed left-1/2 -translate-x-1/2 z-30 grid"
           style={{
-            bottom: 0,
-            width: '100%',
-            maxWidth: 480,
-            height: 80,
-            background: '#FFFFFF',
-            borderTop: '1px solid #E5E5E5',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-            display: 'grid',
+            bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+            width: 'calc(100% - 32px)',
+            maxWidth: 398,
             gridTemplateColumns: 'repeat(5, 1fr)',
-            alignItems: 'center',
+            height: 64,
+            background: '#171717',
+            borderRadius: 9999,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           }}
         >
           {/* Home */}
-          <button onClick={() => setTab('home')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#171717' : '#A3A3A3' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/></svg>
-            <span className="text-[11px] font-medium">Home</span>
+          <button onClick={() => setTab('home')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
           </button>
 
           {/* Gallery */}
-          <button onClick={() => setTab('gallery')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#171717' : '#A3A3A3' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-4 4 3 3-2 6 5"/></svg>
-            <span className="text-[11px] font-medium">Gallery</span>
+          <button onClick={() => setTab('gallery')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-4-9 8"/></svg>
           </button>
 
           {/* FAB */}
           <div className="flex items-center justify-center">
             <button
               onClick={() => { setCreateOpen(true); setCreateAt(defaultDatetimeLocal()) }}
-              className="border-0 cursor-pointer flex items-center justify-center"
-              style={{ width: 48, height: 48, borderRadius: 12, background: '#171717' }}
+              className="w-11 h-11 rounded-full border-0 cursor-pointer flex items-center justify-center"
+              style={{ background: '#f1f252' }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FAFAFA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
           </div>
 
           {/* Stats */}
-          <button onClick={() => setTab('stats')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#171717' : '#A3A3A3' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 20V10M12 20V4M19 20v-6"/></svg>
-            <span className="text-[11px] font-medium">Stats</span>
+          <button onClick={() => setTab('stats')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
           </button>
 
           {/* Explore/Hobby */}
-          <button onClick={() => setTab('hobby')} className="flex flex-col items-center justify-center gap-[5px] h-11 border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#171717' : '#A3A3A3' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2.5 5.5L7 17l2.5-5.5z"/></svg>
-            <span className="text-[11px] font-medium">Explore</span>
+          <button onClick={() => setTab('hobby')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/></svg>
           </button>
         </nav>
 

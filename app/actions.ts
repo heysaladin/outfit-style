@@ -359,6 +359,27 @@ export async function useOutfit(outfitId: string, date?: string): Promise<{ erro
   return {}
 }
 
+export async function useCollectionItems(itemIds: string[], date?: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const today = date ?? new Date().toISOString().split('T')[0]
+
+  for (const itemId of itemIds) {
+    const { data: item } = await supabase.from('wardrobe_items')
+      .select('wear_count').eq('id', itemId).single()
+    await supabase.from('wardrobe_items').update({
+      wear_count: (item?.wear_count ?? 0) + 1,
+      last_worn: today,
+    }).eq('id', itemId).eq('user_id', user.id)
+  }
+
+  revalidatePath('/outfits')
+  revalidatePath('/stats')
+  return {}
+}
+
 // ─── Wardrobes (Storage Locations) ───────────────────────────────────────
 
 export async function createWardrobe(formData: FormData): Promise<{ error?: string }> {

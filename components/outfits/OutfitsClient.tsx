@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Plus, X, Trash2, Shirt, Pencil, Search, Share2 } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2 } from 'lucide-react'
 import {
   createOutfit, deleteOutfit, useOutfit, updateOutfit, postOutfit,
-  createWardrobeCollection, updateWardrobeCollection, deleteWardrobeCollection,
+  createWardrobeCollection, updateWardrobeCollection, deleteWardrobeCollection, useCollectionItems,
 } from '@/app/actions'
 import type { Outfit, WardrobeCollection, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
+import { calcWorthIt } from '@/lib/worth'
 
 interface OutfitsClientProps {
   outfits: Outfit[]
@@ -37,6 +38,16 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
       ))}
     </div>
   )
+}
+
+function collectionWorthItProgress(items: WardrobeItem[]): number | null {
+  const priced = items.filter(i => i.price && i.price > 0)
+  if (priced.length === 0) return null
+  const total = priced.reduce((sum, item) => {
+    const { worthItProgress } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, purchaseDate: item.purchase_date, targetOverride: item.target })
+    return sum + worthItProgress
+  }, 0)
+  return total / priced.length
 }
 
 function filterItems(items: WardrobeItem[], q: string) {
@@ -130,6 +141,10 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   const [wcEditIds, setWcEditIds]           = useState<Set<string>>(new Set())
   const [wcEditSearch, setWcEditSearch]     = useState('')
   const [wcError, setWcError]               = useState('')
+  const [wcUseMode, setWcUseMode]           = useState(false)
+  const [wcUseIds, setWcUseIds]             = useState<Set<string>>(new Set())
+  const [wcUseDate, setWcUseDate]           = useState(() => new Date().toISOString().split('T')[0])
+  const [wcUseConfirm, setWcUseConfirm]     = useState(false)
 
   // ── Outfit handlers ───────────────────────────────────────────────────────
   function toggleItem(id: string) {
@@ -214,6 +229,19 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   function handleWcDelete(id: string) {
     startTransition(async () => { await deleteWardrobeCollection(id); setWcDetail(null) })
   }
+  function toggleWcUseItem(id: string) {
+    setWcUseIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+  function exitWcUseMode() {
+    setWcUseMode(false); setWcUseIds(new Set()); setWcUseConfirm(false)
+  }
+  function handleWcUse() {
+    if (wcUseIds.size === 0) return
+    startTransition(async () => {
+      await useCollectionItems([...wcUseIds], wcUseDate)
+      exitWcUseMode()
+    })
+  }
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
   const wcDetailItems = wcDetail?.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) ?? []
@@ -232,7 +260,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             onClick={() => setView('wardrobes')}
             className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${view === 'wardrobes' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            Collections
+            Collection (Wardrobe)
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -285,14 +313,20 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         ) : (
           <div className="grid grid-cols-2 gap-3 p-4 pb-24">
             {wardrobeCollections.map(col => {
-              const items = col.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) ?? []
+              const items = col.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) as WardrobeItem[] ?? []
+              const progress = collectionWorthItProgress(items)
               return (
                 <button key={col.id} onClick={() => setWcDetail(col)}
                   className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border active:scale-95 transition-transform">
-                  <OutfitCollage items={items as WardrobeItem[]} />
+                  <OutfitCollage items={items} />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                     <p className="text-white text-xs font-semibold truncate">{col.name}</p>
                     <p className="text-white/60 text-[10px]">{items.length} items</p>
+                    {progress !== null && (
+                      <div className="mt-1.5 w-full bg-white/20 rounded-full h-1">
+                        <div className="bg-white rounded-full h-1 transition-all" style={{ width: `${progress}%` }} />
+                      </div>
+                    )}
                   </div>
                 </button>
               )
@@ -436,36 +470,127 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
 
       {/* ── Wardrobe Collection detail modal ──────────────────────────────── */}
       {wcDetail && !wcEditing && (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setWcDetail(null)}>
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setWcDetail(null); exitWcUseMode() }}>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
             <div className="absolute top-4 right-4 flex items-center gap-2">
-              <button onClick={openWcEdit} className="text-muted-foreground hover:text-foreground transition-colors">
-                <Pencil size={17} />
-              </button>
-              <button onClick={() => setWcDetail(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+              {!wcUseMode && (
+                <button onClick={openWcEdit} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Pencil size={17} />
+                </button>
+              )}
+              <button onClick={() => { setWcDetail(null); exitWcUseMode() }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Wardrobe</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Collection (Wardrobe)</p>
                 <h2 className="text-foreground font-bold text-xl">{wcDetail.name}</h2>
                 <p className="text-muted-foreground text-sm mt-0.5">{wcDetailItems.length} items</p>
               </div>
+
+              {/* Worth it bar in detail */}
+              {(() => {
+                const progress = collectionWorthItProgress(wcDetailItems as WardrobeItem[])
+                if (progress === null) return null
+                return (
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Worth It Progress</p>
+                      <p className="text-[10px] font-bold text-muted-foreground">{Math.round(progress)}%</p>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-primary rounded-full h-2 transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                )
+              })()}
+
               <div className="grid grid-cols-3 gap-2">
                 {wcDetailItems.map((item) => item && (
-                  <div key={(item as WardrobeItem).id} className="aspect-square rounded-xl overflow-hidden border border-border">
+                  <button
+                    key={(item as WardrobeItem).id}
+                    onClick={() => wcUseMode && toggleWcUseItem((item as WardrobeItem).id)}
+                    className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                      wcUseMode
+                        ? wcUseIds.has((item as WardrobeItem).id)
+                          ? 'border-primary'
+                          : 'border-border'
+                        : 'border-border pointer-events-none'
+                    }`}
+                  >
                     <img src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} className="w-full h-full object-cover" />
-                  </div>
+                    {wcUseMode && wcUseIds.has((item as WardrobeItem).id) && (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 size={24} className="text-primary drop-shadow" />
+                      </div>
+                    )}
+                    {/* Per-item worth it bar */}
+                    {!wcUseMode && (() => {
+                      const i = item as WardrobeItem
+                      if (!i.price || i.price <= 0) return null
+                      const { worthItProgress } = calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, purchaseDate: i.purchase_date, targetOverride: i.target })
+                      return (
+                        <div className="absolute inset-x-0 bottom-0 p-1 bg-gradient-to-t from-black/60 to-transparent">
+                          <div className="w-full bg-white/30 rounded-full h-1">
+                            <div className="bg-white rounded-full h-1" style={{ width: `${worthItProgress}%` }} />
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </button>
                 ))}
               </div>
-              <button onClick={() => handleWcDelete(wcDetail.id)} disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
-                <Trash2 size={15} />
-                {isPending ? 'Deleting...' : 'Delete Collection'}
-              </button>
+
+              {wcUseMode ? (
+                <div className="space-y-3">
+                  {wcUseConfirm ? (
+                    <>
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
+                        <input type="date" value={wcUseDate} onChange={e => setWcUseDate(e.target.value)}
+                          className="w-full bg-muted rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
+                      </div>
+                      <p className="text-sm text-center text-muted-foreground">
+                        +1 worn untuk {wcUseIds.size} item. Lanjut?
+                      </p>
+                      <div className="flex gap-2">
+                        <button onClick={() => setWcUseConfirm(false)} disabled={isPending}
+                          className="flex-1 bg-muted text-muted-foreground font-semibold py-3 rounded-xl text-sm">Batal</button>
+                        <button onClick={handleWcUse} disabled={isPending || wcUseIds.size === 0}
+                          className="flex-1 bg-foreground text-background font-semibold py-3 rounded-xl text-sm disabled:opacity-40">
+                          {isPending ? 'Saving...' : 'Ya, Pakai'}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={exitWcUseMode} disabled={isPending}
+                        className="flex-1 bg-muted text-muted-foreground font-semibold py-3 rounded-xl text-sm">Batal</button>
+                      <button onClick={() => setWcUseConfirm(true)} disabled={wcUseIds.size === 0}
+                        className="flex-1 bg-foreground text-background font-semibold py-3 rounded-xl text-sm disabled:opacity-40">
+                        Pakai ({wcUseIds.size})
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button onClick={() => setWcUseMode(true)} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-foreground text-background font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40">
+                  <Shirt size={15} />
+                  Use Items
+                </button>
+              )}
+
+              {!wcUseMode && (
+                <button onClick={() => handleWcDelete(wcDetail.id)} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
+                  <Trash2 size={15} />
+                  {isPending ? 'Deleting...' : 'Delete Collection'}
+                </button>
+              )}
             </div>
           </div>
         </div>
