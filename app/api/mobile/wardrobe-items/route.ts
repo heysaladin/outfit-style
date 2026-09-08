@@ -25,6 +25,7 @@ export async function GET(request: Request) {
     .from('wardrobe_items')
     .select('id, name, category, image_url, price, wear_count')
     .eq('status', 'verified')
+    .is('declutter_status', null)
     .order('name', { ascending: true })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) })
