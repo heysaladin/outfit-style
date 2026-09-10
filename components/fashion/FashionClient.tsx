@@ -48,6 +48,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   const [activeOccasion,    setActiveOccasion]    = useState<string | null>(null)
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
+  const [showPrivate,       setShowPrivate]       = useState(false)
   const [qpOpen, setQpOpen] = useState(false)
   const [qpSelected, setQpSelected] = useState<Set<string>>(new Set())
   const [qpCaption, setQpCaption] = useState('')
@@ -86,6 +87,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
   const sortedItems = items ? [...items]
     .filter(i => {
+      if (!showPrivate && i.item_type === 'underwear') return false
       if (activeCategory    && i.category    !== activeCategory)    return false
       if (activeSubcategory && i.subcategory !== activeSubcategory) return false
       if (activeColor       && i.color       !== activeColor)       return false
@@ -205,6 +207,8 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           onOccasionChange={setActiveOccasion}
           onShowVerifiedChange={setShowVerified}
           onShowDraftChange={setShowDraft}
+          showPrivate={showPrivate}
+          onShowPrivateChange={setShowPrivate}
           showStatusFilter={false}
         />
         <div className="px-4 pt-4 pb-24">

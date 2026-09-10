@@ -43,6 +43,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
   const [showAchieved,      setShowAchieved]      = useState(false)
+  const [showPrivate,       setShowPrivate]       = useState(false)
   const [search,            setSearch]            = useState('')
   const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'|'last_used_desc'|'worth_it_desc'>('wear_asc')
 
@@ -68,6 +69,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (s !== 'verified'  && !showDraft)    return false
     if (item.declutter_status === 'non-fashion') return false
     if (item.declutter_status && !showDraft) return false
+    if (!showPrivate && item.item_type === 'underwear') return false
     if (showAchieved && !calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
     if (tagTokens.length > 0) {
       const itemTags = (item.tags ?? []).map(t => t.toLowerCase())
@@ -161,12 +163,13 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
       <FilterBar
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}
         activeColor={activeColor} activeSeason={activeSeason} activeOccasion={activeOccasion}
-        showVerified={showVerified} showDraft={showDraft} showAchieved={showAchieved}
+        showVerified={showVerified} showDraft={showDraft} showAchieved={showAchieved} showPrivate={showPrivate}
         sort={sort} onSortChange={setSort}
         onCategoryChange={v => { setActiveCategory(v); setActiveSubcategory(null) }}
         onSubcategoryChange={setActiveSubcategory}
         onColorChange={setActiveColor} onSeasonChange={setActiveSeason} onOccasionChange={setActiveOccasion}
         onShowVerifiedChange={setShowVerified} onShowDraftChange={setShowDraft} onShowAchievedChange={setShowAchieved}
+        onShowPrivateChange={setShowPrivate}
       />
 
       {filtered.length === 0 ? (

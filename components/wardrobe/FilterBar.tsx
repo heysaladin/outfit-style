@@ -29,6 +29,7 @@ interface FilterBarProps {
   activeOccasion: string | null
   showVerified: boolean
   showDraft: boolean
+  showPrivate?: boolean
   sort: SortKey
   onSortChange: (v: SortKey) => void
   onCategoryChange: (v: string | null) => void
@@ -38,6 +39,7 @@ interface FilterBarProps {
   onOccasionChange: (v: string | null) => void
   onShowVerifiedChange: (v: boolean) => void
   onShowDraftChange: (v: boolean) => void
+  onShowPrivateChange?: (v: boolean) => void
   showAchieved?: boolean
   onShowAchievedChange?: (v: boolean) => void
   showStatusFilter?: boolean
@@ -45,9 +47,9 @@ interface FilterBarProps {
 
 export function FilterBar({
   activeCategory, activeSubcategory, activeColor, activeSeason, activeOccasion,
-  showVerified, showDraft, showAchieved = false, sort, onSortChange,
+  showVerified, showDraft, showPrivate = false, showAchieved = false, sort, onSortChange,
   onCategoryChange, onSubcategoryChange, onColorChange, onSeasonChange, onOccasionChange,
-  onShowVerifiedChange, onShowDraftChange, onShowAchievedChange,
+  onShowVerifiedChange, onShowDraftChange, onShowPrivateChange, onShowAchievedChange,
   showStatusFilter = true,
 }: FilterBarProps & { showStatusFilter?: boolean }) {
   const [expanded, setExpanded] = useState(false)
@@ -60,6 +62,7 @@ export function FilterBar({
     onCategoryChange(null); onSubcategoryChange(null); onColorChange(null)
     onSeasonChange(null); onOccasionChange(null)
     onShowVerifiedChange(true); onShowDraftChange(false); onShowAchievedChange?.(false)
+    onShowPrivateChange?.(false)
   }
 
   return (
@@ -239,6 +242,18 @@ export function FilterBar({
               />
             ))}
           </div>
+
+          {onShowPrivateChange && (
+            <label className="flex items-center gap-2 cursor-pointer w-fit">
+              <input
+                type="checkbox"
+                checked={showPrivate}
+                onChange={e => onShowPrivateChange(e.target.checked)}
+                className="w-3.5 h-3.5 accent-foreground cursor-pointer"
+              />
+              <span className="text-xs text-muted-foreground select-none">Show private clothes</span>
+            </label>
+          )}
 
           {(activeColor || activeSeason || activeOccasion) && (
             <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-[11px] hover:text-foreground transition-colors">
