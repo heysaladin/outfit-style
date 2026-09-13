@@ -1,13 +1,32 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import type { WardrobeItem } from '@/lib/types'
 import { CATEGORY_TREE } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
+import { StatsShareCard } from './StatsShareCard'
 
 interface StatsClientProps { items: WardrobeItem[] }
 
 export function StatsClient({ items }: StatsClientProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [exporting, setExporting] = useState(false)
+
+  async function handleExport() {
+    if (!cardRef.current) return
+    setExporting(true)
+    try {
+      const { toPng } = await import('html-to-image')
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 3, cacheBust: true })
+      const link = document.createElement('a')
+      link.download = 'interestory-stats.png'
+      link.href = dataUrl
+      link.click()
+    } finally {
+      setExporting(false)
+    }
+  }
   const total       = items.length
   const totalWears  = items.reduce((s, i) => s + i.wear_count, 0)
   const neverWorn   = items.filter(i => i.wear_count === 0)
@@ -30,7 +49,26 @@ export function StatsClient({ items }: StatsClientProps) {
     <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <h1 className="text-foreground font-bold text-lg">Style Stats</h1>
-        <UserAvatarMenu />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors disabled:opacity-50"
+          >
+            {exporting ? (
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+              </svg>
+            )}
+            {exporting ? 'Exporting…' : 'Export'}
+          </button>
+          <UserAvatarMenu />
+        </div>
       </header>
 
       <div className="p-4 space-y-6 pb-24">
@@ -131,6 +169,11 @@ export function StatsClient({ items }: StatsClientProps) {
       </div>
 
       <BottomNav />
+
+      {/* Hidden share card — rendered off-screen for html2canvas capture */}
+      <div style={{ position: 'fixed', top: -9999, left: -9999, pointerEvents: 'none' }}>
+        <StatsShareCard ref={cardRef} items={items} />
+      </div>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import type { HobbyActivity, HobbyPhoto, WardrobeItem } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { ReorderHobbiesModal, getOrderedHobbies } from '@/components/gear/ReorderHobbiesModal'
+import { ActivityExportCard, type ActivityExportData } from '@/components/ActivityExportCard'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { cn } from '@/lib/utils'
 import { calcWorthIt } from '@/lib/worth'
@@ -110,6 +111,12 @@ export default function Home() {
   // Gallery fullscreen
   const [fullscreenPhoto, setFullscreenPhoto] = useState<HobbyPhoto | null>(null)
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
+
+  // Export preview
+  const [exportPreviewUrl, setExportPreviewUrl] = useState<string | null>(null)
+  const [exportData, setExportData] = useState<ActivityExportData | null>(null)
+  const exportCardRef = useRef<HTMLDivElement>(null)
+  const [exporting, setExporting] = useState(false)
 
   // Activity detail / edit
   const [viewActivity, setViewActivity] = useState<HobbyActivity | null>(null)
@@ -281,6 +288,51 @@ export default function Home() {
   const hobbiesByActivity = HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
     ...h, count: activities.filter(a => a.hobby === h.value).length,
   })).sort((a, b) => b.count - a.count).filter(h => h.count > 0)
+
+  async function toBase64(url: string): Promise<string> {
+    try {
+      const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`
+      const res = await fetch(proxyUrl)
+      if (!res.ok) throw new Error('proxy failed')
+      const blob = await res.blob()
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    } catch {
+      return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    }
+  }
+
+  async function triggerExport(data: ActivityExportData) {
+    // Show overlay immediately with loading state
+    setExporting(true)
+    setExportPreviewUrl(null)
+    setExportData(data)
+    try {
+      // Pre-convert all images to base64 to bypass CORS
+      const itemsWithBase64 = await Promise.all(
+        data.items.map(async (item) => ({
+          ...item,
+          image_url: await toBase64(item.image_url),
+        }))
+      )
+      setExportData({ ...data, items: itemsWithBase64 })
+      await new Promise(r => setTimeout(r, 200))
+      const el = exportCardRef.current
+      if (!el) { console.error('Export card ref not found'); return }
+      const { toPng } = await import('html-to-image')
+      const dataUrl = await toPng(el, { pixelRatio: 3, skipFonts: true })
+      setExportPreviewUrl(dataUrl)
+    } catch (err) {
+      console.error('Export failed:', err)
+    } finally {
+      setExporting(false)
+      setExportData(null)
+    }
+  }
 
   function openActivity(act: HobbyActivity, photo?: HobbyPhoto) {
     setViewActivity(act)
@@ -1104,7 +1156,25 @@ export default function Home() {
                             <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border cursor-pointer" style={{ background: 'var(--card)' }} onClick={() => openActivity(act)}>
                               <div className="flex items-center justify-between px-4 pt-3 pb-2">
                                 <span className="text-para-xs font-bold text-muted-foreground">{act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit'}</span>
-                                <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      triggerExport({
+                                        type: 'outfit',
+                                        label: act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit',
+                                        timestamp: timeAgo,
+                                        text: act.note ?? null,
+                                        items: outfitDisplayItems as { id: string; image_url: string; name: string }[],
+                                      })
+                                    }}
+                                    disabled={exporting}
+                                    className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40"
+                                  >
+                                    {exporting ? '...' : 'Export'}
+                                  </button>
+                                </div>
                               </div>
                               <div className="flex gap-2 overflow-x-auto px-4 pb-3" style={{ scrollbarWidth: 'none' }}>
                                 {outfitDisplayItems.map((item: { id: string; image_url: string; name: string }, i: number) => (
@@ -1126,7 +1196,10 @@ export default function Home() {
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
                                 <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
-                                <span className="ml-auto text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                                <div className="ml-auto flex items-center gap-2">
+                                  <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                                  <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
+                                </div>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
@@ -1157,7 +1230,10 @@ export default function Home() {
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
                                 <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
-                                <span className="ml-auto text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                                <div className="ml-auto flex items-center gap-2">
+                                  <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                                  <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
+                                </div>
                               </div>
                               <p
                                 onClick={() => openActivity(act)}
@@ -1186,7 +1262,10 @@ export default function Home() {
                                 <span className="text-[18px]">{h?.icon ?? '✨'}</span>
                                 <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
                               </div>
-                              <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
+                                <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
+                              </div>
                             </div>
                           </div>
                         )
@@ -1643,6 +1722,74 @@ export default function Home() {
         </Drawer>
 
       </div>
+
+      {/* Hidden export card for capture */}
+      <div style={{ position: 'fixed', top: -9999, left: -9999, pointerEvents: 'none' }}>
+        {exportData && <ActivityExportCard ref={exportCardRef} data={exportData} />}
+      </div>
+
+      {/* ── Export Preview Overlay ── */}
+      {(exporting || exportPreviewUrl) && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col bg-background"
+          style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <button
+              onClick={() => { setExportPreviewUrl(null); setExporting(false) }}
+              className="flex items-center gap-1.5 text-para-sm font-semibold text-muted-foreground"
+            >
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <span className="text-para-sm font-bold text-foreground">Export</span>
+            {exportPreviewUrl ? (
+              <a
+                href={exportPreviewUrl}
+                download="activity.png"
+                className="flex items-center gap-1.5 text-para-sm font-bold px-3 py-1.5 rounded-xl bg-foreground text-background"
+              >
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Download
+              </a>
+            ) : (
+              <div className="w-20" />
+            )}
+          </div>
+
+          {/* Preview or Loading */}
+          <div className="flex-1 overflow-auto flex items-center justify-center p-6">
+            {exportPreviewUrl ? (
+              <img
+                src={exportPreviewUrl}
+                alt="Export preview"
+                className="max-w-full rounded-2xl shadow-xl"
+                style={{ maxHeight: '70dvh', objectFit: 'contain' }}
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                <svg className="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <p className="text-para-sm font-medium">Generating image…</p>
+              </div>
+            )}
+          </div>
+
+          {exportPreviewUrl && (
+            <p className="text-center text-para-xs text-muted-foreground pb-8">
+              Tap Download to save to your device
+            </p>
+          )}
+        </div>
+      )}
+
     </div>
   )
 }
