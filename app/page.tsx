@@ -105,8 +105,10 @@ export default function Home() {
   const [goalSheetOpen, setGoalSheetOpen] = useState(false)
   const [editGoalId, setEditGoalId] = useState<string | null>(null)
   const [taskSheetGoalId, setTaskSheetGoalId] = useState<string | null>(null)
+  const [editTaskId, setEditTaskId] = useState<string | null>(null)
   const [goalForm, setGoalForm] = useState({ name: '', narrative: '', deadline: '' })
   const [taskForm, setTaskForm] = useState({ task: '', week: 1 as 1|2|3|4 })
+  const [editTaskForm, setEditTaskForm] = useState({ task: '', week: 1 as 1|2|3|4 })
 
   // Gallery fullscreen
   const [fullscreenPhoto, setFullscreenPhoto] = useState<HobbyPhoto | null>(null)
@@ -504,6 +506,14 @@ export default function Home() {
     await supabase.from('goal_tasks').delete().eq('id', id)
   }
 
+  async function saveEditTask() {
+    if (!editTaskId || !editTaskForm.task.trim()) return
+    setGoalTasks(prev => prev.map(t => t.id === editTaskId ? { ...t, task: editTaskForm.task.trim(), week: editTaskForm.week } : t))
+    setEditTaskId(null)
+    const supabase = createClient()
+    await supabase.from('goal_tasks').update({ task: editTaskForm.task.trim(), week: editTaskForm.week }).eq('id', editTaskId)
+  }
+
   const hobbyLinks = [
     { label: 'Fashion', icon: '👔', href: '/fashion', value: 'fashion' },
     ...hobbyOrder.map(h => ({ label: h.label, icon: h.icon as string, href: `/${h.value}`, value: h.value })),
@@ -624,7 +634,7 @@ export default function Home() {
                   </div>
                   <div className="rounded-[8px] overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
                     {activities.slice(0, 3).map((act, idx) => {
-                      const h = HOBBIES.find(x => x.value === act.hobby)
+                      const h = [{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES].find(x => x.value === act.hobby)
                       const diff = daysDiff(act.activity_at, now)
                       const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
                       const initials = (h?.label ?? act.hobby).slice(0, 2).toUpperCase()
@@ -740,6 +750,9 @@ export default function Home() {
                                       {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
                                     </div>
                                     <span className={cn('flex-1 text-para-sm font-medium', t.done ? 'text-muted-foreground/60 line-through' : 'text-foreground')}>{t.task}</span>
+                                    <button onClick={() => { setEditTaskId(t.id); setEditTaskForm({ task: t.task, week: t.week as 1|2|3|4 }) }} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    </button>
                                     <button onClick={() => deleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                                     </button>
@@ -1621,6 +1634,51 @@ export default function Home() {
             <DrawerFooter>
               <Button onClick={saveTask} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
                 Save Task
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+
+        {/* ── Edit Task Sheet ── */}
+        <Drawer
+          open={!!editTaskId}
+          onOpenChange={(open: boolean) => { if (!open) setEditTaskId(null) }}
+        >
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle className="font-sans">Edit Task</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-2 space-y-0 overflow-y-auto">
+              <CField label="Task *">
+                <Input
+                  value={editTaskForm.task}
+                  onChange={e => setEditTaskForm(f => ({ ...f, task: e.target.value }))}
+                  placeholder="e.g. Conduct team workshop"
+                  className="rounded-2xl h-[50px] text-para-md"
+                />
+              </CField>
+              <CField label="Week">
+                <div className="flex gap-2">
+                  {([1,2,3,4] as const).map(w => (
+                    <button
+                      key={w}
+                      onClick={() => setEditTaskForm(f => ({ ...f, week: w }))}
+                      className="flex-1 py-[11px] rounded-[13px] border-2 text-para-sm font-bold cursor-pointer transition-colors"
+                      style={{
+                        borderColor: editTaskForm.week === w ? '#171717' : 'var(--border)',
+                        background: editTaskForm.week === w ? '#171717' : 'var(--card)',
+                        color: editTaskForm.week === w ? '#FAFAFA' : 'var(--foreground)',
+                      }}
+                    >
+                      W{w}
+                    </button>
+                  ))}
+                </div>
+              </CField>
+            </div>
+            <DrawerFooter>
+              <Button onClick={saveEditTask} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
+                Save Changes
               </Button>
             </DrawerFooter>
           </DrawerContent>
