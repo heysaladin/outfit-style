@@ -542,7 +542,7 @@ export default function Home() {
               </svg>
             </Link>
             <UserAvatarMenu
-              buttonClassName="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
+              buttonClassName="relative w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
               buttonStyle={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '1px solid #E5E5E5' }}
               onReorderInterests={() => setReorderOpen(true)}
             />
