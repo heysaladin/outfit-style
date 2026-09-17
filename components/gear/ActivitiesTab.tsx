@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { X, Pencil, Trash2, Camera } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
@@ -224,8 +225,8 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                   </div>
                   <div className="flex gap-2 overflow-x-auto px-3.5 pb-3" style={{ scrollbarWidth: 'none' }}>
                     {outfitItems.map((item, i) => (
-                      <div key={i} className="w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border border-border">
-                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <div key={i} className="w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border border-border relative">
+                        <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="80px" />
                       </div>
                     ))}
                   </div>
@@ -247,7 +248,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
                   className="rounded-3xl overflow-hidden bg-card"
                   style={{ cursor: user ? 'pointer' : 'default' }}
                 >
-                  <img src={linkedPhoto.image_url} alt={act.hobby} className="w-full block object-cover max-h-[300px]" />
+                  <Image src={linkedPhoto.image_url} alt={act.hobby} width={800} height={800} className="w-full block object-cover max-h-[300px]" style={{ height: 'auto' }} sizes="(max-width: 768px) 100vw, 50vw" />
                   <div className="px-3 pb-3 pt-3">
                     {act.note && <p className="text-[15px] text-foreground mb-2.5 leading-snug font-semibold">{act.note}</p>}
                     <div className="flex items-center justify-between gap-2">

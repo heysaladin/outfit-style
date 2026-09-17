@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ChevronDown, LayoutGrid, Table2, Settings2, Search, SlidersHorizontal } from 'lucide-react'
 
 type ViewMode = 'board' | 'table'
@@ -87,11 +88,11 @@ export function CardHeader({
               {assignees.slice(0, 5).map((a, i) => (
                 <div
                   key={i}
-                  className="size-8 rounded-full border-2 border-background overflow-hidden flex items-center justify-center bg-muted text-xs font-medium text-muted-foreground"
+                  className="relative size-8 rounded-full border-2 border-background overflow-hidden flex items-center justify-center bg-muted text-xs font-medium text-muted-foreground"
                   style={{ zIndex: 5 - i, marginLeft: i > 0 ? '-8px' : '0' }}
                 >
                   {a.src ? (
-                    <img src={a.src} alt="" className="size-full object-cover" />
+                    <Image src={a.src} alt="" fill className="object-cover" sizes="32px" />
                   ) : (
                     <span>{a.initials ?? '?'}</span>
                   )}

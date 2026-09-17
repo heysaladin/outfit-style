@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition, useState } from 'react'
+import Image from 'next/image'
 import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2, Search } from 'lucide-react'
 import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus } from '@/app/actions'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
@@ -78,8 +79,8 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
         </div>
 
         {/* Image */}
-        <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted">
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+        <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted relative">
+          <Image src={item.image_url} alt={item.name} fill className="object-contain" sizes="(max-width: 430px) 100vw, 430px" />
         </div>
 
         {/* Name / meta */}

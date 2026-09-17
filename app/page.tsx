@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { HOBBIES } from '@/lib/types'
 import type { HobbyActivity, HobbyPhoto, WardrobeItem } from '@/lib/types'
@@ -11,45 +11,25 @@ import { ActivityExportCard, type ActivityExportData } from '@/components/Activi
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { cn } from '@/lib/utils'
 import { calcWorthIt } from '@/lib/worth'
-import { dateStrWIB, daysDiff, formatDateLabel, formatTime, defaultDatetimeLocal, isSameDayWIB } from '@/lib/date'
+import { dateStrWIB, daysDiff, formatTime, defaultDatetimeLocal } from '@/lib/date'
 import { useTheme } from '@/components/ThemeProvider'
+import Image from 'next/image'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
 import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter,
 } from '@/components/ui/drawer'
+import type { MonthlyGoal, GoalTask } from './_components/types'
+import HomeTab from './_components/HomeTab'
+import HobbyTab from './_components/HobbyTab'
+import StatsTab from './_components/StatsTab'
+import SearchTab from './_components/SearchTab'
+import GalleryTab from './_components/GalleryTab'
 
 type Tab = 'home' | 'stats' | 'gallery' | 'search' | 'hobby'
-type MonthlyGoal = { id: string; name: string; narrative: string; deadline: string }
-type GoalTask = { id: string; goal_id: string; task: string; week: 1|2|3|4; done: boolean }
-
-const TINTS = ['#FFE9DB','#DDF4EA','#FFF3D1','#EDE6FD','#DCE8F5','#FBE0DC']
-
-function NavTab({ label, active, onClick, children }: {
-  label: string; active: boolean; onClick: () => void; children: React.ReactNode
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex items-center justify-center w-14 h-full bg-transparent border-0 cursor-pointer',
-        active ? 'text-foreground' : 'text-neutral-400'
-      )}
-    >
-      <span className={cn(
-        'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200',
-        active ? 'bg-neutral-100' : ''
-      )}>
-        {children}
-      </span>
-    </button>
-  )
-}
 
 function CField({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
@@ -185,11 +165,11 @@ export default function Home() {
     })
   }, [])
 
-  function resetCreate() {
+  const resetCreate = useCallback(() => {
     setCreateHobby(''); setCreateNote(''); setCreateLocation(''); setCreateError('')
     setCreatePhoto(null); setCreatePhotoFile(null)
     setCreateAt(defaultDatetimeLocal())
-  }
+  }, [])
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -243,53 +223,58 @@ export default function Home() {
 
   const firstName = 'Saladin'
 
-  const now = new Date()
-  const dateStr = dateStrWIB(now)
+  const now = useMemo(() => new Date(), [])
+  const dateStr = useMemo(() => dateStrWIB(now), [now])
 
-  // Last 7 days (Sun=0..Sat=6 order relative to today)
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => {
     const d = new Date(now); d.setDate(d.getDate() - (6 - i)); return d
-  })
+  }), [now])
   const DAY_LABELS = ['S','M','T','W','T','F','S']
-  const activeDaySet = new Set(activities.map(a =>
+
+  const activeDaySet = useMemo(() => new Set(activities.map(a =>
     new Date(a.activity_at).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' })
-  ))
-  const weekDots = weekDays.map((d, i) => ({
+  )), [activities])
+
+  const weekDots = useMemo(() => weekDays.map((d, i) => ({
     label: DAY_LABELS[d.getDay()],
     active: activeDaySet.has(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' })),
     isToday: i === 6,
-  }))
+  })), [weekDays, activeDaySet])
 
-  // Streak: consecutive days back from today
-  let streak = 0
-  for (let i = 0; i < 60; i++) {
-    const d = new Date(now); d.setDate(d.getDate() - i)
-    if (activeDaySet.has(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }))) streak++
-    else break
-  }
-
-  // Last active label per hobby
-  const lastActive: Record<string, string> = {}
-  for (const a of activities) {
-    if (!lastActive[a.hobby]) {
-      const diff = daysDiff(a.activity_at, now)
-      if (diff === 0) lastActive[a.hobby] = 'today'
-      else if (diff === 1) lastActive[a.hobby] = 'yesterday'
-      else if (diff < 7) lastActive[a.hobby] = `${diff}d ago`
-      else lastActive[a.hobby] = `${Math.floor(diff / 7)}w ago`
+  const streak = useMemo(() => {
+    let s = 0
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(now); d.setDate(d.getDate() - i)
+      if (activeDaySet.has(d.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }))) s++
+      else break
     }
-  }
+    return s
+  }, [activeDaySet, now])
 
-  // Fashion activity count for stats
-  const fashionActivityCount = activities.filter(a => a.hobby === 'fashion').length
-  const socialActivityCount = activities.filter(a => a.hobby === 'social').length
-  const readingActivityCount = activities.filter(a => a.hobby === 'reading').length
-  const workoutActivityCount = activities.filter(a => a.hobby === 'workout').length
+  const lastActive = useMemo(() => {
+    const result: Record<string, string> = {}
+    for (const a of activities) {
+      if (!result[a.hobby]) {
+        const diff = daysDiff(a.activity_at, now)
+        if (diff === 0) result[a.hobby] = 'today'
+        else if (diff === 1) result[a.hobby] = 'yesterday'
+        else if (diff < 7) result[a.hobby] = `${diff}d ago`
+        else result[a.hobby] = `${Math.floor(diff / 7)}w ago`
+      }
+    }
+    return result
+  }, [activities, now])
 
-  // Sorted hobby list for stats
-  const hobbiesByActivity = HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
-    ...h, count: activities.filter(a => a.hobby === h.value).length,
-  })).sort((a, b) => b.count - a.count).filter(h => h.count > 0)
+  const fashionActivityCount = useMemo(() => activities.filter(a => a.hobby === 'fashion').length, [activities])
+  const socialActivityCount = useMemo(() => activities.filter(a => a.hobby === 'social').length, [activities])
+  const readingActivityCount = useMemo(() => activities.filter(a => a.hobby === 'reading').length, [activities])
+  const workoutActivityCount = useMemo(() => activities.filter(a => a.hobby === 'workout').length, [activities])
+
+  const hobbiesByActivity = useMemo(() =>
+    HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
+      ...h, count: activities.filter(a => a.hobby === h.value).length,
+    })).sort((a, b) => b.count - a.count).filter(h => h.count > 0),
+  [activities])
 
   async function toBase64(url: string): Promise<string> {
     try {
@@ -336,7 +321,7 @@ export default function Home() {
     }
   }
 
-  function openActivity(act: HobbyActivity, photo?: HobbyPhoto) {
+  const openActivity = useCallback((act: HobbyActivity, photo?: HobbyPhoto) => {
     setViewActivity(act)
     setActEditMode(false)
     setActDeleteConfirm(false)
@@ -350,7 +335,7 @@ export default function Home() {
     })
     const linked = photo ?? photos.find(p => p.hobby === act.hobby && p.note === act.note) ?? null
     setActPhoto(linked)
-  }
+  }, [photos])
 
   async function saveActivityEdit() {
     if (!viewActivity) return
@@ -514,16 +499,20 @@ export default function Home() {
     await supabase.from('goal_tasks').update({ task: editTaskForm.task.trim(), week: editTaskForm.week }).eq('id', editTaskId)
   }
 
-  const hobbyLinks = [
+  const hobbyLinks = useMemo(() => [
     { label: 'Fashion', icon: '👔', href: '/fashion', value: 'fashion' },
     ...hobbyOrder.map(h => ({ label: h.label, icon: h.icon as string, href: `/${h.value}`, value: h.value })),
-  ]
+  ], [hobbyOrder])
 
   const q = searchQ.toLowerCase().trim()
-  const filteredHobbies = q ? hobbyLinks.filter(h => h.label.toLowerCase().includes(q)) : []
-  const filteredActivities = q ? activities.filter(a =>
-    (a.note ?? '').toLowerCase().includes(q) || (a.location ?? '').toLowerCase().includes(q)
-  ).slice(0, 20) : []
+  const filteredHobbies = useMemo(() =>
+    q ? hobbyLinks.filter(h => h.label.toLowerCase().includes(q)) : [],
+  [q, hobbyLinks])
+  const filteredActivities = useMemo(() =>
+    q ? activities.filter(a =>
+      (a.note ?? '').toLowerCase().includes(q) || (a.location ?? '').toLowerCase().includes(q)
+    ).slice(0, 20) : [],
+  [q, activities])
 
   return (
     <div className="h-dvh w-full overflow-hidden bg-background">
@@ -568,726 +557,93 @@ export default function Home() {
 
           {/* ════ HOME TAB ════ */}
           {tab === 'home' && (
-            <>
-              {/* ── Dark hero section ── */}
-              <div style={{ background: '#0A0A0A', padding: '20px 18px 28px', borderRadius: '0 0 28px 28px' }}>
-                {/* Greeting */}
-                <div className="mb-5">
-                  <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
-                  <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#fff' }}>
-                    Hey {firstName},<br />let&apos;s add to your{' '}
-                    <em className="not-italic" style={{ color: '#f1f252' }}>story</em>
-                  </h1>
-                </div>
-
-                {/* Momo strip */}
-                <div className="rounded-[12px] flex items-center gap-3 p-3" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                  <img src="/momo.png" alt="Momo" className="w-10 h-10 object-contain flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] leading-[18px] font-medium m-0" style={{ color: '#fff' }}>
-                      {streak > 1 ? `${streak}-day streak! You're on fire 🔥` : 'Start logging to build your story'}
-                    </p>
-                    <span className="text-[12px] leading-[16px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
-                  </div>
-                  {totalPoints > 0 && (
-                    <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(241,242,82,0.15)' }}>
-                      <span className="text-[13px]">⭐</span>
-                      <span className="text-[13px] font-bold leading-none" style={{ color: '#f1f252' }}>{totalPoints}</span>
-                      <span className="text-[10px] font-medium leading-none" style={{ color: 'rgba(241,242,82,0.6)' }}>pts</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* ── Floating streak card ── */}
-              <div style={{ margin: '-1px 18px 0', position: 'relative', zIndex: 2, transform: 'translateY(-50%)', marginBottom: '-1.5rem' }}>
-                <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1e1e1e', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[22px]">🔥</span>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>{streak}</span>
-                      <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-[9px]">
-                    {weekDots.map((d, i) => (
-                      <div key={i} className="flex flex-col items-center gap-[5px]">
-                        <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{d.label}</span>
-                        <div className="w-2 h-2 rounded-full" style={{
-                          background: d.active ? '#f1f252' : (d.isToday ? 'transparent' : '#333'),
-                          border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
-                        }} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Light content section ── */}
-              <div className="px-6 pb-6" style={{ background: '#FFFFFF' }}>
-
-              {/* Recent Activities */}
-              {activities.length > 0 && (
-                <>
-                  <div className="flex items-baseline justify-between mt-5 mb-2.5">
-                    <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>Recent</h2>
-                  </div>
-                  <div className="rounded-[8px] overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
-                    {activities.slice(0, 3).map((act, idx) => {
-                      const h = [{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES].find(x => x.value === act.hobby)
-                      const diff = daysDiff(act.activity_at, now)
-                      const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
-                      const initials = (h?.label ?? act.hobby).slice(0, 2).toUpperCase()
-                      return (
-                        <div
-                          key={act.id}
-                          className="flex items-center gap-3 cursor-pointer transition-colors"
-                          style={{ padding: '14px 16px', borderBottom: idx < 2 ? '1px solid #F5F5F5' : 'none' }}
-                          onClick={() => openActivity(act)}
-                        >
-                          <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 text-[12px] font-semibold" style={{ background: '#F5F5F5', color: '#525252' }}>
-                            {initials}
-                          </div>
-                          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                            <div className="text-[15px] font-medium" style={{ color: '#171717' }}>{h?.label ?? act.hobby}</div>
-                            <p className="text-[13px] m-0 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: '#A3A3A3' }}>{act.note}</p>
-                          </div>
-                          <span className="text-[12px] flex-shrink-0" style={{ color: '#A3A3A3' }}>{timeAgo}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
-
-
-              {/* Monthly Goals */}
-              <div className="flex items-center justify-between mt-[22px] mb-3">
-                <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
-                  Monthly Goals
-                </h2>
-                <button
-                  onClick={() => setGoalSheetOpen(true)}
-                  className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium cursor-pointer transition-colors"
-                  style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
-                >
-                  Add
-                </button>
-              </div>
-
-              {goals.length === 0 ? (
-                <EmptyState icon="🎯" title="No goals yet" desc="Set monthly goals to stay on track" />
-              ) : (
-                <div className="flex flex-col gap-[11px]">
-                  {goals.map(goal => {
-                    const tasks = goalTasks.filter(t => t.goal_id === goal.id)
-                    const doneCount = tasks.filter(t => t.done).length
-                    const pct = tasks.length > 0 ? doneCount / tasks.length : 0
-                    const deadlineDate = goal.deadline ? new Date(goal.deadline) : null
-                    const isOverdue = deadlineDate && deadlineDate < new Date() && pct < 1
-                    return (
-                      <Card key={goal.id}>
-                        <CardContent className="p-4 space-y-2.5">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-bold text-para-sm leading-snug flex-1 m-0 font-sans">{goal.name}</h3>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              {deadlineDate && (
-                                <span
-                                  className="text-para-xs font-bold px-[9px] py-1 rounded-full"
-                                  style={{
-                                    color: isOverdue ? 'var(--destructive)' : 'var(--muted-foreground)',
-                                    background: isOverdue ? '#FDE8E4' : 'var(--secondary)',
-                                  }}
-                                >
-                                  {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                </span>
-                              )}
-                              <button
-                                onClick={() => { setEditGoalId(goal.id); setGoalForm({ name: goal.name, narrative: goal.narrative ?? '', deadline: goal.deadline ?? '' }); setGoalSheetOpen(true) }}
-                                className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                              </button>
-                              <button
-                                onClick={() => deleteGoal(goal.id)}
-                                className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                              </button>
-                            </div>
-                          </div>
-
-                          {goal.narrative && (
-                            <p className="text-para-xs text-muted-foreground m-0 leading-relaxed">{goal.narrative}</p>
-                          )}
-
-                          {tasks.length > 0 && (
-                            <div>
-                              <div className="flex justify-between text-para-xs font-bold text-muted-foreground/60 mb-1.5 uppercase tracking-wider">
-                                <span>Progress</span>
-                                <span>{doneCount}/{tasks.length} tasks</span>
-                              </div>
-                              <Progress value={pct * 100} className="h-[5px]" />
-                            </div>
-                          )}
-
-                          {([1,2,3,4] as const).map(week => {
-                            const weekTasks = tasks.filter(t => t.week === week)
-                            if (weekTasks.length === 0) return null
-                            return (
-                              <div key={week} className="mb-1">
-                                <span className="text-para-xs font-extrabold tracking-[0.06em] uppercase text-muted-foreground/60 block mb-0.5">Week {week}</span>
-                                {weekTasks.map(t => (
-                                  <div key={t.id} className="flex items-center gap-2 py-[5px]">
-                                    <div
-                                      onClick={() => toggleTask(t.id)}
-                                      className="w-5 h-5 rounded-[7px] flex-shrink-0 cursor-pointer flex items-center justify-center"
-                                      style={{
-                                        border: `2px solid ${t.done ? '#171717' : 'var(--border)'}`,
-                                        background: t.done ? '#171717' : 'transparent',
-                                      }}
-                                    >
-                                      {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
-                                    </div>
-                                    <span className={cn('flex-1 text-para-sm font-medium', t.done ? 'text-muted-foreground/60 line-through' : 'text-foreground')}>{t.task}</span>
-                                    <button onClick={() => { setEditTaskId(t.id); setEditTaskForm({ task: t.task, week: t.week as 1|2|3|4 }) }} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
-                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                    </button>
-                                    <button onClick={() => deleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
-                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )
-                          })}
-
-                          <button
-                            onClick={() => { setTaskSheetGoalId(goal.id); setTaskForm({ task: '', week: 1 }) }}
-                            className="mt-2 bg-transparent border-dashed border rounded-xl px-3 py-[7px] cursor-pointer text-muted-foreground text-para-xs font-bold w-full"
-                          >
-                            + Add task
-                          </button>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Calendar */}
-              <div className="mt-[22px] mb-2">
-                <h2 className="text-para-lg font-bold tracking-h2 mx-1 mb-3 mt-0 font-sans">Calendar</h2>
-                <div className="rounded-[22px] overflow-hidden">
-                  <iframe
-                    src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
-                    style={{ border: 0, display: 'block', filter: 'sepia(0.55) saturate(0.85) contrast(0.9) brightness(1.04)' }}
-                    width="100%"
-                    height="500"
-                    frameBorder={0}
-                    scrolling="no"
-                  />
-                </div>
-              </div>
-              </div>{/* end light content section */}
-            </>
+            <HomeTab
+              activities={activities}
+              goals={goals}
+              goalTasks={goalTasks}
+              streak={streak}
+              weekDots={weekDots}
+              totalPoints={totalPoints}
+              firstName={firstName}
+              dateStr={dateStr}
+              now={now}
+              onOpenActivity={openActivity}
+              onOpenGoalSheet={() => setGoalSheetOpen(true)}
+              onEditGoal={goal => { setEditGoalId(goal.id); setGoalForm({ name: goal.name, narrative: goal.narrative ?? '', deadline: goal.deadline ?? '' }); setGoalSheetOpen(true) }}
+              onAddTask={goalId => { setTaskSheetGoalId(goalId); setTaskForm({ task: '', week: 1 }) }}
+              onEditTask={task => { setEditTaskId(task.id); setEditTaskForm({ task: task.task, week: task.week }) }}
+              onToggleTask={toggleTask}
+              onDeleteGoal={deleteGoal}
+              onDeleteTask={deleteTask}
+              onTriggerExport={triggerExport}
+              exporting={exporting}
+            />
           )}
+
 
           {/* ════ HOBBY TAB ════ */}
           {tab === 'hobby' && (
-            <div className="px-[18px]">
-              <div className="flex items-baseline justify-between mt-5 mb-3 mx-0.5">
-                <h2 className="text-[16px] font-semibold text-foreground m-0">
-                  Interests <small className="text-[12px] text-muted-foreground font-medium ml-1">{hobbyLinks.length}</small>
-                </h2>
-                <button
-                  className="bg-transparent border-0 text-[13px] text-muted-foreground cursor-pointer px-1 py-1"
-                  onClick={() => setReorderOpen(true)}
-                >
-                  Reorder
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
-                {hobbyLinks.map(({ label, icon, href, value }, i) => {
-                  const count = gearCounts[value] ?? 0
-                  const last = lastActive[value]
-                  const progress = hobbyProgress[value] ?? 0
-                  const dots = weekDays.map(d =>
-                    activities.some(a => a.hobby === value && isSameDayWIB(a.activity_at, d))
-                  )
-                  return (
-                    <Link key={label} href={href} className="block no-underline min-w-0">
-                      <div className="border border-border rounded-[8px] bg-card hover:bg-neutral-50 transition-colors h-full overflow-hidden">
-                        <div className="bg-neutral-100 w-full aspect-[4/3] flex items-center justify-center text-[48px]">{icon}</div>
-                        <div className="p-3 pt-2.5">
-                          <p className="text-[14px] font-semibold text-foreground m-0 mb-1 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
-                            {label}
-                          </p>
-                          <div className="h-1 bg-neutral-100 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-500" style={{
-                              width: `${progress}%`,
-                              background: progress >= 100 ? '#059669' : progress >= 75 ? '#d97706' : 'var(--foreground)',
-                            }} />
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
+            <HobbyTab
+              hobbyLinks={hobbyLinks}
+              gearCounts={gearCounts}
+              hobbyProgress={hobbyProgress}
+              lastActive={lastActive}
+              weekDays={weekDays}
+              activities={activities}
+              onReorder={() => setReorderOpen(true)}
+            />
           )}
 
           {/* ════ STATS TAB ════ */}
           {tab === 'stats' && (
-            <div className="px-[18px] pt-4">
-              {!user ? (
-                <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
-                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
-                </EmptyState>
-              ) : activities.length === 0 ? (
-                <EmptyState icon="📈" title="No activities yet" desc="Start logging activities in your hobbies" />
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-[11px] mt-3.5">
-                    {[
-                      { v: streak, unit: 'days', l: 'Current streak' },
-                      { v: activities.length, unit: '', l: 'Total activities' },
-                      { v: Object.keys(lastActive).length, unit: '', l: 'Active hobbies' },
-                      { v: Object.values(gearCounts).reduce((a, b) => a + b, 0), unit: '', l: 'Items catalogued' },
-                    ].map((s, i) => (
-                      <Card key={i}>
-                        <CardContent className="p-4">
-                          <div className="text-h2 font-extrabold leading-none font-sans">
-                            {s.v}{s.unit ? <small className="text-para-sm text-muted-foreground font-semibold"> {s.unit}</small> : null}
-                          </div>
-                          <div className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mt-2">{s.l}</div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {fashionActivityCount > 0 && (
-                    <Card className="mt-3">
-                      <CardContent className="p-[14px_13px]">
-                        <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Fashion</h3>
-                        <div className="flex items-center gap-2">
-                          <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👔</span>
-                          <div className="flex-1 min-w-0">
-                            <span className="text-para-xs font-medium text-muted-foreground">{fashionActivityCount} activities</span>
-                            <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {(readingActivityCount > 0 || workoutActivityCount > 0) && (
-                    <div className="grid grid-cols-2 gap-3 mt-3">
-                      {readingActivityCount > 0 && (
-                        <Card>
-                          <CardContent className="p-[14px_13px]">
-                            <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Reading</h3>
-                            <div className="flex items-center gap-2">
-                              <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>📚</span>
-                              <div className="flex-1 min-w-0">
-                                <span className="text-para-xs font-medium text-muted-foreground">{readingActivityCount} activities</span>
-                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-                      {workoutActivityCount > 0 && (
-                        <Card>
-                          <CardContent className="p-[14px_13px]">
-                            <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Workout</h3>
-                            <div className="flex items-center gap-2">
-                              <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>🏋️</span>
-                              <div className="flex-1 min-w-0">
-                                <span className="text-para-xs font-medium text-muted-foreground">{workoutActivityCount} activities</span>
-                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
-                  )}
-
-                  {hobbiesByActivity.length > 0 && (
-                    <Card className="mt-3">
-                      <CardContent className="p-[17px_15px]">
-                        <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Interesting hobbies</h3>
-                        {hobbiesByActivity.map((h, i) => {
-                          const maxC = hobbiesByActivity[0].count
-                          const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                          return (
-                            <div key={h.value} className={cn('flex items-center gap-3 py-3 px-0.5', i > 0 ? 'border-t' : '')}>
-                              <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">{i + 1}</span>
-                              <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--muted)' }}>{h.icon}</span>
-                              <div className="flex-1 min-w-0">
-                                <b className="text-para-sm font-bold block">{h.label}</b>
-                                <span className="text-para-xs font-medium text-muted-foreground">{h.count} activities</span>
-                                <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: `${pct}%` }} />
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {socialActivityCount > 0 && (
-                    <Card className="mt-3">
-                      <CardContent className="p-[14px_13px]">
-                        <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Life</h3>
-                        <div className="flex items-center gap-2">
-                          <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👥</span>
-                          <div className="flex-1 min-w-0">
-                            <span className="text-para-xs font-medium text-muted-foreground">{socialActivityCount} activities</span>
-                            <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </>
-              )}
-            </div>
+            <StatsTab
+              user={user}
+              activities={activities}
+              streak={streak}
+              lastActive={lastActive}
+              gearCounts={gearCounts}
+              fashionActivityCount={fashionActivityCount}
+              socialActivityCount={socialActivityCount}
+              readingActivityCount={readingActivityCount}
+              workoutActivityCount={workoutActivityCount}
+              hobbiesByActivity={hobbiesByActivity}
+            />
           )}
 
           {/* ════ SEARCH TAB ════ */}
           {tab === 'search' && (
-            <div className="px-[18px] pt-4">
-              <div className="relative mb-[18px]">
-                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
-                </svg>
-                <Input
-                  ref={searchRef}
-                  autoFocus
-                  value={searchQ}
-                  onChange={e => setSearchQ(e.target.value)}
-                  placeholder="Search hobbies or activities…"
-                  className="pl-[42px] pr-10 h-[50px] rounded-full text-para-md font-medium bg-secondary border-0"
-                />
-                {searchQ && (
-                  <button onClick={() => setSearchQ('')} className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-muted-foreground/60 p-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                  </button>
-                )}
-              </div>
-
-              {!q && (
-                <EmptyState icon="🔍" title="Search anything" desc="Type to find hobbies, activities, or sessions" />
-              )}
-
-              {q && filteredHobbies.length === 0 && filteredActivities.length === 0 && (
-                <EmptyState icon="😶" title="No results" desc={`Nothing matches "${searchQ}"`} />
-              )}
-
-              {filteredHobbies.length > 0 && (
-                <>
-                  <p className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mb-2.5 ml-0.5">Interests</p>
-                  <div className="grid grid-cols-2 gap-[11px] mb-[22px]">
-                    {filteredHobbies.map(({ label, icon, href, value }, i) => {
-                      const count = gearCounts[value] ?? 0
-                      const last = lastActive[value]
-                      return (
-                        <Link key={value} href={href} prefetch={false} className="block no-underline">
-                          <Card className="hover:shadow-md transition-shadow h-full">
-                            <CardContent className="p-[15px_14px_13px] flex flex-col gap-2.5">
-                              <div className="flex items-center justify-between">
-                                <span className="w-10 h-10 rounded-[14px] flex items-center justify-center text-[21px]" style={{ background: TINTS[i % TINTS.length] }}>{icon}</span>
-                                <Badge variant="secondary" className="text-para-xs font-bold">{count} items</Badge>
-                              </div>
-                              <div className="font-bold text-para-sm font-sans">{label}</div>
-                              <span className="text-para-xs font-semibold text-muted-foreground/60">{last ?? 'not started'}</span>
-                            </CardContent>
-                          </Card>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
-
-              {filteredActivities.length > 0 && (
-                <>
-                  <p className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mb-2.5 ml-0.5">Activities</p>
-                  <div className="flex flex-col gap-[9px]">
-                    {filteredActivities.map(act => {
-                      const h = HOBBIES.find(x => x.value === act.hobby)
-                      return (
-                        <Card key={act.id}>
-                          <CardContent className="flex gap-3 p-3.5 items-center">
-                            <Link href={`/${act.hobby}`} className="w-[42px] h-[42px] rounded-[14px] flex items-center justify-center text-[19px] flex-shrink-0 no-underline bg-neutral-100">
-                              {h?.icon ?? '✨'}
-                            </Link>
-                            <div className="flex-1 min-w-0">
-                              <b className="text-para-sm font-bold block overflow-hidden text-ellipsis whitespace-nowrap">{act.note ?? 'Session logged'}</b>
-                              <span className="text-para-xs text-muted-foreground">{h?.label ?? act.hobby}{act.location ? ` · ${act.location}` : ''}</span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
-            </div>
+            <SearchTab
+              searchQ={searchQ}
+              searchRef={searchRef}
+              filteredHobbies={filteredHobbies}
+              filteredActivities={filteredActivities}
+              gearCounts={gearCounts}
+              lastActive={lastActive}
+              now={now}
+              onSearchChange={setSearchQ}
+              onOpenActivity={openActivity}
+            />
           )}
 
           {/* ════ GALLERY TAB ════ */}
           {tab === 'gallery' && (
-            <div className="px-[18px] pt-4">
-              {!user ? (
-                <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
-                  <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
-                </EmptyState>
-              ) : (() => {
-                const noPhotoActs = activities.filter(act =>
-                  !photos.some(p => p.hobby === act.hobby && p.note === act.note)
-                )
-                const feed: Array<
-                  | { type: 'photo'; date: string; photo: HobbyPhoto }
-                  | { type: 'activity'; date: string; act: HobbyActivity }
-                  | { type: 'worth_it'; date: string; item: WardrobeItem }
-                > = [
-                  ...photos.map(p => {
-                    const linked = activities.find(a => a.hobby === p.hobby && a.note === p.note)
-                      ?? activities.find(a => a.hobby === p.hobby)
-                    return { type: 'photo' as const, date: linked?.activity_at ?? p.created_at, photo: p }
-                  }),
-                  ...noPhotoActs.map(a => ({ type: 'activity' as const, date: a.activity_at, act: a })),
-                  ...worthItItems.filter(i => i.last_worn).map(i => ({ type: 'worth_it' as const, date: i.last_worn!, item: i })),
-                ].sort((a, b) => b.date.localeCompare(a.date))
-
-                if (feed.length === 0) {
-                  return <EmptyState icon="📸" title="No activity yet" desc="Capture moments or log activities from your hobbies" />
-                }
-
-                return (
-                  <div className="flex flex-col gap-3 mt-1">
-                    {feed.map(item => {
-                      if (item.type === 'photo') {
-                        const p = item.photo
-                        const h = HOBBIES.find(x => x.value === p.hobby)
-                        const linkedActivity = activities.find(a => a.hobby === p.hobby && a.note === p.note)
-                          ?? activities.find(a => a.hobby === p.hobby)
-                        return (
-                          <Card key={`p-${p.id}`} className="overflow-hidden">
-                            <div onClick={() => setFullscreenPhoto(p)} className="cursor-pointer rounded-t-xl overflow-hidden">
-                              <img src={p.image_url} alt={p.hobby} className="w-full block object-cover max-h-[420px]" />
-                            </div>
-                            <CardContent className="p-[12px_14px_14px]">
-                              {p.note && <p className="text-para-md font-semibold m-0 mb-2.5 leading-[1.4]">{p.note}</p>}
-                              <div className="flex items-center justify-between gap-2.5">
-                                <div className="flex gap-2.5 items-center flex-1 min-w-0">
-                                  <span className="text-[22px] flex-shrink-0">{h?.icon ?? '📷'}</span>
-                                  <b className="font-bold text-para-sm block font-sans">{h?.label ?? p.hobby}</b>
-                                </div>
-                                {(() => {
-                                  const ts = linkedActivity?.activity_at ?? p.created_at
-                                  return (
-                                    <span className="flex-shrink-0 text-para-xs font-semibold text-muted-foreground/60">
-                                      {formatDateLabel(ts, now)} · {formatTime(ts)}
-                                    </span>
-                                  )
-                                })()}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )
-                      } else if (item.type === 'worth_it') {
-                        const wi = item.item
-                        const { targetUses: wiTarget } = calcWorthIt({ purchasePrice: wi.price, actualUses: wi.wear_count, targetOverride: wi.target })
-                        return (
-                          <Link
-                            key={`wi-${wi.id}`}
-                            href={`/wardrobes?item=${wi.id}`}
-                            className="no-underline"
-                          >
-                            <div
-                              className="rounded-xl overflow-hidden border border-border flex gap-3 items-center p-3"
-                              style={{ background: 'linear-gradient(135deg, #FFF9E6 0%, #FFF3D1 100%)' }}
-                            >
-                              {wi.image_url && (
-                                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-black/10">
-                                  <img src={wi.image_url} alt={wi.name} className="w-full h-full object-cover" />
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-0.5">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[15px]">🏆</span>
-                                    <span className="text-para-xs font-bold" style={{ color: '#B45309' }}>Worth It!</span>
-                                  </div>
-                                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a' }}>
-                                    <span className="text-[10px]">⭐</span>
-                                    <span className="text-[11px] font-bold" style={{ color: '#f1f252' }}>+{wiTarget} pts</span>
-                                  </div>
-                                </div>
-                                <p className="m-0 text-para-sm font-bold leading-snug truncate" style={{ color: '#0A0A0A' }}>{wi.name}</p>
-                                <p className="m-0 text-para-xs font-medium mt-0.5" style={{ color: '#78716C' }}>
-                                  {wi.category} · {formatDateLabel(wi.last_worn!, now)}
-                                </p>
-                                <p className="m-0 text-para-xs font-medium mt-1" style={{ color: '#92400E' }}>
-                                  Selamat! Item ini sudah mencapai batas worth it 🎉
-                                </p>
-                              </div>
-                            </div>
-                          </Link>
-                        )
-                      } else {
-                        const act = item.act
-                        const h = HOBBIES.find(x => x.value === act.hobby)
-                        const timeAgo = `${formatDateLabel(act.activity_at, now)} · ${formatTime(act.activity_at)}`
-                        const text = act.note ?? 'Session logged'
-                        const SHORT = 120
-                        const LONG  = 400
-                        const isShort = text.length <= SHORT
-                        const isVeryLong = text.length > LONG
-                        const isExpanded = expandedPosts.has(act.id)
-                        const toggleExpand = (e: React.MouseEvent) => {
-                          e.stopPropagation()
-                          setExpandedPosts(prev => {
-                            const next = new Set(prev)
-                            isExpanded ? next.delete(act.id) : next.add(act.id)
-                            return next
-                          })
-                        }
-                        const outfitSnapshotItems = act.outfit_snapshot && act.outfit_snapshot.length > 0 ? act.outfit_snapshot : null
-                        const outfitLinkedItems = act.outfits ? (act.outfits.outfit_items?.map((oi: { item_id: string; wardrobe_items: { id: string; image_url: string; name: string } }) => oi.wardrobe_items).filter(Boolean) ?? []) : null
-                        const outfitDisplayItems = outfitSnapshotItems ?? outfitLinkedItems
-                        const outfitLabel = act.outfits?.name ?? '👗 Outfit'
-
-                        if (outfitDisplayItems) {
-                          return (
-                            <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border cursor-pointer" style={{ background: 'var(--card)' }} onClick={() => openActivity(act)}>
-                              <div className="flex items-center justify-between px-4 pt-3 pb-2">
-                                <span className="text-para-xs font-bold text-muted-foreground">{act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit'}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      triggerExport({
-                                        type: 'outfit',
-                                        label: act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit',
-                                        timestamp: timeAgo,
-                                        text: act.note ?? null,
-                                        items: outfitDisplayItems as { id: string; image_url: string; name: string }[],
-                                      })
-                                    }}
-                                    disabled={exporting}
-                                    className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40"
-                                  >
-                                    {exporting ? '...' : 'Export'}
-                                  </button>
-                                </div>
-                              </div>
-                              <div className="flex gap-2 overflow-x-auto px-4 pb-3" style={{ scrollbarWidth: 'none' }}>
-                                {outfitDisplayItems.map((item: { id: string; image_url: string; name: string }, i: number) => (
-                                  <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border">
-                                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                                  </div>
-                                ))}
-                              </div>
-                              {act.note && (
-                                <p className="m-0 px-4 pb-4 text-para-sm font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>{act.note}</p>
-                              )}
-                            </div>
-                          )
-                        }
-
-                        if (isVeryLong) return (
-                          <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border" style={{ background: "var(--card)" }}>
-                            <div className="p-4 pb-3.5">
-                              <div className="flex items-center gap-2 mb-2.5">
-                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
-                                <div className="ml-auto flex items-center gap-2">
-                                  <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
-                                  <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
-                                </div>
-                              </div>
-                              <p
-                                onClick={() => openActivity(act)}
-                                className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer overflow-hidden"
-                                style={{
-                                  color: '#ffffff',
-                                  display: '-webkit-box',
-                                  WebkitBoxOrient: 'vertical',
-                                  WebkitLineClamp: isExpanded ? 'unset' : 5,
-                                  overflow: 'hidden',
-                                } as React.CSSProperties}
-                              >
-                                {text}
-                              </p>
-                              <button
-                                onClick={toggleExpand}
-                                className="bg-transparent border-0 pt-1.5 pb-0 px-0 text-para-sm font-bold cursor-pointer"
-                                style={{ color: 'var(--foreground)' }}
-                              >
-                                {isExpanded ? 'Show less' : 'Read more'}
-                              </button>
-                            </div>
-                          </div>
-                        )
-                        if (!isShort) return (
-                          <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border" style={{ background: "var(--card)" }}>
-                            <div className="p-4 pb-3.5">
-                              <div className="flex items-center gap-2 mb-2.5">
-                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-sm font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
-                                <div className="ml-auto flex items-center gap-2">
-                                  <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
-                                  <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
-                                </div>
-                              </div>
-                              <p
-                                onClick={() => openActivity(act)}
-                                className="m-0 text-para-sm font-medium leading-relaxed text-left break-words cursor-pointer"
-                                style={{ color: 'var(--foreground)' }}
-                              >
-                                {text}
-                              </p>
-                            </div>
-                          </div>
-                        )
-                        return (
-                          <div
-                            key={`a-${act.id}`}
-                            onClick={() => openActivity(act)}
-                            className="rounded-xl overflow-hidden min-h-[140px] flex flex-col justify-between cursor-pointer border border-border"
-                            style={{ background: 'var(--card)' }}
-                          >
-                            <div className="p-[20px_18px_12px] flex-1 flex flex-col justify-center items-center text-center" style={{ background: 'var(--muted)' }}>
-                              <p className="m-0 text-h3 font-extrabold leading-[1.25] break-words font-sans" style={{ color: 'var(--foreground)' }}>
-                                {text}
-                              </p>
-                            </div>
-                            <div className="p-[12px_18px] flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[18px]">{h?.icon ?? '✨'}</span>
-                                <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{h?.label ?? act.hobby}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-para-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>{timeAgo}</span>
-                                <button onClick={(e) => { e.stopPropagation(); triggerExport({ type: 'text', label: h?.label ?? act.hobby ?? '', labelIcon: h?.icon as string, timestamp: timeAgo, text, items: [] }) }} disabled={exporting} className="text-para-xs font-semibold text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-40">{exporting ? '...' : 'Export'}</button>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      }
-                    })}
-                  </div>
-                )
-              })()}
-            </div>
+            <GalleryTab
+              user={user}
+              activities={activities}
+              photos={photos}
+              worthItItems={worthItItems}
+              expandedPosts={expandedPosts}
+              now={now}
+              exporting={exporting}
+              onToggleExpanded={id => setExpandedPosts(prev => {
+                const next = new Set(prev)
+                prev.has(id) ? next.delete(id) : next.add(id)
+                return next
+              })}
+              onOpenActivity={openActivity}
+              onFullscreenPhoto={setFullscreenPhoto}
+              onTriggerExport={triggerExport}
+            />
           )}
         </div>
 
@@ -1355,7 +711,7 @@ export default function Home() {
           return (
             <div className="fixed inset-0 bg-black z-[60] flex flex-col" onClick={() => setFullscreenPhoto(null)}>
               <div className="flex-1 flex items-center justify-center">
-                <img src={fullscreenPhoto.image_url} alt="" className="max-w-full max-h-full object-contain" />
+                <Image src={fullscreenPhoto.image_url} alt="" width={800} height={800} className="max-w-full max-h-full object-contain" style={{ height: 'auto' }} sizes="100vw" />
               </div>
               <div className="absolute" style={{ top: 'calc(16px + env(safe-area-inset-top,0px))', right: 16 }}>
                 <button onClick={() => setFullscreenPhoto(null)} className="w-9 h-9 rounded-full border-0 flex items-center justify-center cursor-pointer" style={{ background: 'rgba(255,255,255,.15)', color: '#fff' }}>

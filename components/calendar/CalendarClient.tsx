@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react'
 import { logOutfit, removeOutfitLog } from '@/app/actions'
 import type { Outfit, OutfitLog, WardrobeItem } from '@/lib/types'
@@ -108,7 +109,7 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
                 } ${selectedDate === ds ? 'ring-2 ring-primary' : ''}`}>
                 {coverImg ? (
                   <>
-                    <img src={coverImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    <Image src={coverImg} alt="" fill className="object-cover" sizes="(max-width: 768px) 14vw, 60px" />
                     <div className="absolute inset-0 bg-black/30" />
                     <span className={`relative z-10 text-xs font-semibold ${isToday ? 'text-white' : 'text-white/80'}`}>{day}</span>
                   </>
@@ -159,8 +160,8 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
                         {items.length > 0 && (
                           <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
                             {items.map((item) => item && (
-                              <div key={(item as WardrobeItem).id} className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-border">
-                                <img src={(item as WardrobeItem).image_url} alt="" className="w-full h-full object-cover" />
+                              <div key={(item as WardrobeItem).id} className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border border-border relative">
+                                <Image src={(item as WardrobeItem).image_url} alt="" fill className="object-cover" sizes="64px" />
                               </div>
                             ))}
                           </div>
@@ -186,7 +187,9 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
                         <button key={outfit.id} onClick={() => handleLog(outfit.id)} disabled={isPending}
                           className="w-full flex items-center gap-3 p-3 bg-muted rounded-xl border border-border hover:border-primary/50 transition-colors disabled:opacity-40">
                           {items[0] && (
-                            <img src={(items[0] as WardrobeItem).image_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                            <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative">
+                              <Image src={(items[0] as WardrobeItem).image_url} alt="" fill className="object-cover" sizes="40px" />
+                            </div>
                           )}
                           <div className="text-left">
                             <p className="text-foreground text-sm font-medium">{outfit.name}</p>

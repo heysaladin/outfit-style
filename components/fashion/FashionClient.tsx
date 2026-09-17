@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -319,8 +320,8 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
             {qpSelected.size > 0 && items && (
               <div className="flex gap-2 overflow-x-auto pb-3 mb-3" style={{ scrollbarWidth: 'none' }}>
                 {items.filter(i => qpSelected.has(i.id)).map(item => (
-                  <div key={item.id} className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 border-primary">
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                  <div key={item.id} className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 border-primary relative">
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="64px" />
                   </div>
                 ))}
               </div>
@@ -350,7 +351,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                         sel ? 'border-primary' : 'border-border',
                       )}
                     >
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
                       {sel && (
                         <div className="absolute inset-0 bg-black/15 flex items-end justify-center pb-1.5">
                           <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">

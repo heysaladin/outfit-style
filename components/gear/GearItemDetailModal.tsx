@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition, useState, useRef } from 'react'
+import Image from 'next/image'
 import { X, Trash2, Pencil, CheckCircle2, Upload, Tag, Link } from 'lucide-react'
 import { deleteGearItem, updateGearItem, setGearItemStatus, flagGearDeclutter } from '@/app/actions'
 import { HOBBIES, HOBBY_META_FIELDS, GEAR_CONDITIONS, DECLUTTER_STATUSES, type GearItem } from '@/lib/types'
@@ -77,9 +78,9 @@ export function GearItemDetailModal({ item, onClose }: GearItemDetailModalProps)
         </div>
 
         {/* Image */}
-        <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+        <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted flex items-center justify-center relative">
           {item.image_url ? (
-            <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
+            <Image src={item.image_url} alt={item.name} fill className="object-contain" sizes="(max-width: 430px) 100vw, 430px" />
           ) : (
             <span className="text-6xl">{hobbyDef?.icon ?? '📦'}</span>
           )}

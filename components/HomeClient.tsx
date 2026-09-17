@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Home, BarChart2, Images, Menu, X, ArrowUpDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -232,8 +233,8 @@ export function HomeClient({ user }: { user: User | null }) {
             ) : (
               <div className="grid grid-cols-3 gap-1 rounded-2xl overflow-hidden">
                 {photos.map(p => (
-                  <div key={p.id} className="aspect-square bg-muted overflow-hidden">
-                    <img src={p.photo_url} alt={p.hobby} className="w-full h-full object-cover" />
+                  <div key={p.id} className="aspect-square bg-muted overflow-hidden relative">
+                    <Image src={p.photo_url} alt={p.hobby} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
                   </div>
                 ))}
               </div>

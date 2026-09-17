@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { flagDeclutter, setItemStatus, deleteItem } from '@/app/actions'
 import type { WardrobeItem, DeclutterStatus } from '@/lib/types'
@@ -107,9 +108,9 @@ export function DeclutterClient({ items, cutoffDate }: DeclutterClientProps) {
         <div className="px-4 pt-4 space-y-3 pb-24">
           {shown.map(item => (
             <div key={item.id} className="flex gap-3 bg-card rounded-2xl p-3 border border-border">
-              <div className="w-20 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+              <div className="w-20 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0 bg-muted relative">
                 {item.image_url && (
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                  <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="80px" />
                 )}
               </div>
               <div className="flex-1 min-w-0 py-1">

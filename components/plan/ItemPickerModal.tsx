@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition, useState, useEffect } from 'react'
+import Image from 'next/image'
 import { X, Check } from 'lucide-react'
 import { addToPlan, removeFromPlan } from '@/app/actions'
 import { CATEGORY_TREE, type WardrobeItem, type PlanEntry } from '@/lib/types'
@@ -100,7 +101,7 @@ export function ItemPickerModal({ open, date, dayPlans, allItems, onClose }: Ite
                     disabled={isPending}
                     className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted active:scale-95 transition-transform disabled:opacity-70"
                   >
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
                     {isPlanned && (
                       <div className="absolute inset-0 bg-primary/20 flex items-start justify-end p-1.5">
                         <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">

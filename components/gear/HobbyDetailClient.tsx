@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
@@ -122,7 +123,7 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                 >
                   <div className="aspect-square grid place-items-center text-5xl relative bg-muted">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
                     ) : (
                       <span>{hobby.icon}</span>
                     )}

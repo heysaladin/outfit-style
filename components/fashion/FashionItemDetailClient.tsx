@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useTransition, useState } from 'react'
 import { ChevronLeft, Pencil, X } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -102,7 +103,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
         {/* Hero image */}
         {item.image_url && (
           <div className="rounded-[28px] overflow-hidden mb-0 bg-card">
-            <img src={item.image_url} alt={item.name} className="w-full block object-contain" />
+            <Image src={item.image_url} alt={item.name} width={800} height={800} className="w-full block object-contain" style={{ height: 'auto' }} sizes="(max-width: 768px) 100vw, 50vw" />
           </div>
         )}
 

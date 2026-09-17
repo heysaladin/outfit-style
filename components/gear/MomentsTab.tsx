@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { X, Trash2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
@@ -117,7 +118,7 @@ export function MomentsTab({ hobby, photos: initialPhotos, user }: Props) {
               onClick={() => setViewPhoto(p)}
               className="rounded-2xl mb-2.5 overflow-hidden relative cursor-pointer break-inside-avoid"
             >
-              <img src={p.image_url} alt={p.note ?? ''} className="w-full block object-cover" />
+              <Image src={p.image_url} alt={p.note ?? ''} width={800} height={800} className="w-full block object-cover" style={{ height: 'auto' }} sizes="(max-width: 768px) 50vw, 33vw" />
               {p.note && (
                 <div
                   className="absolute left-0 right-0 bottom-0 px-3 pb-2 pt-6 text-[11px] font-bold text-white"

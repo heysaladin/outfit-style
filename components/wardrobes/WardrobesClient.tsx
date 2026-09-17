@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useEffect } from 'react'
+import Image from 'next/image'
 import { Plus, Pencil, Trash2, Package2, ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -202,8 +203,8 @@ function SortableWardrobe({ wardrobe: w, items, expanded, onToggleExpand, onEdit
       {expanded && items.length > 0 && (
         <div className="border-t border-border px-4 py-3 grid grid-cols-3 gap-2">
           {[...items].sort((a, b) => a.wear_count - b.wear_count).map(item => (
-            <div key={item.id} className="aspect-[3/4] rounded-xl overflow-hidden bg-muted">
-              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+            <div key={item.id} className="aspect-[3/4] rounded-xl overflow-hidden bg-muted relative">
+              <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
             </div>
           ))}
         </div>

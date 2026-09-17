@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2 } from 'lucide-react'
 import {
   createOutfit, deleteOutfit, useOutfit, updateOutfit, postOutfit,
@@ -24,13 +25,15 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
     <div className="w-full h-full flex items-center justify-center text-4xl bg-muted">👗</div>
   )
   if (shown.length === 1) return (
-    <img src={shown[0].image_url} alt="" className="w-full h-full object-cover" />
+    <div className="relative w-full h-full">
+      <Image src={shown[0].image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
+    </div>
   )
   return (
     <div className="grid grid-cols-2 w-full h-full gap-0.5">
       {shown.map((item, i) => (
-        <div key={i} className="overflow-hidden bg-muted">
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+        <div key={i} className="overflow-hidden bg-muted relative">
+          <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 25vw, 20vw" />
         </div>
       ))}
       {shown.length < 4 && Array.from({ length: 4 - shown.length }).map((_, i) => (
@@ -90,7 +93,7 @@ function ItemPicker({
         {filtered.map(item => (
           <button key={item.id} onClick={() => onToggle(item.id)}
             className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedIds.has(item.id) ? 'border-primary' : 'border-border'}`}>
-            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+            <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
             {selectedIds.has(item.id) && (
               <div className="absolute inset-0 bg-primary/15 flex items-end justify-center pb-1">
                 <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
@@ -422,8 +425,8 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {detailItems.map((item) => item && (
-                  <div key={(item as WardrobeItem).id} className="aspect-square rounded-xl overflow-hidden border border-border">
-                    <img src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} className="w-full h-full object-cover" />
+                  <div key={(item as WardrobeItem).id} className="aspect-square rounded-xl overflow-hidden border border-border relative">
+                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
                   </div>
                 ))}
               </div>
@@ -521,7 +524,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                         : 'border-border pointer-events-none'
                     }`}
                   >
-                    <img src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} className="w-full h-full object-cover" />
+                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
                     {wcUseMode && wcUseIds.has((item as WardrobeItem).id) && (
                       <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                         <CheckCircle2 size={24} className="text-primary drop-shadow" />
@@ -614,8 +617,8 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <div className="overflow-y-auto flex-1 p-5 space-y-4">
               <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
                 {detailItems.map((item, i) => item && (
-                  <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border">
-                    <img src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} className="w-full h-full object-cover" />
+                  <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border relative">
+                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="80px" />
                   </div>
                 ))}
               </div>

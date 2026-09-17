@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -158,7 +159,7 @@ function BookCard({ book, progress, status, onDetails }: {
       {/* Cover */}
       <div className="relative">
         {book.image_url ? (
-          <img src={book.image_url} alt={book.name} className="w-full h-auto block" />
+          <Image src={book.image_url} alt={book.name} width={800} height={800} className="w-full block" style={{ height: 'auto' }} sizes="(max-width: 768px) 50vw, 33vw" />
         ) : (
           <div className="h-32 flex items-center justify-center text-4xl bg-gradient-to-br from-[#FFF0DC] to-[#FFDFC2]">
             📖
@@ -216,9 +217,9 @@ function DetailsSheet({ book, draftNote, draftProgress, draftStatus, saving, sav
     <Sheet onClose={onClose}>
       {/* Book header */}
       <div className="flex items-start gap-3.5 mb-5">
-        <div className="w-[52px] h-[70px] rounded-lg flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFF0DC] to-[#FFDFC2] flex items-center justify-center text-2xl">
+        <div className="w-[52px] h-[70px] rounded-lg flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFF0DC] to-[#FFDFC2] flex items-center justify-center text-2xl relative">
           {book.image_url
-            ? <img src={book.image_url} alt={book.name} className="w-full h-full object-cover" />
+            ? <Image src={book.image_url} alt={book.name} fill className="object-cover" sizes="52px" />
             : '📖'
           }
         </div>

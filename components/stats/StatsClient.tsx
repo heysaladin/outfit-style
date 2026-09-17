@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 import type { WardrobeItem } from '@/lib/types'
 import { CATEGORY_TREE } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
@@ -140,8 +141,8 @@ export function StatsClient({ items }: StatsClientProps) {
             <h2 className="text-foreground font-semibold text-sm mb-3">Never Worn ({neverWorn.length})</h2>
             <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
               {neverWorn.map(item => (
-                <div key={item.id} className="flex-shrink-0 w-20 aspect-[3/4] rounded-xl overflow-hidden border border-border">
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                <div key={item.id} className="flex-shrink-0 w-20 aspect-[3/4] rounded-xl overflow-hidden border border-border relative">
+                  <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="80px" />
                 </div>
               ))}
             </div>
@@ -155,7 +156,9 @@ export function StatsClient({ items }: StatsClientProps) {
             <div className="space-y-2">
               {withPrice.slice(0, 8).map(item => (
                 <div key={item.id} className="flex items-center gap-3 bg-card rounded-xl p-3 border border-border">
-                  <img src={item.image_url} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative">
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="40px" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-foreground text-xs font-medium truncate">{item.name}</p>
                     <p className="text-muted-foreground text-xs">{item.wear_count} wears · ${item.price}</p>
@@ -182,7 +185,9 @@ function ItemRow({ item, rank }: { item: WardrobeItem; rank: number }) {
   return (
     <div className="flex items-center gap-3 bg-card rounded-xl p-3 border border-border">
       <span className="text-muted-foreground/50 text-xs font-bold w-4">{rank}</span>
-      <img src={item.image_url} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative">
+        <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="40px" />
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-foreground text-xs font-medium truncate">{item.name}</p>
         <p className="text-muted-foreground text-xs">

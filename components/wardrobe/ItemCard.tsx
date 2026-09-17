@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Trash2, RotateCcw } from 'lucide-react'
 import type { WardrobeItem } from '@/lib/types'
 import { DECLUTTER_STATUSES } from '@/lib/types'
@@ -51,7 +52,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         dimmed ? 'opacity-50' : ''
       } ${selected ? 'ring-2 ring-foreground ring-offset-2 ring-offset-background' : ''}`}>
         <button onClick={onClick} className="w-full block">
-          {src && <img src={src} alt={item.name} className="w-full h-auto object-contain mix-blend-multiply dark:mix-blend-normal" />}
+          {src && <Image src={src} alt={item.name} width={800} height={800} className="w-full object-contain mix-blend-multiply dark:mix-blend-normal" style={{ height: 'auto' }} sizes="(max-width: 768px) 50vw, 25vw" />}
         </button>
 
         {/* Status badge */}

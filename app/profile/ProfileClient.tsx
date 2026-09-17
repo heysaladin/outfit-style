@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { ChevronLeft, LogOut, Shirt, Wrench } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
@@ -37,7 +38,7 @@ export function ProfileClient({ user, wardrobeCount, gearCount }: Props) {
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-3 py-6">
           {avatar
-            ? <img src={avatar} alt={name} className="w-20 h-20 rounded-2xl object-cover" />
+            ? <Image src={avatar} alt={name} width={80} height={80} className="w-20 h-20 rounded-2xl object-cover" />
             : <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center text-3xl font-bold text-muted-foreground">{name[0]?.toUpperCase()}</div>}
           <div className="text-center">
             <p className="text-foreground font-semibold text-lg">{name}</p>

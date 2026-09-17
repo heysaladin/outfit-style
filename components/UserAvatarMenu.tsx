@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { User, Sun, Moon, AlignJustify, Layers, PenLine, Shirt, BarChart2, Scissors, CalendarDays, ListChecks } from 'lucide-react'
@@ -44,7 +45,7 @@ export function UserAvatarMenu({ buttonClassName, buttonStyle, onReorderInterest
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <span className="relative flex shrink-0 overflow-hidden rounded-full w-10 h-10 border border-border">
-            <img className="aspect-square h-full w-full" alt={name} src={avatar} />
+            <Image src={avatar} alt={name} fill className="object-cover" sizes="40px" />
           </span>
           <div className="min-w-0">
             <p className="text-[15px] font-semibold text-foreground leading-tight truncate">{name}</p>
@@ -140,10 +141,10 @@ export function UserAvatarMenu({ buttonClassName, buttonStyle, onReorderInterest
     <>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
-        className={buttonClassName ?? 'w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0'}
+        className={buttonClassName ?? 'relative w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0'}
         style={buttonStyle}
       >
-        <img src={avatar} alt={name} className="w-full h-full object-cover" />
+        <Image src={avatar} alt={name} fill className="object-cover" sizes="32px" />
       </button>
 
       {open && mounted && createPortal(dropdown, document.body)}
