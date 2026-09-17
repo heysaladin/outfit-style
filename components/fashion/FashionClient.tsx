@@ -102,6 +102,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         const hay = [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase()
         if (!hay.includes(textQ)) return false
       }
+      if (sort === 'worth_it_desc' && calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, targetOverride: i.target }).isWorthIt) return false
       return true
     })
     .sort((a, b) => {

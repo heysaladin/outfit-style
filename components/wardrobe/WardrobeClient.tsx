@@ -71,6 +71,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (item.declutter_status && !showDraft) return false
     if (!showPrivate && item.item_type === 'underwear') return false
     if (showAchieved && !calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
+    if (sort === 'worth_it_desc' && calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
     if (tagTokens.length > 0) {
       const itemTags = (item.tags ?? []).map(t => t.toLowerCase())
       if (!tagTokens.every(t => itemTags.includes(t))) return false
