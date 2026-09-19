@@ -193,7 +193,7 @@ export interface Outfit {
   notes: string | null
   created_at: string
   updated_at: string
-  outfit_items?: { item_id: string; wardrobe_items: WardrobeItem }[]
+  outfit_items?: { item_id: string; sort_order: number; wardrobe_items: WardrobeItem }[]
 }
 
 export interface OutfitLog {
@@ -210,8 +210,9 @@ export interface WardrobeCollection {
   id: string
   user_id: string
   name: string
+  sort_order: number
   created_at: string
-  wardrobe_collection_items?: { item_id: string; wardrobe_items: WardrobeItem }[]
+  wardrobe_collection_items?: { item_id: string; sort_order: number; wardrobe_items: WardrobeItem }[]
 }
 
 export interface PlanEntry {
@@ -239,7 +240,7 @@ export const HOBBIES = [
   { value: 'fish_keeping', label: 'Fish Keeping', icon: '🐠',  category: 'hands_on'  },
   { value: 'drawing',      label: 'Drawing',      icon: '✏️',  category: 'creative'  },
   { value: '3d_modelling', label: '3D Modelling', icon: '🧊',  category: 'creative'  },
-  { value: 'reading',      label: 'Reading',      icon: '📚',  category: 'wellness'  },
+  { value: 'reading',      label: 'Reading & Writing',      icon: '📚',  category: 'wellness'  },
   { value: 'grooming',     label: 'Grooming',     icon: '💈',  category: 'lifestyle' },
   { value: 'coding',        label: 'Coding',        icon: '💻',  category: 'technical' },
   { value: 'designing',    label: 'Designing',    icon: '🎨',  category: 'creative'  },
@@ -417,7 +418,7 @@ export interface HobbyActivity {
   outfits?: {
     id: string
     name: string
-    outfit_items?: { item_id: string; wardrobe_items: WardrobeItem }[]
+    outfit_items?: { item_id: string; sort_order: number; wardrobe_items: WardrobeItem }[]
   } | null
   outfit_snapshot?: { id: string; image_url: string; name: string }[] | null
 }

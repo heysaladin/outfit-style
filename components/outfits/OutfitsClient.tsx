@@ -4,8 +4,15 @@ import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2 } from 'lucide-react'
 import {
+  DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { SortableContext, useSortable, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   createOutfit, deleteOutfit, useOutfit, updateOutfit, postOutfit,
   createWardrobeCollection, updateWardrobeCollection, deleteWardrobeCollection, useCollectionItems,
+  reorderOutfitItems, reorderCollectionItems, reorderCollections,
 } from '@/app/actions'
 import type { Outfit, WardrobeCollection, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
@@ -33,7 +40,8 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
     <div className="grid grid-cols-2 w-full h-full gap-0.5">
       {shown.map((item, i) => (
         <div key={i} className="overflow-hidden bg-muted relative">
-          <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 25vw, 20vw" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
         </div>
       ))}
       {shown.length < 4 && Array.from({ length: 4 - shown.length }).map((_, i) => (
@@ -111,6 +119,95 @@ function ItemPicker({
   )
 }
 
+function SortableDetailItem({ item }: { item: WardrobeItem }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+  return (
+    <div ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
+      {...attributes} {...listeners}
+      className="aspect-square rounded-xl overflow-hidden border border-border relative touch-none cursor-grab active:cursor-grabbing">
+      <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
+    </div>
+  )
+}
+
+function SortableCollectionDetailItem({
+  item, wcUseMode, isSelected, onToggle,
+}: {
+  item: WardrobeItem
+  wcUseMode: boolean
+  isSelected: boolean
+  onToggle: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+    disabled: wcUseMode,
+  })
+  const { worthItProgress } = item.price && item.price > 0
+    ? calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, purchaseDate: item.purchase_date, targetOverride: item.target })
+    : { worthItProgress: 0 }
+
+  return (
+    <button ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
+      {...(wcUseMode ? {} : { ...attributes, ...listeners })}
+      onClick={() => wcUseMode ? onToggle() : undefined}
+      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+        wcUseMode
+          ? isSelected ? 'border-primary' : 'border-border'
+          : 'border-border touch-none cursor-grab active:cursor-grabbing'
+      }`}
+    >
+      <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
+      {wcUseMode && isSelected && (
+        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+          <CheckCircle2 size={24} className="text-primary drop-shadow" />
+        </div>
+      )}
+      {!wcUseMode && item.price && item.price > 0 && (
+        <div className="absolute inset-x-0 bottom-0 p-1 bg-gradient-to-t from-black/60 to-transparent">
+          <div className="w-full bg-white/30 rounded-full h-1">
+            <div className="bg-white rounded-full h-1" style={{ width: `${worthItProgress}%` }} />
+          </div>
+        </div>
+      )}
+    </button>
+  )
+}
+
+function SortableCollectionCard({
+  col,
+  onPress,
+}: {
+  col: WardrobeCollection
+  onPress: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: col.id })
+  const items = [...(col.wardrobe_collection_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(ci => ci.wardrobe_items).filter(Boolean) as WardrobeItem[]
+  const progress = collectionWorthItProgress(items)
+  return (
+    <button
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
+      {...attributes}
+      {...listeners}
+      onClick={onPress}
+      className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border touch-none cursor-grab active:cursor-grabbing"
+    >
+      <OutfitCollage items={items} />
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+        <p className="text-white text-xs font-semibold truncate">{col.name}</p>
+        <p className="text-white/60 text-[10px]">{items.length} items</p>
+        {progress !== null && (
+          <div className="mt-1.5 w-full bg-white/20 rounded-full h-1">
+            <div className="bg-white rounded-full h-1 transition-all" style={{ width: `${progress}%` }} />
+          </div>
+        )}
+      </div>
+    </button>
+  )
+}
+
 export function OutfitsClient({ outfits, allItems, wardrobeCollections }: OutfitsClientProps) {
   const [view, setView] = useState<'outfits' | 'wardrobes'>('outfits')
 
@@ -149,6 +246,16 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   const [wcUseDate, setWcUseDate]           = useState(() => new Date().toISOString().split('T')[0])
   const [wcUseConfirm, setWcUseConfirm]     = useState(false)
 
+  // ── Reorder state ─────────────────────────────────────────────────────────
+  const [detailItemOrder, setDetailItemOrder]     = useState<string[]>([])
+  const [wcDetailItemOrder, setWcDetailItemOrder] = useState<string[]>([])
+  const [collectionsOrder, setCollectionsOrder]   = useState<string[]>(() => wardrobeCollections.map(c => c.id))
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+  )
+
   // ── Outfit handlers ───────────────────────────────────────────────────────
   function toggleItem(id: string) {
     setSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -160,7 +267,10 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
     if (!detail) return
     setEditName(detail.name)
     setEditOccasion(detail.occasion ?? '')
-    setEditIds(new Set(detail.outfit_items?.map(oi => (oi.wardrobe_items as WardrobeItem)?.id).filter(Boolean) ?? []))
+    setEditIds(new Set(
+      [...(detail.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+        .map(oi => (oi.wardrobe_items as WardrobeItem)?.id).filter(Boolean)
+    ))
     setEditSearch('')
     setEditing(true)
   }
@@ -218,7 +328,10 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   function openWcEdit() {
     if (!wcDetail) return
     setWcEditName(wcDetail.name)
-    setWcEditIds(new Set(wcDetail.wardrobe_collection_items?.map(ci => (ci.wardrobe_items as WardrobeItem)?.id).filter(Boolean) ?? []))
+    setWcEditIds(new Set(
+      [...(wcDetail.wardrobe_collection_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+        .map(ci => (ci.wardrobe_items as WardrobeItem)?.id).filter(Boolean)
+    ))
     setWcEditSearch('')
     setWcEditing(true)
   }
@@ -245,6 +358,49 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
       exitWcUseMode()
     })
   }
+
+  function handleOutfitDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id || !detail) return
+    const oldIndex = detailItemOrder.indexOf(active.id as string)
+    const newIndex = detailItemOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(detailItemOrder, oldIndex, newIndex)
+    setDetailItemOrder(newOrder)
+    startTransition(async () => { await reorderOutfitItems(detail.id, newOrder) })
+  }
+
+  function handleWcDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id || !wcDetail) return
+    const oldIndex = wcDetailItemOrder.indexOf(active.id as string)
+    const newIndex = wcDetailItemOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(wcDetailItemOrder, oldIndex, newIndex)
+    setWcDetailItemOrder(newOrder)
+    startTransition(async () => { await reorderCollectionItems(wcDetail.id, newOrder) })
+  }
+
+  function handleCollectionsDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = collectionsOrder.indexOf(active.id as string)
+    const newIndex = collectionsOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(collectionsOrder, oldIndex, newIndex)
+    setCollectionsOrder(newOrder)
+    startTransition(async () => { await reorderCollections(newOrder) })
+  }
+
+  const detailItemsById = Object.fromEntries(
+    (detail?.outfit_items?.map(oi => [oi.item_id, oi.wardrobe_items]) ?? [])
+  )
+  const sortedDetailItems = detailItemOrder.map(id => detailItemsById[id]).filter(Boolean) as WardrobeItem[]
+
+  const wcDetailItemsById = Object.fromEntries(
+    (wcDetail?.wardrobe_collection_items?.map(ci => [ci.item_id, ci.wardrobe_items]) ?? [])
+  )
+  const sortedWcDetailItems = wcDetailItemOrder.map(id => wcDetailItemsById[id]).filter(Boolean) as WardrobeItem[]
+
+  const collectionsById = Object.fromEntries(wardrobeCollections.map(c => [c.id, c]))
+  const sortedCollections = collectionsOrder.map(id => collectionsById[id]).filter(Boolean) as WardrobeCollection[]
 
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
   const wcDetailItems = wcDetail?.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) ?? []
@@ -287,9 +443,14 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         ) : (
           <div className="grid grid-cols-2 gap-3 p-4 pb-24">
             {outfits.map(outfit => {
-              const items = outfit.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+              const items = [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.wardrobe_items).filter(Boolean) ?? []
               return (
-                <button key={outfit.id} onClick={() => setDetail(outfit)}
+                <button key={outfit.id} onClick={() => {
+                  setDetail(outfit)
+                  setDetailItemOrder(
+                    [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.item_id)
+                  )
+                }}
                   className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border active:scale-95 transition-transform">
                   <OutfitCollage items={items as WardrobeItem[]} />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
@@ -314,27 +475,24 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <p className="text-muted-foreground text-sm">Tap + to create your first collection</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 p-4 pb-24">
-            {wardrobeCollections.map(col => {
-              const items = col.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) as WardrobeItem[] ?? []
-              const progress = collectionWorthItProgress(items)
-              return (
-                <button key={col.id} onClick={() => setWcDetail(col)}
-                  className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border active:scale-95 transition-transform">
-                  <OutfitCollage items={items} />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                    <p className="text-white text-xs font-semibold truncate">{col.name}</p>
-                    <p className="text-white/60 text-[10px]">{items.length} items</p>
-                    {progress !== null && (
-                      <div className="mt-1.5 w-full bg-white/20 rounded-full h-1">
-                        <div className="bg-white rounded-full h-1 transition-all" style={{ width: `${progress}%` }} />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCollectionsDragEnd}>
+            <SortableContext items={collectionsOrder} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 gap-3 p-4 pb-24">
+                {sortedCollections.map(col => (
+                  <SortableCollectionCard
+                    key={col.id}
+                    col={col}
+                    onPress={() => {
+                      setWcDetail(col)
+                      setWcDetailItemOrder(
+                        [...(col.wardrobe_collection_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(ci => ci.item_id)
+                      )
+                    }}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )
       )}
 
@@ -423,13 +581,15 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                 <h2 className="text-foreground font-bold text-xl">{detail.name}</h2>
                 {detail.occasion && <p className="text-muted-foreground text-sm capitalize mt-0.5">{detail.occasion}</p>}
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {detailItems.map((item) => item && (
-                  <div key={(item as WardrobeItem).id} className="aspect-square rounded-xl overflow-hidden border border-border relative">
-                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOutfitDragEnd}>
+                <SortableContext items={detailItemOrder} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-3 gap-2">
+                    {sortedDetailItems.map(item => (
+                      <SortableDetailItem key={item.id} item={item} />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
               <button onClick={() => setPosting(true)} disabled={isPending}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
                 <Share2 size={15} />
@@ -449,7 +609,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                       className="w-full bg-muted rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
                   </div>
                   <p className="text-sm text-center text-muted-foreground">
-                    +1 worn untuk semua {detailItems.length} item. Lanjut?
+                    +1 worn untuk semua {sortedDetailItems.length} item. Lanjut?
                   </p>
                   <div className="flex gap-2">
                     <button onClick={() => setConfirmUse(false)} disabled={isPending}
@@ -491,12 +651,12 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Collection (Wardrobe)</p>
                 <h2 className="text-foreground font-bold text-xl">{wcDetail.name}</h2>
-                <p className="text-muted-foreground text-sm mt-0.5">{wcDetailItems.length} items</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{sortedWcDetailItems.length} items</p>
               </div>
 
               {/* Worth it bar in detail */}
               {(() => {
-                const progress = collectionWorthItProgress(wcDetailItems as WardrobeItem[])
+                const progress = collectionWorthItProgress(sortedWcDetailItems)
                 if (progress === null) return null
                 return (
                   <div>
@@ -511,41 +671,21 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                 )
               })()}
 
-              <div className="grid grid-cols-3 gap-2">
-                {wcDetailItems.map((item) => item && (
-                  <button
-                    key={(item as WardrobeItem).id}
-                    onClick={() => wcUseMode && toggleWcUseItem((item as WardrobeItem).id)}
-                    className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                      wcUseMode
-                        ? wcUseIds.has((item as WardrobeItem).id)
-                          ? 'border-primary'
-                          : 'border-border'
-                        : 'border-border pointer-events-none'
-                    }`}
-                  >
-                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
-                    {wcUseMode && wcUseIds.has((item as WardrobeItem).id) && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <CheckCircle2 size={24} className="text-primary drop-shadow" />
-                      </div>
-                    )}
-                    {/* Per-item worth it bar */}
-                    {!wcUseMode && (() => {
-                      const i = item as WardrobeItem
-                      if (!i.price || i.price <= 0) return null
-                      const { worthItProgress } = calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, purchaseDate: i.purchase_date, targetOverride: i.target })
-                      return (
-                        <div className="absolute inset-x-0 bottom-0 p-1 bg-gradient-to-t from-black/60 to-transparent">
-                          <div className="w-full bg-white/30 rounded-full h-1">
-                            <div className="bg-white rounded-full h-1" style={{ width: `${worthItProgress}%` }} />
-                          </div>
-                        </div>
-                      )
-                    })()}
-                  </button>
-                ))}
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleWcDragEnd}>
+                <SortableContext items={wcDetailItemOrder} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-3 gap-2">
+                    {sortedWcDetailItems.map(item => (
+                      <SortableCollectionDetailItem
+                        key={item.id}
+                        item={item}
+                        wcUseMode={wcUseMode}
+                        isSelected={wcUseIds.has(item.id)}
+                        onToggle={() => toggleWcUseItem(item.id)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
 
               {wcUseMode ? (
                 <div className="space-y-3">
@@ -616,9 +756,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             </div>
             <div className="overflow-y-auto flex-1 p-5 space-y-4">
               <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-                {detailItems.map((item, i) => item && (
+                {sortedDetailItems.map((item, i) => (
                   <div key={i} className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border border-border relative">
-                    <Image src={(item as WardrobeItem).image_url} alt={(item as WardrobeItem).name} fill className="object-cover" sizes="80px" />
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="80px" />
                   </div>
                 ))}
               </div>

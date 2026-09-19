@@ -466,7 +466,7 @@ export async function createOutfit(
 
   if (itemIds.length > 0) {
     await supabase.from('outfit_items').insert(
-      itemIds.map(item_id => ({ outfit_id: outfit.id, item_id }))
+      itemIds.map((item_id, i) => ({ outfit_id: outfit.id, item_id, sort_order: i }))
     )
   }
 
@@ -501,9 +501,26 @@ export async function updateOutfit(
   await supabase.from('outfit_items').delete().eq('outfit_id', id)
   if (itemIds.length > 0) {
     await supabase.from('outfit_items').insert(
-      itemIds.map(item_id => ({ outfit_id: id, item_id }))
+      itemIds.map((item_id, i) => ({ outfit_id: id, item_id, sort_order: i }))
     )
   }
+
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function reorderOutfitItems(outfitId: string, orderedItemIds: string[]): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: outfit } = await supabase.from('outfits').select('id').eq('id', outfitId).eq('user_id', user.id).single()
+  if (!outfit) return { error: 'Not found' }
+
+  await supabase.from('outfit_items').delete().eq('outfit_id', outfitId)
+  await supabase.from('outfit_items').insert(
+    orderedItemIds.map((item_id, i) => ({ outfit_id: outfitId, item_id, sort_order: i }))
+  )
 
   revalidatePath('/outfits')
   return {}
@@ -527,7 +544,7 @@ export async function createWardrobeCollection(
 
   if (itemIds.length > 0) {
     await supabase.from('wardrobe_collection_items').insert(
-      itemIds.map(item_id => ({ wardrobe_collection_id: col.id, item_id }))
+      itemIds.map((item_id, i) => ({ wardrobe_collection_id: col.id, item_id, sort_order: i }))
     )
   }
 
@@ -552,9 +569,26 @@ export async function updateWardrobeCollection(
   await supabase.from('wardrobe_collection_items').delete().eq('wardrobe_collection_id', id)
   if (itemIds.length > 0) {
     await supabase.from('wardrobe_collection_items').insert(
-      itemIds.map(item_id => ({ wardrobe_collection_id: id, item_id }))
+      itemIds.map((item_id, i) => ({ wardrobe_collection_id: id, item_id, sort_order: i }))
     )
   }
+
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function reorderCollectionItems(collectionId: string, orderedItemIds: string[]): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: col } = await supabase.from('wardrobe_collections').select('id').eq('id', collectionId).eq('user_id', user.id).single()
+  if (!col) return { error: 'Not found' }
+
+  await supabase.from('wardrobe_collection_items').delete().eq('wardrobe_collection_id', collectionId)
+  await supabase.from('wardrobe_collection_items').insert(
+    orderedItemIds.map((item_id, i) => ({ wardrobe_collection_id: collectionId, item_id, sort_order: i }))
+  )
 
   revalidatePath('/outfits')
   return {}
@@ -566,6 +600,21 @@ export async function deleteWardrobeCollection(id: string): Promise<{ error?: st
   if (!user) return { error: 'Unauthorized' }
 
   await supabase.from('wardrobe_collections').delete().eq('id', id).eq('user_id', user.id)
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function reorderCollections(orderedIds: string[]): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  await Promise.all(
+    orderedIds.map((id, i) =>
+      supabase.from('wardrobe_collections').update({ sort_order: i }).eq('id', id).eq('user_id', user.id)
+    )
+  )
+
   revalidatePath('/outfits')
   return {}
 }

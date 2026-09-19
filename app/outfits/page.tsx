@@ -10,7 +10,7 @@ export default async function OutfitsPage() {
 
   const [{ data: outfits }, { data: items }, { data: collections }] = await Promise.all([
     supabase.from('outfits')
-      .select('*, outfit_items(item_id, wardrobe_items(*))')
+      .select('*, outfit_items(item_id, sort_order, wardrobe_items(*))')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     supabase.from('wardrobe_items')
@@ -19,8 +19,9 @@ export default async function OutfitsPage() {
       .is('declutter_status', null)
       .order('created_at', { ascending: false }),
     supabase.from('wardrobe_collections')
-      .select('*, wardrobe_collection_items(item_id, wardrobe_items(*))')
+      .select('*, wardrobe_collection_items(item_id, sort_order, wardrobe_items(*))')
       .eq('user_id', user.id)
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: false }),
   ])
 
