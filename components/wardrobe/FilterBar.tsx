@@ -21,6 +21,15 @@ const SORT_LABEL: Record<SortKey, string> = {
   last_used_desc: 'Last used', worth_it_desc: 'Worth it ↑',
 }
 
+const PRICE_FILTERS = [
+  { key: 'free', label: 'Free' },
+  { key: '<1',   label: '< $1' },
+  { key: '<10',  label: '< $10' },
+  { key: '<20',  label: '< $20' },
+  { key: '<115', label: '< $115' },
+  { key: '>115', label: '> $115' },
+]
+
 interface FilterBarProps {
   activeCategory: string | null
   activeSubcategory: string | null
@@ -43,6 +52,11 @@ interface FilterBarProps {
   showAchieved?: boolean
   onShowAchievedChange?: (v: boolean) => void
   showStatusFilter?: boolean
+  activePriceFilter?: string | null
+  onPriceFilterChange?: (v: string | null) => void
+  usdRate?: number
+  onUsdRateChange?: (v: number) => void
+  onFetchRate?: () => void
 }
 
 export function FilterBar({
@@ -51,18 +65,20 @@ export function FilterBar({
   onCategoryChange, onSubcategoryChange, onColorChange, onSeasonChange, onOccasionChange,
   onShowVerifiedChange, onShowDraftChange, onShowPrivateChange, onShowAchievedChange,
   showStatusFilter = true,
+  activePriceFilter = null, onPriceFilterChange,
+  usdRate = 16000, onUsdRateChange, onFetchRate,
 }: FilterBarProps & { showStatusFilter?: boolean }) {
   const [expanded, setExpanded] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
   const catDef = getCategoryDef(activeCategory ?? '')
   const hasSubcategories = (catDef?.subcategories.length ?? 0) > 0
-  const activeCount = [activeColor, activeSeason, activeOccasion].filter(Boolean).length
+  const activeCount = [activeColor, activeSeason, activeOccasion, activePriceFilter].filter(Boolean).length
 
   function clearAll() {
     onCategoryChange(null); onSubcategoryChange(null); onColorChange(null)
     onSeasonChange(null); onOccasionChange(null)
     onShowVerifiedChange(true); onShowDraftChange(false); onShowAchievedChange?.(false)
-    onShowPrivateChange?.(false)
+    onShowPrivateChange?.(false); onPriceFilterChange?.(null)
   }
 
   return (
@@ -243,6 +259,40 @@ export function FilterBar({
             ))}
           </div>
 
+          {/* Price filter */}
+          {onPriceFilterChange && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price (USD)</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {PRICE_FILTERS.map(opt => (
+                  <MobileChip
+                    key={opt.key}
+                    label={opt.label}
+                    type="filter"
+                    selected={activePriceFilter === opt.key}
+                    onSelect={sel => onPriceFilterChange(sel ? opt.key : null)}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2 pt-0.5">
+                <span className="text-[10px] text-muted-foreground shrink-0">1 USD =</span>
+                <input
+                  type="number"
+                  value={usdRate}
+                  onChange={e => onUsdRateChange?.(Number(e.target.value))}
+                  className="w-24 bg-muted border border-border rounded-lg px-2 py-1 text-xs text-foreground outline-none focus:border-primary"
+                />
+                <span className="text-[10px] text-muted-foreground">IDR</span>
+                <button
+                  onClick={onFetchRate}
+                  className="text-[11px] font-medium text-primary hover:opacity-70 transition-opacity"
+                >
+                  Auto
+                </button>
+              </div>
+            </div>
+          )}
+
           {onShowPrivateChange && (
             <label className="flex items-center gap-2 cursor-pointer w-fit">
               <input
@@ -255,7 +305,7 @@ export function FilterBar({
             </label>
           )}
 
-          {(activeColor || activeSeason || activeOccasion) && (
+          {(activeColor || activeSeason || activeOccasion || activePriceFilter) && (
             <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-[11px] hover:text-foreground transition-colors">
               <X size={11} /> Clear filters
             </button>

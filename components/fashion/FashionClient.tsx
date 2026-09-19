@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -50,12 +50,23 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   const [showVerified,      setShowVerified]      = useState(true)
   const [showDraft,         setShowDraft]         = useState(false)
   const [showPrivate,       setShowPrivate]       = useState(false)
+  const [activePriceFilter, setActivePriceFilter] = useState<string | null>(null)
+  const [usdRate,           setUsdRate]           = useState(16000)
   const [qpOpen, setQpOpen] = useState(false)
   const [qpSelected, setQpSelected] = useState<Set<string>>(new Set())
   const [qpCaption, setQpCaption] = useState('')
   const [qpSearch, setQpSearch] = useState('')
   const [qpPending, setQpPending] = useState(false)
   const [qpError, setQpError] = useState('')
+
+  const fetchUsdRate = useCallback(() => {
+    fetch('https://open.er-api.com/v6/latest/USD')
+      .then(r => r.json())
+      .then(d => { if (d.rates?.IDR) setUsdRate(Math.round(d.rates.IDR)) })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => { fetchUsdRate() }, [fetchUsdRate])
 
   useEffect(() => {
     createClient()
@@ -103,6 +114,16 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         if (!hay.includes(textQ)) return false
       }
       if (sort === 'worth_it_desc' && calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, targetOverride: i.target }).isWorthIt) return false
+      if (activePriceFilter) {
+        const p = i.price ?? 0
+        const r = usdRate
+        if (activePriceFilter === 'free'  && p !== 0)                       return false
+        if (activePriceFilter === '<1'    && !(p > 0 && p < 1 * r))         return false
+        if (activePriceFilter === '<10'   && !(p >= 1 * r && p < 10 * r))   return false
+        if (activePriceFilter === '<20'   && !(p >= 10 * r && p < 20 * r))  return false
+        if (activePriceFilter === '<115'  && !(p >= 20 * r && p < 115 * r)) return false
+        if (activePriceFilter === '>115'  && p < 115 * r)                   return false
+      }
       return true
     })
     .sort((a, b) => {
@@ -212,6 +233,8 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           showPrivate={showPrivate}
           onShowPrivateChange={setShowPrivate}
           showStatusFilter={false}
+          activePriceFilter={activePriceFilter} onPriceFilterChange={setActivePriceFilter}
+          usdRate={usdRate} onUsdRateChange={setUsdRate} onFetchRate={fetchUsdRate}
         />
         <div className="px-4 pt-4 pb-24">
 

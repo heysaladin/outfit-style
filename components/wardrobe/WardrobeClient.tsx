@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Check, Shirt } from 'lucide-react'
 import { useRef } from 'react'
@@ -46,6 +46,17 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
   const [showPrivate,       setShowPrivate]       = useState(false)
   const [search,            setSearch]            = useState('')
   const [sort,              setSort]              = useState<'wear_asc'|'wear_desc'|'price_asc'|'price_desc'|'date_asc'|'date_desc'|'last_used_desc'|'worth_it_desc'>('wear_asc')
+  const [activePriceFilter, setActivePriceFilter] = useState<string | null>(null)
+  const [usdRate,           setUsdRate]           = useState(16000)
+
+  const fetchUsdRate = useCallback(() => {
+    fetch('https://open.er-api.com/v6/latest/USD')
+      .then(r => r.json())
+      .then(d => { if (d.rates?.IDR) setUsdRate(Math.round(d.rates.IDR)) })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => { fetchUsdRate() }, [fetchUsdRate])
 
   const rawQ = search.toLowerCase().trim()
   const tagTokens = rawQ.match(/#\w+/g)?.map(t => t.slice(1)) ?? []
@@ -71,6 +82,16 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     if (item.declutter_status && !showDraft) return false
     if (!showPrivate && item.item_type === 'underwear') return false
     if (showAchieved && !calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
+    if (activePriceFilter) {
+      const p = item.price ?? 0
+      const r = usdRate
+      if (activePriceFilter === 'free'  && p !== 0)                               return false
+      if (activePriceFilter === '<1'    && !(p > 0 && p < 1 * r))                 return false
+      if (activePriceFilter === '<10'   && !(p >= 1 * r && p < 10 * r))           return false
+      if (activePriceFilter === '<20'   && !(p >= 10 * r && p < 20 * r))          return false
+      if (activePriceFilter === '<115'  && !(p >= 20 * r && p < 115 * r))         return false
+      if (activePriceFilter === '>115'  && p < 115 * r)                           return false
+    }
     if (sort === 'worth_it_desc' && calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target }).isWorthIt) return false
     if (tagTokens.length > 0) {
       const itemTags = (item.tags ?? []).map(t => t.toLowerCase())
@@ -171,6 +192,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
         onColorChange={setActiveColor} onSeasonChange={setActiveSeason} onOccasionChange={setActiveOccasion}
         onShowVerifiedChange={setShowVerified} onShowDraftChange={setShowDraft} onShowAchievedChange={setShowAchieved}
         onShowPrivateChange={setShowPrivate}
+        activePriceFilter={activePriceFilter} onPriceFilterChange={setActivePriceFilter}
+        usdRate={usdRate} onUsdRateChange={setUsdRate} onFetchRate={fetchUsdRate}
       />
 
       {filtered.length === 0 ? (
