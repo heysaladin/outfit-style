@@ -176,7 +176,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
 
       {/* Search bar */}
       <MobileSearchBar
-        placeholder="Search by name, brand, tag…"
+        placeholder="Search name, brand, #tag…"
+        aria-label="Search wardrobe items"
         value={search}
         onChange={setSearch}
         className="pt-3 pb-1"

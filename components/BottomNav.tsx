@@ -17,13 +17,11 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed left-1/2 -translate-x-1/2 w-full z-20"
+      className="fixed left-1/2 -translate-x-1/2 w-full z-20 bg-background border-t border-border"
       style={{
         bottom: 0,
         maxWidth: 480,
         height: 80,
-        background: '#FFFFFF',
-        borderTop: '1px solid #E5E5E5',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         display: 'grid',
         gridTemplateColumns: `repeat(${tabs.length}, 1fr)`,
@@ -36,8 +34,7 @@ export function BottomNav() {
           <Link
             key={href}
             href={href}
-            className="flex flex-col items-center justify-center gap-[5px] h-11 transition-colors"
-            style={{ color: active ? '#171717' : '#A3A3A3' }}
+            className={`flex flex-col items-center justify-center gap-[5px] h-11 transition-colors ${active ? 'text-foreground' : 'text-muted-foreground'}`}
           >
             <Icon size={20} strokeWidth={active ? 2 : 1.5} />
             <span className="text-[11px] font-medium">{label}</span>

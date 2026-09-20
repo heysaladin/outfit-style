@@ -49,19 +49,21 @@ export function MobileButton({
 
 interface MobileSearchBarProps {
   placeholder?: string
+  'aria-label'?: string
   value: string
   onChange: (value: string) => void
   className?: string
 }
 
-export function MobileSearchBar({ placeholder, value, onChange, className = '' }: MobileSearchBarProps) {
+export function MobileSearchBar({ placeholder, 'aria-label': ariaLabel, value, onChange, className = '' }: MobileSearchBarProps) {
   return (
     <div className={`relative ${className}`}>
-      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true" />
       <input
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={ariaLabel ?? placeholder}
         className="w-full bg-muted border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
       />
     </div>
@@ -102,6 +104,7 @@ export function MobileChip({ label, selected, onSelect, icon, className = '' }: 
   return (
     <button
       onClick={() => onSelect?.(!selected)}
+      aria-pressed={selected}
       className={`inline-flex shrink-0 items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
         selected
           ? 'bg-primary text-primary-foreground border-primary'
@@ -128,12 +131,14 @@ interface MobileFormFieldProps {
 }
 
 export function MobileFormField({ label, value, onChange, placeholder, multiline, rows = 3, type = 'text', className = '' }: MobileFormFieldProps) {
+  const id = `field-${label.toLowerCase().replace(/\s+/g, '-')}`
   const inputCls = `w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors ${className}`
   return (
     <div>
-      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{label}</p>
+      <label htmlFor={id} className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">{label}</label>
       {multiline ? (
         <textarea
+          id={id}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
@@ -142,6 +147,7 @@ export function MobileFormField({ label, value, onChange, placeholder, multiline
         />
       ) : (
         <input
+          id={id}
           type={type}
           value={value}
           onChange={e => onChange(e.target.value)}

@@ -86,7 +86,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
         <MobileButton
           variant="ghost" size="sm"
           icon={<ChevronLeft size={18} />}
-          onClick={() => router.push('/fashion')}
+          onClick={() => router.back()}
           className="w-9 h-9 rounded-xl p-0 justify-center"
         />
         <div className="flex-1 min-w-0">
@@ -109,11 +109,9 @@ export function FashionItemDetailClient({ item, user }: Props) {
 
         <div className="pt-4">
 
-          <h1 className="text-[23px] font-extrabold leading-tight tracking-tight mb-2.5">{item.name}</h1>
-
           {/* Chips */}
           <div className="flex gap-1.5 flex-wrap mb-3.5">
-            <span className="text-[11px] font-bold text-primary bg-secondary rounded-full px-3 py-1.5">
+            <span className="text-[11px] font-bold text-primary bg-secondary rounded-full px-3 py-1.5 capitalize">
               👔 {item.category}
             </span>
             {item.color && (
@@ -137,7 +135,8 @@ export function FashionItemDetailClient({ item, user }: Props) {
             {user && (
               <button
                 onClick={() => { setEditUsesCount(String(wearCount)); setEditUsesOpen(true) }}
-                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground flex-shrink-0 mr-1.5"
+                aria-label="Edit use count"
+                className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center text-muted-foreground flex-shrink-0 mr-1.5"
               >
                 <Pencil size={15} />
               </button>
@@ -192,7 +191,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
                   <div className="flex items-center gap-2">
                     <span className="font-bold">{target} uses</span>
                     {user && (
-                      <button onClick={() => { setEditTargetValue(String(target)); setEditingTarget(true) }} className="w-7 h-7 bg-muted rounded-lg flex items-center justify-center text-muted-foreground border-0 cursor-pointer">
+                      <button onClick={() => { setEditTargetValue(String(target)); setEditingTarget(true) }} aria-label="Edit target" className="w-9 h-9 bg-muted rounded-lg flex items-center justify-center text-muted-foreground border-0 cursor-pointer">
                         <Pencil size={12} />
                       </button>
                     )}
@@ -247,12 +246,17 @@ function KVRow({ label, value, divider }: { label: string; value: string; divide
 function Sheet({ children, onClose, title }: { children: ReactNode; onClose: () => void; title: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl"
+      >
         <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30 flex-shrink-0" />
         <div className="flex items-center justify-between px-5 pt-3 pb-2 flex-shrink-0">
           <h2 className="text-xl font-extrabold tracking-tight">{title}</h2>
-          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-card flex items-center justify-center text-foreground">
+          <button onClick={onClose} aria-label="Close" className="w-9 h-9 rounded-xl bg-card flex items-center justify-center text-foreground">
             <X size={18} />
           </button>
         </div>

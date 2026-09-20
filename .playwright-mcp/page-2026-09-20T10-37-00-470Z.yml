@@ -1,0 +1,40 @@
+- generic [ref=f54e3]:
+  - generic [ref=f54e4]:
+    - generic [ref=f54e5]:
+      - generic [ref=f54e6]:
+        - button "Back" [ref=f54e7]
+        - generic [ref=f54e11]:
+          - button "Hide names" [ref=f54e12]
+          - button "+ Post" [ref=f54e14]
+          - link "Wardrobe" [ref=f54e15] [cursor=pointer]:
+            - /url: /ofit
+      - generic [ref=f54e16]:
+        - heading "Fashion" [level=1] [ref=f54e17]
+        - paragraph [ref=f54e18]: 0 items
+    - generic [ref=f54e19]:
+      - button "Items" [ref=f54e20]
+      - button "Activities 64" [ref=f54e21]:
+        - text: Activities
+        - generic [ref=f54e22]: "64"
+      - button "Moments" [ref=f54e23]
+  - generic [ref=f54e24]:
+    - generic [ref=f54e25]:
+      - button "All" [ref=f54e26]
+      - button "👕 Top" [ref=f54e27]:
+        - generic [ref=f54e28]: 👕
+        - text: Top
+      - button "👖 Bottom" [ref=f54e29]:
+        - generic [ref=f54e30]: 👖
+        - text: Bottom
+      - button "🧢 Headwear" [ref=f54e31]:
+        - generic [ref=f54e32]: 🧢
+        - text: Headwear
+      - button "👟 Footwear" [ref=f54e33]:
+        - generic [ref=f54e34]: 👟
+        - text: Footwear
+      - button "💍 Accessories" [ref=f54e35]:
+        - generic [ref=f54e36]: 💍
+        - text: Accessories
+    - generic [ref=f54e37]:
+      - button "Wear ↑" [ref=f54e39]
+      - button [ref=f54e43]

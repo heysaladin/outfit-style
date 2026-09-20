@@ -49,8 +49,11 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={item.name}
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-2xl max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
@@ -108,9 +111,9 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
 
         {/* Tabs */}
         <div className="px-4 pb-1">
-          <div className="flex gap-0 border-b border-border">
+          <div role="tablist" className="flex gap-0 border-b border-border">
             {(['info', 'storage', 'declutter'] as const).map(t => (
-              <button key={t} onClick={() => setTab(t)}
+              <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
                 className={`px-4 py-2.5 text-xs font-medium capitalize transition-all border-b-2 -mb-px ${
                   tab === t
                     ? 'border-foreground text-foreground'
@@ -172,13 +175,13 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
                 </div>
               )}
 
-              {/* Harga & Tanggal Beli */}
+              {/* Purchase info */}
               {(item.price || item.purchase_date) && (
                 <div className="bg-muted rounded-xl p-3.5 space-y-2">
-                  <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">Pembelian</p>
+                  <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wider">Purchase</p>
                   {item.price && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-xs">Harga Beli</span>
+                      <span className="text-muted-foreground text-xs">Purchase price</span>
                       <span className="text-foreground text-xs font-semibold">
                         {item.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                       </span>
@@ -186,7 +189,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
                   )}
                   {item.purchase_date && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-xs">Tanggal Beli</span>
+                      <span className="text-muted-foreground text-xs">Purchase date</span>
                       <span className="text-foreground text-xs">
                         {new Date(item.purchase_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </span>

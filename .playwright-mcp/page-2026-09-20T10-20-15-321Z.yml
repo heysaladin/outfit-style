@@ -1,0 +1,72 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e8]:
+        - link "HYPERFANTASY" [ref=e10] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e12]:
+          - button "Switch to dark mode" [ref=e13] [cursor=pointer]
+          - button "Toggle navigation menu" [ref=e16]
+      - generic:
+        - generic:
+          - link "HYPERFANTASY":
+            - /url: /
+          - generic:
+            - button "Switch to dark mode"
+            - button "Toggle navigation menu"
+    - main [ref=e18]:
+      - generic [ref=e20]:
+        - heading "404" [level=1] [ref=e21]
+        - heading "This page could not be found." [level=2] [ref=e23]
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - heading "Your turn. Got a fantasy? Let's make it real." [level=2] [ref=e27]: Your turn.Got a fantasy?Let's make it real.
+        - generic [ref=e28]:
+          - link "Let's Collaborate Let's Collaborate" [ref=e29] [cursor=pointer]:
+            - /url: /enquiry
+            - generic [ref=e30]:
+              - generic [ref=e31]: Let's Collaborate
+              - generic [ref=e32]: Let's Collaborate
+          - generic [ref=e37]:
+            - generic [ref=e38]: or
+            - link "Send an email" [ref=e39] [cursor=pointer]:
+              - /url: mailto:hello.hyperfantasy@gmail.com
+        - generic [ref=e40]:
+          - generic [ref=e52]:
+            - paragraph [ref=e53]: Java — GMT+7
+            - paragraph [ref=e54]: 05:20 PM
+          - generic [ref=e55]:
+            - paragraph [ref=e56]: GMT+1
+            - paragraph [ref=e57]: 11:20 AM
+          - generic [ref=e58]:
+            - paragraph [ref=e59]: GMT−7
+            - paragraph [ref=e60]: 03:20 AM
+        - link [ref=e63] [cursor=pointer]:
+          - /url: /
+          - img "Hyperfantasy" [ref=e64]
+        - navigation [ref=e65]:
+          - link "Projects" [ref=e66] [cursor=pointer]:
+            - /url: /projects
+          - link "Hyperstory" [ref=e67] [cursor=pointer]:
+            - /url: /hyperstory
+          - link "Articles" [ref=e68] [cursor=pointer]:
+            - /url: /articles
+          - link "About" [ref=e69] [cursor=pointer]:
+            - /url: /about
+          - link "Contact" [ref=e70] [cursor=pointer]:
+            - /url: /enquiry
+        - generic [ref=e71]:
+          - link "Dribbble" [ref=e72] [cursor=pointer]:
+            - /url: https://dribbble.com/hyperfantasy
+          - link "Behance" [ref=e75] [cursor=pointer]:
+            - /url: https://www.behance.net/hyperfantasy
+          - link "Instagram" [ref=e78] [cursor=pointer]:
+            - /url: https://www.instagram.com/hyperfantasy.creative/
+          - link "X" [ref=e81] [cursor=pointer]:
+            - /url: https://x.com/hyperfantasy_
+        - paragraph [ref=e84]: © 2026 Hyperfantasy. All rights reserved.
+      - button "Scroll to top" [ref=e86] [cursor=pointer]
+  - alert [ref=e90]

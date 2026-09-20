@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, HobbyActivity, HobbyPhoto } from '@/lib/types'
 import { ActivitiesTab } from '@/components/gear/ActivitiesTab'
@@ -12,12 +11,13 @@ import { MomentsTab } from '@/components/gear/MomentsTab'
 import { postOutfitActivity } from '@/app/actions'
 import { cn } from '@/lib/utils'
 import { calcWorthIt } from '@/lib/worth'
-import { ChevronLeft, AlignLeft, Shirt, Search } from 'lucide-react'
+import { ChevronLeft, Eye, EyeOff, Shirt } from 'lucide-react'
 
 // Cubicle mobileapp components
 import { MobileTopTabs } from '@/components/ui/mobile-shims'
 import { MobileEmptyState } from '@/components/ui/mobile-shims'
 import { MobileSearchBar } from '@/components/ui/mobile-shims'
+import { BottomNav } from '@/components/BottomNav'
 
 // Existing UI
 import { FilterBar } from '@/components/wardrobe/FilterBar'
@@ -33,12 +33,12 @@ interface FashionClientProps {
   user: User | null
   activities: HobbyActivity[]
   photos: HobbyPhoto[]
+  items: WardrobeItem[]
 }
 
-export function FashionClient({ user, activities, photos }: FashionClientProps) {
+export function FashionClient({ user, activities, photos, items }: FashionClientProps) {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('items')
-  const [items, setItems] = useState<WardrobeItem[] | null>(null)
   const [showNames, setShowNames] = useState(true)
   const [sort, setSort] = useState<SortKey>('wear_asc')
   const [search, setSearch] = useState('')
@@ -58,6 +58,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   const [qpSearch, setQpSearch] = useState('')
   const [qpPending, setQpPending] = useState(false)
   const [qpError, setQpError] = useState('')
+  const [qpSuccess, setQpSuccess] = useState(false)
 
   const fetchUsdRate = useCallback(() => {
     fetch('https://open.er-api.com/v6/latest/USD')
@@ -68,27 +69,17 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
   useEffect(() => { fetchUsdRate() }, [fetchUsdRate])
 
-  useEffect(() => {
-    createClient()
-      .from('wardrobe_items')
-      .select('*')
-      .eq('status', 'verified')
-      .is('declutter_status', null)
-      .order('wear_count', { ascending: true })
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setItems(data ?? []))
-  }, [])
-
   function openQP() {
     setQpOpen(true)
     setQpSelected(new Set())
     setQpCaption('')
     setQpSearch('')
     setQpError('')
+    setQpSuccess(false)
   }
 
   const tabItems = [
-    { key: 'items', label: 'Items', badge: items?.length || undefined },
+    { key: 'items', label: 'Items', badge: items.length || undefined },
     { key: 'activities', label: 'Activities', badge: activities.length || undefined },
     { key: 'moments', label: 'Moments', badge: photos.length || undefined },
   ]
@@ -97,7 +88,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
   const tagTokens = rawQ.match(/#\w+/g)?.map(t => t.slice(1)) ?? []
   const textQ = rawQ.replace(/#\w+/g, '').trim()
 
-  const sortedItems = items ? [...items]
+  const sortedItems = [...items]
     .filter(i => {
       if (!showPrivate && i.item_type === 'underwear') return false
       if (activeCategory    && i.category    !== activeCategory)    return false
@@ -144,15 +135,15 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         return wb.worthItProgress - wa.worthItProgress
       }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    }) : []
+    })
 
-  const filteredQPItems = items?.filter(i =>
+  const filteredQPItems = items.filter(i =>
     !qpSearch.trim() ||
     [i.name, i.brand, ...(i.tags ?? [])].filter(Boolean).join(' ').toLowerCase().includes(qpSearch.toLowerCase())
-  ) ?? []
+  )
 
   return (
-    <div className="h-dvh overflow-y-auto bg-background text-foreground">
+    <div className="h-dvh overflow-y-auto bg-background text-foreground pb-24">
 
       {/* ── Header — Cubicle MobileTopBar pattern ── */}
       <div className="sticky top-0 z-10 bg-background border-b">
@@ -162,7 +153,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         >
           <div className="flex items-center justify-between min-h-[44px]">
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.back()}
               className="flex items-center gap-0.5 text-primary text-sm font-medium -ml-1 px-1 py-1 rounded-lg active:bg-muted"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -172,13 +163,14 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowNames(v => !v)}
-                title={showNames ? 'Hide names' : 'Show names'}
+                aria-label={showNames ? 'Hide names' : 'Show names'}
+                aria-pressed={showNames}
                 className={cn(
                   'h-8 w-8 rounded-lg flex items-center justify-center transition-colors',
                   showNames ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground',
                 )}
               >
-                <AlignLeft className="h-4 w-4" />
+                {showNames ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
               {user && (
                 <button
@@ -199,7 +191,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
           <div className="mt-1 pb-1">
             <h1 className="text-2xl font-bold tracking-tight">Fashion</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{items?.length ?? 0} items</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{items.length} items</p>
           </div>
         </div>
 
@@ -236,43 +228,29 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
           activePriceFilter={activePriceFilter} onPriceFilterChange={setActivePriceFilter}
           usdRate={usdRate} onUsdRateChange={setUsdRate} onFetchRate={fetchUsdRate}
         />
-        <div className="px-4 pt-4 pb-24">
+        <div className="px-4 pt-4 pb-4">
 
-          {items && items.length > 0 && (
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex flex-1 items-center gap-2 rounded-xl bg-muted px-3 h-9">
-                <Search className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
-                <input
-                  placeholder="Search name, brand, #tag…"
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  type="search"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Skeleton */}
-          {items === null && (
-            <div className="grid grid-cols-2 gap-2.5">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card rounded-xl aspect-square animate-pulse" />
-              ))}
-            </div>
-          )}
+          <div className="flex items-center gap-2 mb-3">
+            <MobileSearchBar
+              placeholder="Search name, brand, #tag…"
+              aria-label="Search fashion items"
+              value={search}
+              onChange={setSearch}
+              className="flex-1"
+            />
+          </div>
 
           {/* Empty state */}
-          {items !== null && items.length === 0 && (
+          {sortedItems.length === 0 && (
             <MobileEmptyState
               icon={<Shirt />}
-              title="No verified items yet"
-              description="Check back soon"
+              title={items.length === 0 ? 'No verified items yet' : 'No items match'}
+              description={items.length === 0 ? 'Check back soon' : 'Adjust the filters above'}
             />
           )}
 
           {/* Grid */}
-          {items !== null && items.length > 0 && (
+          {sortedItems.length > 0 && (
             <div className="grid grid-cols-2 gap-2.5">
               {sortedItems.map(item => (
                 <Link
@@ -280,11 +258,15 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                   href={`/fashion/${item.id}`}
                   className="block bg-card rounded-xl overflow-hidden border border-border"
                 >
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-full block object-cover aspect-square"
-                  />
+                  <div className="relative aspect-square w-full">
+                    <Image
+                      src={item.image_url}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
+                  </div>
                   <div className="p-3">
                     {showNames && (
                       <>
@@ -302,11 +284,11 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                         <div className={cn(showNames && 'mt-2')}>
                           <div className="h-1 rounded-full bg-muted overflow-hidden">
                             <div
-                              className="h-full rounded-full transition-all"
-                              style={{
-                                width: `${worthItProgress}%`,
-                                background: isWorthIt ? '#059669' : worthItProgress >= 75 ? '#d97706' : '#94a3b8',
-                              }}
+                              className={cn(
+                                'h-full rounded-full transition-all',
+                                isWorthIt ? 'bg-emerald-600' : worthItProgress >= 75 ? 'bg-amber-500' : 'bg-slate-400',
+                              )}
+                              style={{ width: `${worthItProgress}%` }}
                             />
                           </div>
                           <p className="text-[10px] font-medium text-muted-foreground mt-1">
@@ -332,6 +314,8 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
         <MomentsTab hobby="fashion" photos={photos} user={user} />
       )}
 
+      <BottomNav />
+
       {/* ── Quick Post Outfit Drawer ── */}
       <Drawer open={qpOpen} onOpenChange={setQpOpen}>
         <DrawerContent className="max-h-[92dvh] flex flex-col">
@@ -341,7 +325,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
           <div className="overflow-y-auto flex-1 px-4 pb-2">
             {/* Selected preview strip */}
-            {qpSelected.size > 0 && items && (
+            {qpSelected.size > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-3 mb-3" style={{ scrollbarWidth: 'none' }}>
                 {items.filter(i => qpSelected.has(i.id)).map(item => (
                   <div key={item.id} className="w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 border-primary relative">
@@ -353,51 +337,55 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
 
             <MobileSearchBar
               placeholder="Search items..."
+              aria-label="Search items for outfit"
               value={qpSearch}
               onChange={setQpSearch}
               className="px-0 mb-3"
             />
 
-            {items && (
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {filteredQPItems.map(item => {
-                  const sel = qpSelected.has(item.id)
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setQpSelected(s => {
-                        const n = new Set(s)
-                        sel ? n.delete(item.id) : n.add(item.id)
-                        return n
-                      })}
-                      className={cn(
-                        'relative aspect-square rounded-xl overflow-hidden border-2 p-0',
-                        sel ? 'border-primary' : 'border-border',
-                      )}
-                    >
-                      <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
-                      {sel && (
-                        <div className="absolute inset-0 bg-black/15 flex items-end justify-center pb-1.5">
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                              <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                            </svg>
-                          </div>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {filteredQPItems.map(item => {
+                const sel = qpSelected.has(item.id)
+                return (
+                  <button
+                    key={item.id}
+                    aria-label={item.name}
+                    aria-pressed={sel}
+                    onClick={() => setQpSelected(s => {
+                      const n = new Set(s)
+                      sel ? n.delete(item.id) : n.add(item.id)
+                      return n
+                    })}
+                    className={cn(
+                      'relative aspect-square rounded-xl overflow-hidden border-2 p-0',
+                      sel ? 'border-primary' : 'border-border',
+                    )}
+                  >
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 33vw, 25vw" />
+                    {sel && (
+                      <div className="absolute inset-0 bg-black/15 flex items-end justify-center pb-1.5">
+                        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                          </svg>
                         </div>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
 
+            <label htmlFor="qp-caption" className="sr-only">Caption (optional)</label>
             <textarea
+              id="qp-caption"
               value={qpCaption}
               onChange={e => setQpCaption(e.target.value)}
               placeholder="Add a caption... (optional)"
               rows={2}
               className="w-full bg-card border border-border rounded-xl px-3.5 py-3 text-sm text-foreground outline-none resize-none placeholder:text-muted-foreground"
             />
+            {qpSuccess && <p className="text-emerald-600 text-xs font-semibold mt-2">Outfit posted! ✅</p>}
             {qpError && <p className="text-destructive text-xs font-semibold mt-2">{qpError}</p>}
           </div>
 
@@ -405,7 +393,7 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
             <Button
               disabled={qpPending || qpSelected.size === 0}
               onClick={async () => {
-                if (!items || qpSelected.size === 0) return setQpError('Pilih minimal 1 item')
+                if (qpSelected.size === 0) return setQpError('Select at least 1 item')
                 setQpPending(true)
                 setQpError('')
                 const selectedItems = items
@@ -413,10 +401,11 @@ export function FashionClient({ user, activities, photos }: FashionClientProps) 
                   .map(i => ({ id: i.id, image_url: i.image_url, name: i.name }))
                 const res = await postOutfitActivity(selectedItems, qpCaption)
                 if (res.error) { setQpError(res.error); setQpPending(false); return }
-                setQpOpen(false)
+                setQpSuccess(true)
                 setQpSelected(new Set())
                 setQpCaption('')
                 setQpPending(false)
+                setTimeout(() => { setQpOpen(false); setQpSuccess(false) }, 1200)
               }}
               className="w-full h-12 text-[15px] font-bold"
             >

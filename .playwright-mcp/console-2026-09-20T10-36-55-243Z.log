@@ -1,0 +1,310 @@
+[      29ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[      29ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[      29ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     109ms] [LOG] [Fast Refresh] done in 80ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     135ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     135ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     136ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     140ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     320ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     320ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     321ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     325ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     557ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     557ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     557ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     574ms] [LOG] [Fast Refresh] done in 17ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     757ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     757ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     757ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     772ms] [LOG] [Fast Refresh] done in 15ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     772ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     801ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     801ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     801ms] [LOG] [Fast Refresh] done in 29ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[     813ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3002/fashion/46870783-486f-425b-87aa-a6cb02d29be4?_rsc=1az1x:0
+[     827ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1168ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1168ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1187ms] [LOG] [Fast Refresh] done in 360ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1236ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1301ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1301ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1317ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1318ms] [LOG] [Fast Refresh] done in 0ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1389ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1389ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1405ms] [LOG] [Fast Refresh] done in 87ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1444ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1559ms] Invalid or unexpected token
+[    1980ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1992ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1993ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app' @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    1993ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats' @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2025ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2113ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    2115ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2115ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2116ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2233ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2233ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2233ms] [LOG] [Fast Refresh] done in 117ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2234ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2241ms] [LOG] [Fast Refresh] done in 6ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2369ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2369ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2370ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2374ms] [LOG] [Fast Refresh] done in 3ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2486ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2486ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2488ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2515ms] [LOG] [Fast Refresh] done in 27ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2591ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2591ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2592ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2596ms] [LOG] [Fast Refresh] done in 3ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2713ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2713ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2715ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2718ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2831ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2831ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2833ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2857ms] [LOG] [Fast Refresh] done in 25ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2933ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2933ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2935ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    2938ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3060ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3060ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3061ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3065ms] [LOG] [Fast Refresh] done in 3ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3155ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3155ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3157ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3248ms] [LOG] [Fast Refresh] done in 91ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3279ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3279ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3280ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3284ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3404ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3404ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3405ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3409ms] [LOG] [Fast Refresh] done in 4ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3520ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3520ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3522ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3601ms] [LOG] [Fast Refresh] done in 79ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3625ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3625ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3627ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3749ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3749ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3749ms] [LOG] [Fast Refresh] done in 122ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3751ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3848ms] [WARNING] ./app/page.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/app'
+
+Import trace for requested module:
+./app/page.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3848ms] [WARNING] ./components/stats/StatsClient.tsx
+Module not found: Can't resolve 'html-to-image' in '/Users/saladin/Developments/interestory/components/stats'
+
+Import trace for requested module:
+./components/stats/StatsClient.tsx @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3848ms] [LOG] [Fast Refresh] done in 97ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    3849ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27

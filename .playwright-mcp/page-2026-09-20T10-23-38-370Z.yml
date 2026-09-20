@@ -1,0 +1,19 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]:
+        - heading "interestory" [level=1] [ref=f1e7]
+        - paragraph [ref=f1e8]: Log what you're into. Build the story of your interests over time.
+      - generic [ref=f1e9]:
+        - paragraph [ref=f1e29]: Invalid login credentials
+        - generic [ref=f1e10]:
+          - text: Email
+          - textbox "you@example.com" [ref=f1e12]: heysaladin@gmail.com
+        - generic [ref=f1e13]:
+          - text: Password
+          - textbox "••••••••" [ref=f1e15]: Creative1621
+        - button "Sign in" [ref=f1e16]
+        - generic [ref=f1e17]: or
+        - button "Continue with Google" [ref=f1e21]
+    - generic [ref=f1e27]: New here? Create an account
+  - alert [ref=f1e28]: interestory

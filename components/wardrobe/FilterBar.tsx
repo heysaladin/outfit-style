@@ -11,14 +11,14 @@ const SORT_GROUPS: { label: string; options: { key: SortKey; desc: string }[] }[
   { label: 'Wear',     options: [{ key: 'wear_asc',      desc: 'Least worn first'          }, { key: 'wear_desc',     desc: 'Most worn first'      }] },
   { label: 'Price',    options: [{ key: 'price_desc',    desc: 'Most expensive'             }, { key: 'price_asc',     desc: 'Cheapest first'       }] },
   { label: 'Date',     options: [{ key: 'date_desc',     desc: 'Newest first'               }, { key: 'date_asc',      desc: 'Oldest first'         }] },
-  { label: 'Other',   options: [{ key: 'last_used_desc', desc: 'Last used'                  }, { key: 'worth_it_desc', desc: 'Closest to worth it'  }] },
+  { label: 'Other',   options: [{ key: 'last_used_desc', desc: 'Last used' }, { key: 'worth_it_desc', desc: 'Closest to worth it' }] },
 ]
 
 const SORT_LABEL: Record<SortKey, string> = {
   wear_asc: 'Wear ↑', wear_desc: 'Wear ↓',
   price_asc: 'Price ↑', price_desc: 'Price ↓',
   date_asc: 'Date ↑', date_desc: 'Date ↓',
-  last_used_desc: 'Last used', worth_it_desc: 'Worth it ↑',
+  last_used_desc: 'Last used', worth_it_desc: 'Closest to worth it',
 }
 
 const PRICE_FILTERS = [
@@ -133,6 +133,8 @@ export function FilterBar({
         <div className="relative">
           <button
             onClick={() => setSortOpen(v => !v)}
+            aria-expanded={sortOpen}
+            aria-haspopup="listbox"
             className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border transition-all ${
               sortOpen ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border'
             }`}
@@ -199,6 +201,8 @@ export function FilterBar({
         {/* Filter button — right */}
         <button
           onClick={() => setExpanded(v => !v)}
+          aria-label={expanded ? 'Close advanced filters' : 'Open advanced filters'}
+          aria-expanded={expanded}
           className={`flex-shrink-0 relative ml-auto w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
             expanded || activeCount > 0
               ? 'bg-foreground text-background'
@@ -218,14 +222,15 @@ export function FilterBar({
       {expanded && (
         <div className="space-y-4 pt-1">
           {/* Colors */}
-          <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            <button onClick={() => onColorChange(null)} title="All"
-              className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all bg-gradient-to-br from-red-400 via-blue-400 to-green-400 ${
+          <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <button onClick={() => onColorChange(null)} aria-label="All colors" aria-pressed={!activeColor}
+              className={`flex-shrink-0 w-8 h-8 rounded-full border-2 transition-all bg-gradient-to-br from-red-400 via-blue-400 to-green-400 ${
                 !activeColor ? 'border-foreground scale-110' : 'border-transparent'
               }`} />
             {COLORS.map(c => (
-              <button key={c.value} onClick={() => onColorChange(activeColor === c.value ? null : c.value)} title={c.label}
-                className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all ${
+              <button key={c.value} onClick={() => onColorChange(activeColor === c.value ? null : c.value)}
+                aria-label={c.label} aria-pressed={activeColor === c.value}
+                className={`flex-shrink-0 w-8 h-8 rounded-full border-2 transition-all ${
                   activeColor === c.value ? 'border-foreground scale-110' : 'border-transparent'
                 }`}
                 style={{ backgroundColor: c.hex }} />
@@ -305,7 +310,7 @@ export function FilterBar({
             </label>
           )}
 
-          {(activeColor || activeSeason || activeOccasion || activePriceFilter) && (
+          {(activeCategory || activeColor || activeSeason || activeOccasion || activePriceFilter) && (
             <button onClick={clearAll} className="flex items-center gap-1 text-muted-foreground text-[11px] hover:text-foreground transition-colors">
               <X size={11} /> Clear filters
             </button>

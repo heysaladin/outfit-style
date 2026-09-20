@@ -71,8 +71,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
 
         {/* Worth badge */}
         {isWorthIt && (
-          <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] shadow-sm"
-            style={{ background: '#DDF4EA' }}>
+          <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] shadow-sm bg-emerald-100 dark:bg-emerald-900/40">
             ✅
           </div>
         )}
@@ -120,14 +119,14 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         <div className="flex gap-1.5 px-0.5">
           {onVerify && (
             <button type="button" onClick={e => { e.stopPropagation(); onVerify() }}
-              className="flex-1 bg-foreground text-background text-[10px] font-semibold h-8 rounded-lg">
+              className="flex-1 bg-foreground text-background text-[10px] font-semibold h-11 rounded-lg">
               Verify
             </button>
           )}
           {onTrash && (
-            <button type="button" onClick={e => { e.stopPropagation(); onTrash() }}
-              className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-              <Trash2 size={12} />
+            <button type="button" onClick={e => { e.stopPropagation(); onTrash() }} aria-label="Move to trash"
+              className="flex items-center justify-center w-11 h-11 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+              <Trash2 size={14} />
             </button>
           )}
         </div>
@@ -138,25 +137,25 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
         <div className="flex gap-1.5 px-0.5">
           {onRestoreDraft && !confirmDelete && (
             <button type="button" onClick={e => { e.stopPropagation(); onRestoreDraft() }}
-              className="flex-1 flex items-center justify-center gap-1 bg-muted text-foreground text-[10px] font-semibold h-8 rounded-lg">
-              <RotateCcw size={10} />
+              className="flex-1 flex items-center justify-center gap-1 bg-muted text-foreground text-[10px] font-semibold h-11 rounded-lg">
+              <RotateCcw size={12} />
               Restore
             </button>
           )}
           {onDelete && !confirmDelete && (
-            <button type="button" onClick={e => { e.stopPropagation(); setConfirmDelete(true) }}
-              className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-              <Trash2 size={12} />
+            <button type="button" onClick={e => { e.stopPropagation(); setConfirmDelete(true) }} aria-label="Delete item"
+              className="flex items-center justify-center w-11 h-11 shrink-0 rounded-lg bg-muted text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+              <Trash2 size={14} />
             </button>
           )}
           {confirmDelete && (
             <>
               <button type="button" onClick={e => { e.stopPropagation(); setConfirmDelete(false) }}
-                className="flex-1 bg-muted text-muted-foreground text-[10px] font-semibold h-8 rounded-lg">
+                className="flex-1 bg-muted text-muted-foreground text-[10px] font-semibold h-11 rounded-lg">
                 Cancel
               </button>
               <button type="button" onClick={e => { e.stopPropagation(); onDelete?.() }}
-                className="flex-1 bg-destructive text-destructive-foreground text-[10px] font-semibold h-8 rounded-lg">
+                className="flex-1 bg-destructive text-destructive-foreground text-[10px] font-semibold h-11 rounded-lg">
                 Delete
               </button>
             </>
