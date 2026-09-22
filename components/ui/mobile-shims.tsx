@@ -75,7 +75,7 @@ export function MobileSearchBar({ placeholder, 'aria-label': ariaLabel, value, o
 interface MobileEmptyStateProps {
   icon?: ReactNode
   title: string
-  description?: string
+  description?: ReactNode
   className?: string
 }
 

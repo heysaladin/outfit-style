@@ -142,14 +142,11 @@ export function HobbyDetailClient({ hobby, items, activities, photos, user, ward
                         <div className="mt-2">
                           <div className="h-[3px] rounded-full bg-muted overflow-hidden">
                             <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${w.worthItProgress}%`,
-                                background: w.isWorthIt ? '#059669' : w.worthItProgress >= 75 ? '#d97706' : '#94a3b8',
-                              }}
+                              className={`h-full rounded-full ${w.isWorthIt ? 'bg-emerald-600' : w.worthItProgress >= 75 ? 'bg-amber-600' : 'bg-slate-400'}`}
+                              style={{ width: `${w.worthItProgress}%` }}
                             />
                           </div>
-                          <span className="block text-[9.5px] font-semibold text-muted-foreground mt-1">
+                          <span className="block text-[11px] font-semibold text-muted-foreground mt-1">
                             {item.use_count}× · {w.isWorthIt ? '✅ Worth It!' : `${w.targetUses - item.use_count} more to Worth It`}
                           </span>
                         </div>

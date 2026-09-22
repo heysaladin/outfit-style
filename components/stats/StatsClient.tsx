@@ -54,7 +54,7 @@ export function StatsClient({ items }: StatsClientProps) {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors disabled:opacity-50"
           >
             {exporting ? (
               <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ export function StatsClient({ items }: StatsClientProps) {
                       <span className="text-foreground text-xs font-medium">{cat.count}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-yellow-500 dark:bg-primary rounded-full transition-all"
+                      <div className="h-full bg-primary rounded-full transition-all"
                         style={{ width: `${(cat.count / maxCat) * 100}%` }} />
                     </div>
                   </div>
@@ -161,9 +161,9 @@ export function StatsClient({ items }: StatsClientProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-foreground text-xs font-medium truncate">{item.name}</p>
-                    <p className="text-muted-foreground text-xs">{item.wear_count} wears · ${item.price}</p>
+                    <p className="text-muted-foreground text-xs">{item.wear_count} wears · {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.price!)}</p>
                   </div>
-                  <p className="text-yellow-600 dark:text-primary font-semibold text-sm">${item.cpw.toFixed(2)}</p>
+                  <p className="text-primary font-semibold text-sm">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.cpw)}</p>
                 </div>
               ))}
             </div>
@@ -194,7 +194,7 @@ function ItemRow({ item, rank }: { item: WardrobeItem; rank: number }) {
           {item.last_worn ? `Last ${new Date(item.last_worn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}
         </p>
       </div>
-      <span className="text-yellow-600 dark:text-primary font-semibold text-sm">{item.wear_count}×</span>
+      <span className="text-primary font-semibold text-sm">{item.wear_count}×</span>
     </div>
   )
 }

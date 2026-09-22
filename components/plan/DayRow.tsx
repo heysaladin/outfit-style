@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react'
 import { Plus, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { removeFromPlan } from '@/app/actions'
 import { formatMonthDay } from '@/lib/week'
 import type { PlanEntry } from '@/lib/types'
@@ -20,7 +21,9 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
 
   function handleRemove(planId: string) {
     startTransition(async () => {
-      try { await removeFromPlan(planId) } catch { /* silently fail */ }
+      try { await removeFromPlan(planId) } catch {
+        toast.error('Gagal menghapus item')
+      }
     })
   }
 
@@ -34,7 +37,7 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
         <p className={`text-xs mt-0.5 ${isToday ? 'text-muted-foreground' : 'text-muted-foreground/50'}`}>
           {formatMonthDay(date)}
         </p>
-        {isToday && <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />}
+        {isToday && <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wide text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Today</span>}
       </div>
 
       {/* Items row */}
@@ -52,9 +55,10 @@ export function DayRow({ date, dayLabel, isToday, plans, onAdd }: DayRowProps) {
             <button
               onClick={() => handleRemove(plan.id)}
               disabled={isPending}
-              className="absolute top-1 right-1 w-4 h-4 rounded-full bg-black/70 flex items-center justify-center"
+              aria-label={`Hapus ${plan.wardrobe_items.name}`}
+              className="absolute top-0.5 right-0.5 w-7 h-7 rounded-full bg-black/70 flex items-center justify-center"
             >
-              <X size={9} className="text-white" />
+              <X size={12} className="text-white" />
             </button>
           </div>
         ))}

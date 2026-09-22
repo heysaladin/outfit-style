@@ -61,9 +61,9 @@ export function DeclutterClient({ items, cutoffDate }: DeclutterClientProps) {
   const shown = pool.filter(i => !q || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
 
   const emptyMsg = {
-    suggested: { title: 'No candidates found', sub: 'Wear your items to track usage' },
-    flagged:   { title: 'Nothing flagged',      sub: 'Flag items from the wardrobe' },
-    trash:     { title: 'Trash is empty',       sub: 'Trashed items appear here' },
+    suggested: { title: 'Tidak ada kandidat',       sub: 'Pakai item kamu untuk mulai melacak pemakaian' },
+    flagged:   { title: 'Belum ada yang ditandai',  sub: 'Tandai item dari halaman wardrobe' },
+    trash:     { title: 'Sampah kosong',            sub: 'Item yang dibuang akan muncul di sini' },
   }[tab]
 
   return (
@@ -74,11 +74,13 @@ export function DeclutterClient({ items, cutoffDate }: DeclutterClientProps) {
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
           </svg>
+          <label htmlFor="declutter-search" className="sr-only">Cari item</label>
           <input
+            id="declutter-search"
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search items…"
+            placeholder="Cari item…"
             className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-muted text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -114,11 +116,11 @@ export function DeclutterClient({ items, cutoffDate }: DeclutterClientProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0 py-1">
-                <p className="text-foreground text-sm font-semibold truncate">{item.name}</p>
+                <p className="text-foreground text-sm font-semibold truncate" title={item.name}>{item.name}</p>
                 <p className="text-muted-foreground text-xs mt-0.5 capitalize">{item.category}</p>
                 <p className="text-muted-foreground/70 text-xs mt-1">
-                  {item.wear_count === 0 ? 'Never worn' : `${item.wear_count} wears`}
-                  {item.price ? ` · $${item.price}` : ''}
+                  {item.wear_count === 0 ? 'Belum pernah dipakai' : `${item.wear_count}× pakai`}
+                  {item.price ? ` · ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.price)}` : ''}
                 </p>
 
                 {/* Trash tab actions */}

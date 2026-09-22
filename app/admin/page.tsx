@@ -5,6 +5,8 @@ import { Layers, PenLine, ExternalLink } from 'lucide-react'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { BottomNav } from '@/components/BottomNav'
 
+export const metadata = { title: 'Admin — Interestory' }
+
 export const dynamic = 'force-dynamic'
 
 const PROJECTS = [
@@ -41,7 +43,7 @@ export default async function AdminPage() {
       <div className="px-4 py-4 space-y-3 max-w-2xl mx-auto">
         {PROJECTS.map(({ href, external, icon: Icon, name, description, api }) => (
           <div key={href} className="bg-card border border-border rounded-2xl overflow-hidden">
-            <Link href={href} className="flex items-center gap-3 px-4 py-4 hover:bg-muted transition-colors">
+            <Link href={href} aria-label={`Kelola ${name}`} className="flex items-center gap-3 px-4 py-4 hover:bg-muted transition-colors">
               <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
                 <Icon size={16} className="text-foreground" />
               </div>

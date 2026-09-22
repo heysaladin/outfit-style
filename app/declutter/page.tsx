@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { DeclutterClient } from '@/components/declutter/DeclutterClient'
 import type { WardrobeItem } from '@/lib/types'
 
+export const metadata = { title: 'Declutter — Interestory' }
+
 export default async function DeclutterPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -84,7 +84,7 @@ export function BlogsAdminClient({ blogs: initial }: Props) {
     <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+          <Link href="/" aria-label="Kembali ke Admin" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
             <ArrowLeft size={18} />
           </Link>
           <div>
@@ -226,9 +226,13 @@ function BlogRow({
 
   return (
     <li className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors group">
-      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${blog.status === 'published' ? 'bg-green-500' : 'bg-muted-foreground/40'}`} />
+      <span
+        className={`w-2 h-2 rounded-full flex-shrink-0 ${blog.status === 'published' ? 'bg-green-500' : 'bg-muted-foreground/40'}`}
+        aria-label={blog.status === 'published' ? 'Published' : 'Draft'}
+        role="img"
+      />
       <div className="flex-1 min-w-0">
-        <p className="text-foreground text-sm truncate">{blog.title}</p>
+        <p className="text-foreground text-sm truncate" title={blog.title}>{blog.title}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-muted-foreground text-[11px]">{date}</span>
           {blog.slug && (
@@ -246,12 +250,13 @@ function BlogRow({
             href={`https://hyperfantasy.co/blogs/${blog.slug ?? blog.id}`}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`Buka ${blog.title} di hyperfantasy.co`}
             className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
           >
             <ExternalLink size={13} />
           </a>
         )}
-        <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+        <button onClick={onEdit} aria-label={`Edit ${blog.title}`} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
           <Pencil size={15} />
         </button>
       </div>

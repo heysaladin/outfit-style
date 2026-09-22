@@ -59,7 +59,7 @@ export function BacklogAdminClient({ notes: initial }: Props) {
     <div className="h-dvh overflow-y-auto bg-background pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+          <Link href="/" aria-label="Kembali ke Admin" className="p-1.5 -ml-1.5 rounded-lg hover:bg-muted text-muted-foreground">
             <ArrowLeft size={18} />
           </Link>
           <div>
@@ -69,6 +69,7 @@ export function BacklogAdminClient({ notes: initial }: Props) {
         </div>
         <div className="flex items-center gap-2">
           <a href="https://zopavo.vercel.app" target="_blank" rel="noopener noreferrer"
+            aria-label="Buka Zopavo"
             className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
             <ExternalLink size={14} />
           </a>
@@ -219,7 +220,7 @@ function NoteRow({ note, onEdit }: { note: ZopavoNote; onEdit: () => void }) {
           )}
         </div>
       </div>
-      <button onClick={onEdit}
+      <button onClick={onEdit} aria-label="Edit note"
         className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground flex-shrink-0">
         <Pencil size={13} />
       </button>

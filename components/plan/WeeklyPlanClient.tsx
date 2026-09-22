@@ -44,14 +44,16 @@ export function WeeklyPlanClient({ weekStart, plans, allItems, today }: WeeklyPl
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Minggu sebelumnya"
+            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronLeft size={20} />
           </button>
           <span className="text-foreground text-sm font-medium">{weekLabel}</span>
           <button
             onClick={() => navigate(1)}
-            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Minggu berikutnya"
+            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronRight size={20} />
           </button>

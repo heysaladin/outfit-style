@@ -4,6 +4,7 @@ import type { FamilySchedule } from '@/lib/types'
 import { FamilyClient } from '@/components/family/FamilyClient'
 
 export const dynamic = 'force-dynamic'
+export const metadata = { title: 'Family — Interestory' }
 
 export default async function FamilyPage() {
   const supabase = await createClient()

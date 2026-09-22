@@ -45,7 +45,8 @@ export function GearClient({ items, user }: GearClientProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAddOpen(true)}
-              className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center hover:opacity-80 transition-opacity"
+              aria-label="Tambah item"
+              className="w-11 h-11 rounded-xl bg-foreground text-background flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <Plus size={18} strokeWidth={2.5} />
             </button>

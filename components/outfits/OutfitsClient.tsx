@@ -40,8 +40,7 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
     <div className="grid grid-cols-2 w-full h-full gap-0.5">
       {shown.map((item, i) => (
         <div key={i} className="overflow-hidden bg-muted relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+          <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 25vw, 15vw" />
         </div>
       ))}
       {shown.length < 4 && Array.from({ length: 4 - shown.length }).map((_, i) => (
@@ -197,7 +196,7 @@ function SortableCollectionCard({
       <OutfitCollage items={items} />
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
         <p className="text-white text-xs font-semibold truncate">{col.name}</p>
-        <p className="text-white/60 text-[10px]">{items.length} items</p>
+        <p className="text-white/60 text-xs">{items.length} items</p>
         {progress !== null && (
           <div className="mt-1.5 w-full bg-white/20 rounded-full h-1">
             <div className="bg-white rounded-full h-1 transition-all" style={{ width: `${progress}%` }} />
@@ -245,6 +244,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   const [wcUseIds, setWcUseIds]             = useState<Set<string>>(new Set())
   const [wcUseDate, setWcUseDate]           = useState(() => new Date().toISOString().split('T')[0])
   const [wcUseConfirm, setWcUseConfirm]     = useState(false)
+
+  const [confirmDelete, setConfirmDelete]     = useState(false)
+  const [confirmWcDelete, setConfirmWcDelete] = useState(false)
 
   // ── Reorder state ─────────────────────────────────────────────────────────
   const [detailItemOrder, setDetailItemOrder]     = useState<string[]>([])
@@ -411,13 +413,13 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         <div className="flex items-center gap-2">
           <button
             onClick={() => setView('outfits')}
-            className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${view === 'outfits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-2.5 rounded-full text-sm font-semibold transition-all ${view === 'outfits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             Outfits
           </button>
           <button
             onClick={() => setView('wardrobes')}
-            className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${view === 'wardrobes' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-3 py-2.5 rounded-full text-sm font-semibold transition-all ${view === 'wardrobes' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             Collection (Wardrobe)
           </button>
@@ -425,8 +427,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         <div className="flex items-center gap-2">
           <button
             onClick={() => view === 'outfits' ? setCreating(true) : setWcCreating(true)}
-            className="w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
-            <Plus size={16} className="text-primary-foreground" strokeWidth={2.5} />
+            aria-label={view === 'outfits' ? 'Tambah outfit' : 'Tambah koleksi'}
+            className="w-11 h-11 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
+            <Plus size={18} className="text-primary-foreground" strokeWidth={2.5} />
           </button>
           <UserAvatarMenu />
         </div>
@@ -445,18 +448,20 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             {outfits.map(outfit => {
               const items = [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.wardrobe_items).filter(Boolean) ?? []
               return (
-                <button key={outfit.id} onClick={() => {
-                  setDetail(outfit)
-                  setDetailItemOrder(
-                    [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.item_id)
-                  )
-                }}
+                <button key={outfit.id}
+                  aria-label={outfit.name}
+                  onClick={() => {
+                    setDetail(outfit)
+                    setDetailItemOrder(
+                      [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.item_id)
+                    )
+                  }}
                   className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border active:scale-95 transition-transform">
                   <OutfitCollage items={items as WardrobeItem[]} />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                     <p className="text-white text-xs font-semibold truncate">{outfit.name}</p>
                     {outfit.occasion && (
-                      <p className="text-white/60 text-[10px] capitalize">{outfit.occasion}</p>
+                      <p className="text-white/60 text-xs capitalize">{outfit.occasion}</p>
                     )}
                   </div>
                 </button>
@@ -506,7 +511,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
             <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-bold text-base">New Outfit</h2>
-              <button onClick={() => { setCreating(false); resetCreate() }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setCreating(false); resetCreate() }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -542,7 +547,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
             <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-bold text-base">New Wardrobe</h2>
-              <button onClick={() => { setWcCreating(false); resetWcCreate() }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setWcCreating(false); resetWcCreate() }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -564,15 +569,15 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
 
       {/* ── Outfit detail modal ───────────────────────────────────────────── */}
       {detail && (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setDetail(null); setConfirmUse(false) }}>
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setDetail(null); setConfirmUse(false); setConfirmDelete(false) }}>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
             <div className="absolute top-4 right-4 flex items-center gap-2">
-              <button onClick={openEdit} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={openEdit} aria-label="Edit outfit" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Pencil size={17} />
               </button>
-              <button onClick={() => { setDetail(null); setConfirmUse(false) }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setDetail(null); setConfirmUse(false); setConfirmDelete(false) }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -604,8 +609,8 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
-                    <input type="date" value={useDate} onChange={e => setUseDate(e.target.value)}
+                    <label htmlFor="use-date" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
+                    <input id="use-date" type="date" value={useDate} onChange={e => setUseDate(e.target.value)}
                       className="w-full bg-muted rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
                   </div>
                   <p className="text-sm text-center text-muted-foreground">
@@ -621,11 +626,25 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                   </div>
                 </div>
               )}
-              <button onClick={() => handleDelete(detail.id)} disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
-                <Trash2 size={15} />
-                {isPending ? 'Deleting...' : 'Delete Outfit'}
-              </button>
+              {!confirmDelete ? (
+                <button onClick={() => setConfirmDelete(true)} disabled={isPending}
+                  className="w-full flex items-center justify-center gap-2 bg-destructive/10 text-destructive border border-destructive/20 py-3 rounded-xl text-sm disabled:opacity-40">
+                  <Trash2 size={15} />
+                  Delete Outfit
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-center text-muted-foreground">Yakin hapus outfit ini?</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setConfirmDelete(false)} disabled={isPending}
+                      className="flex-1 bg-muted text-muted-foreground font-semibold py-3 rounded-xl text-sm">Batal</button>
+                    <button onClick={() => handleDelete(detail.id)} disabled={isPending}
+                      className="flex-1 bg-destructive text-destructive-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40">
+                      {isPending ? 'Menghapus...' : 'Hapus'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -633,17 +652,17 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
 
       {/* ── Wardrobe Collection detail modal ──────────────────────────────── */}
       {wcDetail && !wcEditing && (
-        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setWcDetail(null); exitWcUseMode() }}>
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => { setWcDetail(null); exitWcUseMode(); setConfirmWcDelete(false) }}>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background rounded-t-3xl max-h-[88vh] overflow-y-auto border-t border-border"
             onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
             <div className="absolute top-4 right-4 flex items-center gap-2">
               {!wcUseMode && (
-                <button onClick={openWcEdit} className="text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={openWcEdit} aria-label="Edit koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
                   <Pencil size={17} />
                 </button>
               )}
-              <button onClick={() => { setWcDetail(null); exitWcUseMode() }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setWcDetail(null); exitWcUseMode(); setConfirmWcDelete(false) }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -692,8 +711,8 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                   {wcUseConfirm ? (
                     <>
                       <div>
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
-                        <input type="date" value={wcUseDate} onChange={e => setWcUseDate(e.target.value)}
+                        <label htmlFor="wc-use-date" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">Tanggal pakai</label>
+                        <input id="wc-use-date" type="date" value={wcUseDate} onChange={e => setWcUseDate(e.target.value)}
                           className="w-full bg-muted rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-foreground/20" />
                       </div>
                       <p className="text-sm text-center text-muted-foreground">
@@ -728,11 +747,25 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
               )}
 
               {!wcUseMode && (
-                <button onClick={() => handleWcDelete(wcDetail.id)} disabled={isPending}
-                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 py-3 rounded-xl text-sm disabled:opacity-40">
-                  <Trash2 size={15} />
-                  {isPending ? 'Deleting...' : 'Delete Collection'}
-                </button>
+                !confirmWcDelete ? (
+                  <button onClick={() => setConfirmWcDelete(true)} disabled={isPending}
+                    className="w-full flex items-center justify-center gap-2 bg-destructive/10 text-destructive border border-destructive/20 py-3 rounded-xl text-sm disabled:opacity-40">
+                    <Trash2 size={15} />
+                    Delete Collection
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-center text-muted-foreground">Yakin hapus koleksi ini?</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => setConfirmWcDelete(false)} disabled={isPending}
+                        className="flex-1 bg-muted text-muted-foreground font-semibold py-3 rounded-xl text-sm">Batal</button>
+                      <button onClick={() => handleWcDelete(wcDetail.id)} disabled={isPending}
+                        className="flex-1 bg-destructive text-destructive-foreground font-semibold py-3 rounded-xl text-sm disabled:opacity-40">
+                        {isPending ? 'Menghapus...' : 'Hapus'}
+                      </button>
+                    </div>
+                  </div>
+                )
               )}
             </div>
           </div>
@@ -750,7 +783,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Outfit</p>
                 <h2 className="text-foreground font-bold text-base leading-tight">{detail.name}</h2>
               </div>
-              <button onClick={() => { setPosting(false); setPostCaption('') }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setPosting(false); setPostCaption('') }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -784,7 +817,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
             <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-bold text-base">Edit Outfit</h2>
-              <button onClick={() => setEditing(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setEditing(false)} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -819,7 +852,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3 mb-1 flex-shrink-0" />
             <div className="flex items-center justify-between px-5 py-3 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-bold text-base">Edit Wardrobe</h2>
-              <button onClick={() => setWcEditing(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setWcEditing(false)} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
               </button>
             </div>

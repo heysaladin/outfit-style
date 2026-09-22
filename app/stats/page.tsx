@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { StatsClient } from '@/components/stats/StatsClient'
 import type { WardrobeItem } from '@/lib/types'
 
+export const metadata = { title: 'Style Stats — Interestory' }
+
 export default async function StatsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

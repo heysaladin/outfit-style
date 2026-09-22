@@ -14,10 +14,10 @@ import { MobileEmptyState } from '@/components/ui/mobile-shims'
 import { ProgressRing } from '@/components/ui/mobile-shims'
 import { SegmentedControl } from '@/components/ui/mobile-shims'
 
-const STATUS_OPTS: { value: BookStatus; label: string; color: string }[] = [
-  { value: 'unread',  label: 'Unread',  color: '#94A3B8' },
-  { value: 'reading', label: 'Reading', color: '#F97316' },
-  { value: 'done',    label: 'Done',    color: '#22C55E' },
+const STATUS_OPTS: { value: BookStatus; label: string; badgeClass: string }[] = [
+  { value: 'unread',  label: 'Unread',  badgeClass: 'bg-slate-400/90' },
+  { value: 'reading', label: 'Reading', badgeClass: 'bg-orange-500/90' },
+  { value: 'done',    label: 'Done',    badgeClass: 'bg-green-500/90' },
 ]
 
 interface Props {
@@ -88,8 +88,9 @@ export function LiteracyClient({ user: _user, books, progressMap: initialMap }: 
         <MobileButton
           variant="ghost" size="sm"
           icon={<ChevronLeft size={18} />}
-          onClick={() => router.push('/reading')}
-          className="w-9 h-9 rounded-xl p-0 justify-center"
+          onClick={() => router.back()}
+          aria-label="Kembali"
+          className="w-11 h-11 rounded-xl p-0 justify-center"
         />
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-extrabold tracking-tight leading-none">Library</h1>
@@ -103,7 +104,7 @@ export function LiteracyClient({ user: _user, books, progressMap: initialMap }: 
           <MobileEmptyState
             icon={<span className="text-4xl">📚</span>}
             title="No books yet"
-            description="Add books via the Reading page"
+            description={<span>Tambah buku lewat <button onClick={() => router.push('/reading')} className="underline font-semibold text-foreground">halaman Reading</button></span>}
           />
         ) : (
           <div style={{ columns: 2, columnGap: 11 }}>
@@ -161,14 +162,11 @@ function BookCard({ book, progress, status, onDetails }: {
         {book.image_url ? (
           <Image src={book.image_url} alt={book.name} width={800} height={800} className="w-full block" style={{ height: 'auto' }} sizes="(max-width: 768px) 50vw, 33vw" />
         ) : (
-          <div className="h-32 flex items-center justify-center text-4xl bg-gradient-to-br from-[#FFF0DC] to-[#FFDFC2]">
+          <div className="h-32 flex items-center justify-center text-4xl bg-muted">
             📖
           </div>
         )}
-        <span
-          className="absolute top-2 right-2 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full text-white backdrop-blur-sm"
-          style={{ background: statusDef.color + 'dd' }}
-        >
+        <span className={`absolute top-2 right-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full text-white backdrop-blur-sm ${statusDef.badgeClass}`}>
           {statusDef.label}
         </span>
       </div>
@@ -217,7 +215,7 @@ function DetailsSheet({ book, draftNote, draftProgress, draftStatus, saving, sav
     <Sheet onClose={onClose}>
       {/* Book header */}
       <div className="flex items-start gap-3.5 mb-5">
-        <div className="w-[52px] h-[70px] rounded-lg flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFF0DC] to-[#FFDFC2] flex items-center justify-center text-2xl relative">
+        <div className="w-[52px] h-[70px] rounded-lg flex-shrink-0 overflow-hidden bg-muted flex items-center justify-center text-2xl relative">
           {book.image_url
             ? <Image src={book.image_url} alt={book.name} fill className="object-cover" sizes="52px" />
             : '📖'

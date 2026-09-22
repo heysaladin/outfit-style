@@ -70,12 +70,12 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-16">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <button onClick={prevMonth} className="text-muted-foreground hover:text-foreground transition-colors p-1">
+        <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="text-muted-foreground hover:text-foreground transition-colors p-2">
           <ChevronLeft size={20} />
         </button>
         <h1 className="text-foreground font-bold text-base">{monthLabel}</h1>
-        <div className="flex items-center gap-2">
-          <button onClick={nextMonth} className="text-muted-foreground hover:text-foreground transition-colors p-1">
+        <div className="flex items-center gap-3">
+          <button onClick={nextMonth} aria-label="Bulan berikutnya" className="text-muted-foreground hover:text-foreground transition-colors p-2">
             <ChevronRight size={20} />
           </button>
           <UserAvatarMenu />
@@ -103,6 +103,7 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
             return (
               <button key={i} onClick={() => !isFuture && setSelectedDate(ds)}
                 disabled={isFuture}
+                title={isFuture ? 'Belum bisa di-log' : undefined}
                 className={`aspect-square rounded-xl overflow-hidden relative flex items-center justify-center transition-all ${
                   isFuture ? 'opacity-30 cursor-default' :
                   isToday  ? 'ring-1 ring-primary' : ''
@@ -142,7 +143,7 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
               <h2 className="text-foreground font-bold text-base">
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
               </h2>
-              <button onClick={() => setSelectedDate(null)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
+              <button onClick={() => setSelectedDate(null)} aria-label="Tutup" className="text-muted-foreground hover:text-foreground p-1"><X size={20} /></button>
             </div>
             <div className="p-5 space-y-4 pb-8">
               {selectedLogs.length > 0 ? (

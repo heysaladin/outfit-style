@@ -14,22 +14,22 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
   const isDraft  = !item.status || item.status === 'draft'
   const { worthItProgress, targetUses, isWorthIt } = calcWorthIt({ purchasePrice: item.purchase_price, purchaseDate: item.purchase_date, actualUses: item.use_count, targetOverride: item.target })
 
+  const barColor = isWorthIt ? 'bg-emerald-600' : worthItProgress >= 75 ? 'bg-amber-600' : 'bg-slate-400'
+
   return (
-    <div className="group relative flex flex-col gap-2">
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-card">
-        <button onClick={onClick} className="absolute inset-0 w-full h-full">
-          {item.image_url ? (
-            <img
-              src={item.image_url}
-              alt={item.name}
-              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl bg-muted">
-              {hobbyDef?.icon ?? '📦'}
-            </div>
-          )}
-        </button>
+    <button onClick={onClick} className="group relative flex flex-col gap-2 w-full text-left">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-card w-full">
+        {item.image_url ? (
+          <img
+            src={item.image_url}
+            alt={item.name}
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-4xl bg-muted">
+            {hobbyDef?.icon ?? '📦'}
+          </div>
+        )}
 
         {item.status === 'verified' && (
           <div className="absolute top-2.5 left-2.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm">
@@ -44,7 +44,7 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
         </div>
       </div>
 
-      <button onClick={onClick} className="text-left px-0.5">
+      <div className="px-0.5">
         <div className="flex items-baseline gap-1.5">
           <p className="text-foreground text-xs font-semibold truncate leading-tight">{item.name}</p>
           {isDraft && (
@@ -59,14 +59,11 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
         <div className="mt-1.5">
           <div className="h-[3px] rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${worthItProgress}%`,
-                background: isWorthIt ? '#059669' : worthItProgress >= 75 ? '#d97706' : '#94a3b8',
-              }}
+              className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+              style={{ width: `${worthItProgress}%` }}
             />
           </div>
-          <p className="text-[9px] text-muted-foreground font-medium mt-0.5 leading-none">
+          <p className="text-[11px] text-muted-foreground font-medium mt-0.5 leading-none">
             {item.use_count}× · {
               isWorthIt
                 ? '✅ Worth It!'
@@ -74,7 +71,7 @@ export function GearItemCard({ item, onClick }: GearItemCardProps) {
             }
           </p>
         </div>
-      </button>
-    </div>
+      </div>
+    </button>
   )
 }
