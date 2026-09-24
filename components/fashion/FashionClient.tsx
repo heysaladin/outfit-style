@@ -251,7 +251,7 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
 
           {/* Grid */}
           {sortedItems.length > 0 && (
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
               {sortedItems.map(item => (
                 <Link
                   key={item.id}

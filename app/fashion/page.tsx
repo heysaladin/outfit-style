@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import type { HobbyActivity, HobbyPhoto, WardrobeItem } from '@/lib/types'
 import { FashionClient } from '@/components/fashion/FashionClient'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = { title: 'Fashion' }
 
 export default async function FashionPage() {
   const supabase = await createClient()

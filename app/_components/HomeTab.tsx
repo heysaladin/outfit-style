@@ -100,10 +100,16 @@ const HomeTab = React.memo(function HomeTab({
       <div style={{ margin: '-1px 18px 0', position: 'relative', zIndex: 2, transform: 'translateY(-50%)', marginBottom: '-1.5rem' }}>
         <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1e1e1e', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
           <div className="flex items-center gap-2">
-            <span className="text-[22px]">🔥</span>
+            <span className="text-[22px]">{streak > 0 ? '🔥' : '✨'}</span>
             <div className="flex items-baseline gap-1.5">
-              <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>{streak}</span>
-              <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
+              {streak > 0 ? (
+                <>
+                  <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>{streak}</span>
+                  <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
+                </>
+              ) : (
+                <span className="text-[14px] font-medium" style={{ color: 'rgba(255,255,255,0.7)' }}>Start today!</span>
+              )}
             </div>
           </div>
           <div className="flex gap-[9px]">
@@ -136,9 +142,11 @@ const HomeTab = React.memo(function HomeTab({
                 const timeAgo = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : `${diff}d ago`
                 const initials = (h?.label ?? act.hobby).slice(0, 2).toUpperCase()
                 return (
-                  <div
+                  <button
                     key={act.id}
-                    className="flex items-center gap-3 cursor-pointer transition-colors"
+                    type="button"
+                    aria-label={`View ${h?.label ?? act.hobby} activity`}
+                    className="w-full flex items-center gap-3 cursor-pointer transition-colors bg-transparent border-0 text-left"
                     style={{ padding: '14px 16px', borderBottom: idx < 2 ? '1px solid #F5F5F5' : 'none' }}
                     onClick={() => onOpenActivity(act)}
                   >
@@ -150,7 +158,7 @@ const HomeTab = React.memo(function HomeTab({
                       <p className="text-[13px] m-0 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: '#A3A3A3' }}>{act.note}</p>
                     </div>
                     <span className="text-[12px] flex-shrink-0" style={{ color: '#A3A3A3' }}>{timeAgo}</span>
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -199,12 +207,14 @@ const HomeTab = React.memo(function HomeTab({
                           </span>
                         )}
                         <button
+                          aria-label="Edit goal"
                           onClick={() => onEditGoal(goal)}
                           className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
                         <button
+                          aria-label="Delete goal"
                           onClick={() => onDeleteGoal(goal.id)}
                           className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
                         >
@@ -246,10 +256,10 @@ const HomeTab = React.memo(function HomeTab({
                                 {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
                               </div>
                               <span className={cn('flex-1 text-para-sm font-medium', t.done ? 'text-muted-foreground/60 line-through' : 'text-foreground')}>{t.task}</span>
-                              <button onClick={() => onEditTask(t)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
+                              <button aria-label="Edit task" onClick={() => onEditTask(t)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                               </button>
-                              <button onClick={() => onDeleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
+                              <button aria-label="Delete task" onClick={() => onDeleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                               </button>
                             </div>
@@ -277,6 +287,7 @@ const HomeTab = React.memo(function HomeTab({
           <div className="rounded-[22px] overflow-hidden">
             <iframe
               src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
+              title="Google Calendar"
               style={{ border: 0, display: 'block', filter: 'sepia(0.55) saturate(0.85) contrast(0.9) brightness(1.04)' }}
               width="100%"
               height="500"

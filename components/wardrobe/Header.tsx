@@ -26,7 +26,7 @@ export function Header({ user, onUpload, onSelectMode }: HeaderProps) {
 
       <div className="flex items-center gap-2">
         {user && onSelectMode && (
-          <MobileButton variant="ghost" size="sm" icon={<CheckSquare size={15} />} onClick={onSelectMode} className="w-8 h-8 rounded-full p-0 justify-center" />
+          <MobileButton variant="ghost" size="sm" icon={<CheckSquare size={15} />} onClick={onSelectMode} aria-label="Select items" className="w-8 h-8 rounded-full p-0 justify-center" />
         )}
         <MobileButton variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />} onClick={toggle} aria-label="Toggle theme" className="w-8 h-8 rounded-full p-0 justify-center" />
         {user ? (

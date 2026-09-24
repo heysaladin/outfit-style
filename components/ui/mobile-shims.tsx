@@ -17,10 +17,13 @@ interface MobileButtonProps {
   type?: 'submit' | 'button'
   style?: CSSProperties
   children?: ReactNode
+  'aria-label'?: string
+  'aria-pressed'?: boolean
 }
 
 export function MobileButton({
   variant, size, icon, onClick, disabled, loading, fullWidth, className = '', type = 'button', style, children,
+  'aria-label': ariaLabel, 'aria-pressed': ariaPressed,
 }: MobileButtonProps) {
   const base = 'inline-flex items-center justify-center gap-1.5 font-semibold transition-all rounded-xl disabled:opacity-40'
   const variants = {
@@ -37,6 +40,8 @@ export function MobileButton({
       onClick={onClick}
       disabled={disabled || loading}
       style={style}
+      aria-label={ariaLabel}
+      aria-pressed={ariaPressed}
       className={`${base} ${variants[v]} ${sizes[s]} ${fullWidth ? 'w-full' : ''} ${className}`}
     >
       {loading ? <Loader2 size={15} className="animate-spin" /> : icon}

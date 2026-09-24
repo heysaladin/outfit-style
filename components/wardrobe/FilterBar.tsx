@@ -84,7 +84,8 @@ export function FilterBar({
   return (
     <div className="border-b border-border px-5 py-3 space-y-3">
       {/* Category row */}
-      <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      <div className="relative">
+      <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none', maskImage: 'linear-gradient(to right, black calc(100% - 32px), transparent 100%)' }}>
         <MobileChip
           label="All"
           type="filter"
@@ -96,7 +97,7 @@ export function FilterBar({
             key={cat.value}
             label={cat.label}
             type="filter"
-            icon={<span>{cat.icon}</span>}
+            icon={<span aria-hidden="true">{cat.icon}</span>}
             selected={activeCategory === cat.value}
             onSelect={sel => {
               onCategoryChange(sel ? cat.value : null)
@@ -104,6 +105,7 @@ export function FilterBar({
             }}
           />
         ))}
+      </div>
       </div>
 
       {/* Subcategory row */}
@@ -244,7 +246,7 @@ export function FilterBar({
                 key={s.value}
                 label={s.label}
                 type="filter"
-                icon={<span>{s.icon}</span>}
+                icon={<span aria-hidden="true">{s.icon}</span>}
                 selected={activeSeason === s.value}
                 onSelect={sel => onSeasonChange(sel ? s.value : null)}
               />

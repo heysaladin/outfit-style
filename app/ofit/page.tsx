@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { WardrobeClient } from '@/components/wardrobe/WardrobeClient'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Wardrobe' }
 
 export default async function OfitPage() {
   const supabase = await createClient()
