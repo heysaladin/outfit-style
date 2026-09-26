@@ -1,9 +1,11 @@
 'use client'
 
 import { useTransition, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2, Search } from 'lucide-react'
-import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus } from '@/app/actions'
+import { deleteItem, wearItem, flagDeclutter, assignItemToWardrobe, setItemStatus, setWardrobeItemWearCount } from '@/app/actions'
+import { MobileButton } from '@/components/ui/mobile-shims'
 import { COLORS, SEASONS, DECLUTTER_STATUSES, getCategoryLabel, type WardrobeItem, type Wardrobe } from '@/lib/types'
 import { EditClothModal } from './EditClothModal'
 import { WorthCard } from '@/components/worth/WorthCard'
@@ -16,10 +18,17 @@ interface ItemDetailModalProps {
 }
 
 export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailModalProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useState<'info' | 'storage' | 'declutter'>('info')
   const [editOpen, setEditOpen] = useState(false)
   const [wardrobeSearch, setWardrobeSearch] = useState('')
+
+  const [wearCount, setWearCount] = useState(item?.wear_count ?? 0)
+  const [lastWorn, setLastWorn]   = useState(item?.last_worn ?? null)
+  const [editUsesOpen, setEditUsesOpen]     = useState(false)
+  const [editUsesCount, setEditUsesCount]   = useState<string>(String(item?.wear_count ?? 0))
+  const [editUsesPending, setEditUsesPending] = useState(false)
 
   if (!item) return null
 
@@ -28,11 +37,32 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
   const costPerWear = item.price && item.wear_count > 0 ? (item.price / item.wear_count).toFixed(2) : null
   const isDraft     = !item.status || item.status === 'draft'
 
+  const lastWornStr = lastWorn
+    ? new Date(lastWorn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'never worn'
+
   function handleDelete() {
     startTransition(async () => { await deleteItem(item!.id); onClose() })
   }
   function handleWear() {
-    startTransition(async () => { await wearItem(item!.id); onClose() })
+    startTransition(async () => {
+      const res = await wearItem(item!.id)
+      if (res?.error) return
+      const today = new Date().toISOString().split('T')[0]
+      setWearCount(c => c + 1)
+      setLastWorn(today)
+      router.refresh()
+    })
+  }
+  async function handleSaveUses() {
+    setEditUsesPending(true)
+    const count = Math.max(0, parseInt(editUsesCount) || 0)
+    const res = await setWardrobeItemWearCount(item!.id, count)
+    setEditUsesPending(false)
+    if (res.error) return
+    setWearCount(count)
+    setEditUsesOpen(false)
+    router.refresh()
   }
   function handleDeclutter(status: 'donate' | 'sell' | 'giveaway' | 'non-fashion' | null) {
     startTransition(async () => { await flagDeclutter(item!.id, status); onClose() })
@@ -205,21 +235,31 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
                 totalUses={item.wear_count}
               />
 
-              {/* Wear stats */}
-              <div className="flex items-center justify-between bg-muted rounded-xl p-3.5">
-                <div>
-                  <p className="text-foreground text-sm font-semibold">{item.wear_count} wears</p>
-                  <p className="text-muted-foreground text-[10px] mt-0.5">
-                    {item.last_worn
-                      ? `Last ${new Date(item.last_worn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                      : 'Never worn'}
-                  </p>
+              {/* Use bar */}
+              <div className="flex items-center gap-3 mb-3 bg-card rounded-3xl p-3.5">
+                <div className="text-[28px] font-extrabold leading-none">{wearCount}</div>
+                <div className="flex-1">
+                  <b className="text-[14px] block">uses</b>
+                  <span className="block text-[11px] font-semibold text-muted-foreground mt-0.5">{lastWornStr}</span>
                 </div>
                 {user && (
-                  <button onClick={handleWear} disabled={isPending}
-                    className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-40 hover:opacity-80 transition-opacity">
-                    + Wear
+                  <button
+                    onClick={() => { setEditUsesCount(String(wearCount)); setEditUsesOpen(true) }}
+                    aria-label="Edit use count"
+                    className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center text-muted-foreground flex-shrink-0 mr-1.5"
+                  >
+                    <Pencil size={15} />
                   </button>
+                )}
+                {user && (
+                  <MobileButton
+                    size="sm"
+                    onClick={handleWear}
+                    disabled={isPending}
+                    className="rounded-full px-5 py-3 text-[14px] font-extrabold"
+                  >
+                    + Use
+                  </MobileButton>
                 )}
               </div>
 
@@ -338,6 +378,41 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
 
       {user && editOpen && (
         <EditClothModal item={item} onClose={() => { setEditOpen(false); onClose() }} />
+      )}
+
+      {editUsesOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setEditUsesOpen(false)} aria-hidden="true" />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Edit use count"
+            className="relative w-full bg-background rounded-t-2xl max-h-[88dvh] flex flex-col shadow-2xl"
+          >
+            <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-muted-foreground/30 flex-shrink-0" />
+            <div className="flex items-center justify-between px-5 pt-3 pb-2 flex-shrink-0">
+              <h2 className="text-xl font-extrabold tracking-tight">Edit use count</h2>
+              <button onClick={() => setEditUsesOpen(false)} aria-label="Close" className="w-9 h-9 rounded-xl bg-card flex items-center justify-center text-foreground">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-5 space-y-4 pb-1" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom,0px))' }}>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">Total uses</label>
+                <input
+                  type="number" inputMode="numeric" min="0"
+                  value={editUsesCount}
+                  onChange={e => setEditUsesCount(e.target.value.replace(/[^0-9]/g, ''))}
+                  onFocus={e => e.target.select()}
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none box-border"
+                />
+              </div>
+              <MobileButton fullWidth loading={editUsesPending} onClick={handleSaveUses} className="rounded-xl">
+                Save
+              </MobileButton>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

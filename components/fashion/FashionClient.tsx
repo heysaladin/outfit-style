@@ -11,13 +11,12 @@ import { MomentsTab } from '@/components/gear/MomentsTab'
 import { postOutfitActivity } from '@/app/actions'
 import { cn } from '@/lib/utils'
 import { calcWorthIt } from '@/lib/worth'
-import { ChevronLeft, Eye, EyeOff, Shirt } from 'lucide-react'
+import { ChevronLeft, Eye, EyeOff, Shirt, Home } from 'lucide-react'
 
 // Cubicle mobileapp components
 import { MobileTopTabs } from '@/components/ui/mobile-shims'
 import { MobileEmptyState } from '@/components/ui/mobile-shims'
 import { MobileSearchBar } from '@/components/ui/mobile-shims'
-import { BottomNav } from '@/components/BottomNav'
 
 // Existing UI
 import { FilterBar } from '@/components/wardrobe/FilterBar'
@@ -143,7 +142,7 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
   )
 
   return (
-    <div className="h-dvh overflow-y-auto bg-background text-foreground pb-24">
+    <div className="h-dvh overflow-y-auto bg-background text-foreground">
 
       {/* ── Header — Cubicle MobileTopBar pattern ── */}
       <div className="sticky top-0 z-10 bg-background border-b">
@@ -152,13 +151,18 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
           style={{ paddingTop: 'calc(8px + env(safe-area-inset-top, 0px))' }}
         >
           <div className="flex items-center justify-between min-h-[44px]">
-            <button
-              onClick={() => router.back()}
-              className="flex items-center gap-0.5 text-primary text-sm font-medium -ml-1 px-1 py-1 rounded-lg active:bg-muted"
-            >
-              <ChevronLeft className="h-5 w-5" />
-              <span>Back</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-0.5 text-primary text-sm font-medium -ml-1 px-1 py-1 rounded-lg active:bg-muted"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                <span>Back</span>
+              </button>
+              <Link href="/" className="flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground active:bg-muted">
+                <Home className="h-4 w-4" />
+              </Link>
+            </div>
 
             <div className="flex items-center gap-2">
               <button
@@ -313,8 +317,6 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
       {tab === 'moments' && (
         <MomentsTab hobby="fashion" photos={photos} user={user} />
       )}
-
-      <BottomNav />
 
       {/* ── Quick Post Outfit Drawer ── */}
       <Drawer open={qpOpen} onOpenChange={setQpOpen}>

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { HOBBIES } from '@/lib/types'
 import type { HobbyActivity } from '@/lib/types'
 import type { ActivityExportData } from '@/components/ActivityExportCard'
@@ -64,6 +65,10 @@ const HomeTab = React.memo(function HomeTab({
   onDeleteGoal,
   onDeleteTask,
 }: HomeTabProps) {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const activeGoals   = goals.filter(g => !g.deadline || new Date(g.deadline) >= today)
+  const archivedGoals = goals.filter(g => g.deadline && new Date(g.deadline) < today)
+
   return (
     <>
       {/* Dark hero section */}
@@ -170,20 +175,36 @@ const HomeTab = React.memo(function HomeTab({
           <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
             Monthly Goals
           </h2>
-          <button
-            onClick={onOpenGoalSheet}
-            className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium cursor-pointer transition-colors"
-            style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
-          >
-            Add
-          </button>
+          <div className="flex items-center gap-2">
+            {archivedGoals.length > 0 && (
+              <Link
+                href="/goals/archive"
+                className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium flex items-center gap-1.5 transition-colors"
+                style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#525252', textDecoration: 'none' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+                Archive
+                <span className="text-[11px] font-bold" style={{ color: '#A3A3A3' }}>{archivedGoals.length}</span>
+              </Link>
+            )}
+            <button
+              onClick={onOpenGoalSheet}
+              className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium cursor-pointer transition-colors flex items-center gap-1.5"
+              style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add
+            </button>
+          </div>
         </div>
 
-        {goals.length === 0 ? (
+        {activeGoals.length === 0 && archivedGoals.length === 0 ? (
           <EmptyState icon="🎯" title="No goals yet" desc="Set monthly goals to stay on track" />
+        ) : activeGoals.length === 0 ? (
+          <EmptyState icon="🎯" title="No active goals" desc="All past goals are in the archive" />
         ) : (
           <div className="flex flex-col gap-[11px]">
-            {goals.map(goal => {
+            {activeGoals.map(goal => {
               const tasks = goalTasks.filter(t => t.goal_id === goal.id)
               const doneCount = tasks.filter(t => t.done).length
               const pct = tasks.length > 0 ? doneCount / tasks.length : 0
