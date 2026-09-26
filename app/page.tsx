@@ -56,7 +56,7 @@ export default function Home() {
   const { theme, toggle: toggleTheme } = useTheme()
   const [reorderOpen, setReorderOpen] = useState(false)
   const [user, setUser]             = useState<User | null>(null)
-  const [hobbyOrder, setHobbyOrder] = useState(() => [...HOBBIES])
+  const [hobbyOrder, setHobbyOrder] = useState(() => getOrderedHobbies())
   const [activities, setActivities] = useState<HobbyActivity[]>([])
   const [photos, setPhotos]         = useState<HobbyPhoto[]>([])
   const [worthItItems, setWorthItItems] = useState<WardrobeItem[]>([])
@@ -524,8 +524,8 @@ export default function Home() {
           style={{ background: tab === 'home' ? '#0A0A0A' : 'var(--background)' }}
         >
           <span
-            className="font-sans font-semibold text-[19px] tracking-[-0.5px]"
-            style={{ color: tab === 'home' ? '#f1f252' : 'var(--foreground)' }}
+            className="font-sans font-semibold"
+            style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, color: tab === 'home' ? 'rgb(238,240,64)' : 'var(--foreground)' }}
           >
             interestory
           </span>
@@ -533,18 +533,18 @@ export default function Home() {
             <Link
               href="/ofit"
               aria-label="Wardrobe"
-              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
-              style={{ background: tab === 'home' ? 'rgba(255,255,255,0.08)' : 'var(--muted)' }}
+              className="flex-shrink-0 flex items-center justify-center rounded-full"
+              style={{ width: 36, height: 36, background: tab === 'home' ? 'rgb(31,31,31)' : 'var(--muted)', color: tab === 'home' ? 'rgb(229,229,229)' : 'var(--foreground)' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={tab === 'home' ? 'rgba(255,255,255,0.7)' : 'var(--foreground)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 0 1-8 0"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 7h14l-1 13H6z"/>
+                <path d="M9 10a3 3 0 0 0 6 0"/>
+                <path d="M9 7V6a3 3 0 0 1 6 0v1"/>
               </svg>
             </Link>
             <UserAvatarMenu
-              buttonClassName="relative w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-              buttonStyle={{ border: tab === 'home' ? '2px solid rgba(255,255,255,0.15)' : '1px solid #E5E5E5' }}
+              buttonClassName="relative flex-shrink-0 cursor-pointer overflow-hidden rounded-full"
+              buttonStyle={{ width: 36, height: 36, background: tab === 'home' ? 'rgb(38,38,38)' : 'transparent', border: tab === 'home' ? '2px solid rgb(64,64,64)' : '1px solid #E5E5E5' }}
               onReorderInterests={() => setReorderOpen(true)}
             />
           </div>
@@ -553,7 +553,7 @@ export default function Home() {
         {/* ── Scrollable content ── */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain"
-          style={{ paddingBottom: 104, background: '#FFFFFF' }}
+          style={{ paddingBottom: 0, background: '#FFFFFF' }}
         >
 
           {/* ════ HOME TAB ════ */}
@@ -650,26 +650,29 @@ export default function Home() {
 
         {/* ── Bottom tab bar ── */}
         <nav
-          className="fixed left-1/2 -translate-x-1/2 z-30 grid"
+          className="fixed left-1/2 -translate-x-1/2 z-30"
           style={{
-            bottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+            bottom: 'max(16px, env(safe-area-inset-bottom, 16px))',
             width: 'calc(100% - 32px)',
             maxWidth: 398,
-            gridTemplateColumns: 'repeat(5, 1fr)',
             height: 64,
-            background: '#171717',
+            padding: '0 6px',
+            background: 'rgb(21,21,21)',
             borderRadius: 9999,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            boxShadow: 'rgba(0,0,0,0.1) 0px 10px 15px -3px, rgba(0,0,0,0.1) 0px 4px 6px -4px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            alignItems: 'center',
           }}
         >
           {/* Home */}
-          <button aria-label="Home" onClick={() => setTab('home')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'home' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+          <button aria-label="Home" onClick={() => setTab('home')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer h-12" style={{ color: tab === 'home' ? 'rgb(250,250,250)' : 'rgb(138,138,138)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>
           </button>
 
           {/* Gallery */}
-          <button aria-label="Gallery" onClick={() => setTab('gallery')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'gallery' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-4-9 8"/></svg>
+          <button aria-label="Gallery" onClick={() => setTab('gallery')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer h-12" style={{ color: tab === 'gallery' ? 'rgb(250,250,250)' : 'rgb(138,138,138)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
           </button>
 
           {/* FAB */}
@@ -677,23 +680,23 @@ export default function Home() {
             <button
               aria-label="Log activity"
               onClick={() => { setCreateOpen(true); setCreateAt(defaultDatetimeLocal()) }}
-              className="w-11 h-11 rounded-full border-0 cursor-pointer flex items-center justify-center"
-              style={{ background: '#f1f252' }}
+              className="rounded-full border-0 cursor-pointer flex items-center justify-center"
+              style={{ width: 46, height: 46, background: 'rgb(238,240,64)' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#171717" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(10,10,10)" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14"/>
               </svg>
             </button>
           </div>
 
           {/* Stats */}
-          <button aria-label="Stats" onClick={() => setTab('stats')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'stats' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+          <button aria-label="Stats" onClick={() => setTab('stats')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer h-12" style={{ color: tab === 'stats' ? 'rgb(250,250,250)' : 'rgb(138,138,138)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 20v-6M12 20V6M18 20v-9"/></svg>
           </button>
 
           {/* Explore/Hobby */}
-          <button aria-label="Explore hobbies" onClick={() => setTab('hobby')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer" style={{ color: tab === 'hobby' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none"/></svg>
+          <button aria-label="Explore hobbies" onClick={() => setTab('hobby')} className="flex items-center justify-center border-0 bg-transparent cursor-pointer h-12" style={{ color: tab === 'hobby' ? 'rgb(250,250,250)' : 'rgb(138,138,138)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
           </button>
         </nav>
 

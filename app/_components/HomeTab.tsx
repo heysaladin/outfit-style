@@ -6,10 +6,7 @@ import Link from 'next/link'
 import { HOBBIES } from '@/lib/types'
 import type { HobbyActivity } from '@/lib/types'
 import type { ActivityExportData } from '@/components/ActivityExportCard'
-import { cn } from '@/lib/utils'
 import { daysDiff } from '@/lib/date'
-import { Card, CardContent } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import type { MonthlyGoal, GoalTask } from './types'
 
 interface WeekDot { label: string; active: boolean; isToday: boolean }
@@ -38,10 +35,10 @@ interface HomeTabProps {
 
 function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
-    <div className="py-7 text-center">
-      <div className="w-13 h-13 rounded-[18px] bg-card border shadow-sm flex items-center justify-center mx-auto mb-2.5 text-[22px] w-[52px] h-[52px]">{icon}</div>
-      <b className="block text-para-sm font-bold mb-1 font-sans">{title}</b>
-      <p className="text-para-xs text-muted-foreground m-0">{desc}</p>
+    <div style={{ padding: '28px 0', textAlign: 'center' }}>
+      <div style={{ width: 52, height: 52, borderRadius: 18, background: '#F5F5F5', border: '1px solid #E5E5E5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', fontSize: 22 }}>{icon}</div>
+      <b style={{ display: 'block', fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{title}</b>
+      <p style={{ fontSize: 13, color: 'rgb(163,163,163)', margin: 0 }}>{desc}</p>
     </div>
   )
 }
@@ -71,76 +68,74 @@ const HomeTab = React.memo(function HomeTab({
 
   return (
     <>
-      {/* Dark hero section */}
-      <div style={{ background: '#0A0A0A', padding: '20px 18px 28px', borderRadius: '0 0 28px 28px' }}>
+      {/* ── Dark hero ── */}
+      <div style={{ background: '#0A0A0A', borderRadius: '0 0 28px 28px', padding: '0 12px 28px' }}>
+
         {/* Greeting */}
-        <div className="mb-5">
-          <p className="text-[12px] font-medium tracking-[1.5px] uppercase m-0 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{dateStr}</p>
-          <h1 className="text-[28px] leading-[31px] tracking-[-0.9px] font-semibold m-0" style={{ color: '#fff' }}>
+        <div style={{ padding: '16px 8px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <p style={{ fontSize: 14, lineHeight: '21px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 500, color: 'rgb(163,163,163)', margin: 0 }}>{dateStr}</p>
+          <h1 style={{ fontSize: 30, lineHeight: '30px', letterSpacing: '-1px', fontWeight: 600, color: 'rgb(250,250,250)', margin: 0 }}>
             Hey {firstName},<br />let&apos;s add to your{' '}
-            <em className="not-italic" style={{ color: '#f1f252' }}>story</em>
+            <em className="not-italic" style={{ color: 'rgb(238,240,64)' }}>story</em>
           </h1>
         </div>
 
         {/* Momo strip */}
-        <div className="rounded-[12px] flex items-center gap-3 p-3" style={{ background: 'rgba(255,255,255,0.07)' }}>
-          <Image src="/momo.png" alt="Momo" width={40} height={40} className="object-contain flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[14px] leading-[18px] font-medium m-0" style={{ color: '#fff' }}>
+        <div style={{ marginTop: 24, background: 'rgb(28,28,28)', borderRadius: '12px 12px 0 0', padding: '12px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Image src="/momo.png" alt="Momo" width={32} height={32} className="object-contain flex-shrink-0" />
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <p style={{ fontSize: 14, lineHeight: '21px', fontWeight: 500, color: 'rgb(250,250,250)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {streak > 1 ? `${streak}-day streak! You're on fire 🔥` : 'Start logging to build your story'}
             </p>
-            <span className="text-[12px] leading-[16px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Momo · your interest friend</span>
+            <span style={{ fontSize: 12, lineHeight: '18px', color: 'rgb(163,163,163)' }}>Momo · your interest friend</span>
           </div>
           {totalPoints > 0 && (
-            <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(241,242,82,0.15)' }}>
-              <span className="text-[13px]">⭐</span>
-              <span className="text-[13px] font-bold leading-none" style={{ color: '#f1f252' }}>{totalPoints}</span>
-              <span className="text-[10px] font-medium leading-none" style={{ color: 'rgba(241,242,82,0.6)' }}>pts</span>
+            <div style={{ height: 30, padding: '0 7px', borderRadius: 8, background: 'rgb(52,52,26)', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#F5B82E"><path d="M12 2l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6z"/></svg>
+              <span style={{ fontSize: 14, lineHeight: '21px', fontFamily: '"Geist Mono", monospace', fontWeight: 600, color: 'rgb(238,240,64)' }}>{totalPoints}</span>
+              <span style={{ fontSize: 12, lineHeight: '18px', color: 'rgb(184,186,74)' }}>pts</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Floating streak card */}
-      <div style={{ margin: '-1px 18px 0', position: 'relative', zIndex: 2, transform: 'translateY(-50%)', marginBottom: '-1.5rem' }}>
-        <div className="rounded-[12px] flex items-center justify-between p-4" style={{ background: '#1e1e1e', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-[22px]">{streak > 0 ? '🔥' : '✨'}</span>
-            <div className="flex items-baseline gap-1.5">
-              {streak > 0 ? (
-                <>
-                  <span className="font-mono text-[22px] font-medium" style={{ color: '#fff' }}>{streak}</span>
-                  <span className="text-[13px]" style={{ color: 'rgba(255,255,255,0.5)' }}>day streak</span>
-                </>
-              ) : (
-                <span className="text-[14px] font-medium" style={{ color: 'rgba(255,255,255,0.7)' }}>Start today!</span>
-              )}
+      {/* ── Streak card ── */}
+      <div style={{ margin: '-28px 12px 0', position: 'relative', zIndex: 2, marginBottom: '-1.5rem', background: 'rgb(34,34,34)', borderRadius: '0 0 12px 12px', padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, boxShadow: 'rgba(0,0,0,0.1) 0px 10px 15px -3px, rgba(0,0,0,0.1) 0px 4px 6px -4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 20, lineHeight: '24px' }}>{streak > 0 ? '🔥' : '✨'}</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            {streak > 0 ? (
+              <>
+                <span style={{ fontFamily: '"Geist Mono", monospace', fontSize: 24, lineHeight: '28.8px', letterSpacing: '-0.5px', fontWeight: 600, color: 'rgb(250,250,250)' }}>{streak}</span>
+                <span style={{ fontSize: 14, lineHeight: '21px', color: 'rgb(163,163,163)' }}>day streak</span>
+              </>
+            ) : (
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>Start today!</span>
+            )}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {weekDots.map((d, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 13 }}>
+              <span style={{ fontSize: 12, lineHeight: '18px', fontWeight: 500, color: 'rgb(163,163,163)' }}>{d.label}</span>
+              <div style={{
+                width: 7, height: 7, borderRadius: 9999,
+                background: d.active ? 'rgb(238,240,64)' : (d.isToday ? 'transparent' : '#333'),
+                border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
+              }} />
             </div>
-          </div>
-          <div className="flex gap-[9px]">
-            {weekDots.map((d, i) => (
-              <div key={i} className="flex flex-col items-center gap-[5px]">
-                <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{d.label}</span>
-                <div className="w-2 h-2 rounded-full" style={{
-                  background: d.active ? '#f1f252' : (d.isToday ? 'transparent' : '#333'),
-                  border: d.isToday && !d.active ? '1.5px solid rgba(255,255,255,0.25)' : 'none',
-                }} />
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Light content section */}
-      <div className="px-6 pb-6" style={{ background: '#FFFFFF' }}>
+      {/* ── Light content ── */}
+      <div style={{ background: '#FFFFFF' }}>
 
         {/* Recent Activities */}
         {activities.length > 0 && (
-          <>
-            <div className="flex items-baseline justify-between mt-5 mb-2.5">
-              <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>Recent</h2>
-            </div>
-            <div className="rounded-[8px] overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
+          <div style={{ padding: '32px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, fontWeight: 600, color: 'rgb(10,10,10)' }}>Recent</div>
+            <div style={{ border: '1px solid rgb(229,229,229)', borderRadius: 10, display: 'flex', flexDirection: 'column' }}>
               {activities.slice(0, 3).map((act, idx) => {
                 const h = [{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES].find(x => x.value === act.hobby)
                 const diff = daysDiff(act.activity_at, now)
@@ -151,136 +146,124 @@ const HomeTab = React.memo(function HomeTab({
                     key={act.id}
                     type="button"
                     aria-label={`View ${h?.label ?? act.hobby} activity`}
-                    className="w-full flex items-center gap-3 cursor-pointer transition-colors bg-transparent border-0 text-left"
-                    style={{ padding: '14px 16px', borderBottom: idx < 2 ? '1px solid #F5F5F5' : 'none' }}
                     onClick={() => onOpenActivity(act)}
+                    style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, background: 'transparent', border: 0, borderBottom: idx < 2 ? '1px solid rgb(240,240,240)' : 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}
                   >
-                    <div className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 text-[12px] font-semibold" style={{ background: '#F5F5F5', color: '#525252' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgb(245,245,245)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, lineHeight: '18px', fontWeight: 600, color: 'rgb(82,82,82)' }}>
                       {initials}
                     </div>
-                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <div className="text-[15px] font-medium" style={{ color: '#171717' }}>{h?.label ?? act.hobby}</div>
-                      <p className="text-[13px] m-0 overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: '#A3A3A3' }}>{act.note}</p>
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ fontSize: 16, lineHeight: '24px', fontWeight: 500, color: 'rgb(10,10,10)' }}>{h?.label ?? act.hobby}</div>
+                      <p style={{ fontSize: 14, lineHeight: '21px', margin: 0, color: 'rgb(163,163,163)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{act.note}</p>
                     </div>
-                    <span className="text-[12px] flex-shrink-0" style={{ color: '#A3A3A3' }}>{timeAgo}</span>
+                    <span style={{ fontSize: 12, lineHeight: '18px', color: 'rgb(163,163,163)', flexShrink: 0 }}>{timeAgo}</span>
                   </button>
                 )
               })}
             </div>
-          </>
+          </div>
         )}
 
         {/* Monthly Goals */}
-        <div className="flex items-center justify-between mt-[22px] mb-3">
-          <h2 className="text-[20px] leading-[24px] tracking-[-0.4px] font-semibold m-0" style={{ color: '#0A0A0A' }}>
-            Monthly Goals
-          </h2>
-          <div className="flex items-center gap-2">
-            {archivedGoals.length > 0 && (
-              <Link
-                href="/goals/archive"
-                className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium flex items-center gap-1.5 transition-colors"
-                style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#525252', textDecoration: 'none' }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
-                Archive
-                <span className="text-[11px] font-bold" style={{ color: '#A3A3A3' }}>{archivedGoals.length}</span>
-              </Link>
-            )}
-            <button
-              onClick={onOpenGoalSheet}
-              className="h-[30px] px-3 border rounded-[6px] text-[13px] font-medium cursor-pointer transition-colors flex items-center gap-1.5"
-              style={{ borderColor: '#E5E5E5', background: '#FFFFFF', color: '#171717' }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-              Add
-            </button>
-          </div>
-        </div>
+        <div style={{ padding: '24px 20px 112px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-        {activeGoals.length === 0 && archivedGoals.length === 0 ? (
-          <EmptyState icon="🎯" title="No goals yet" desc="Set monthly goals to stay on track" />
-        ) : activeGoals.length === 0 ? (
-          <EmptyState icon="🎯" title="No active goals" desc="All past goals are in the archive" />
-        ) : (
-          <div className="flex flex-col gap-[11px]">
-            {activeGoals.map(goal => {
-              const tasks = goalTasks.filter(t => t.goal_id === goal.id)
-              const doneCount = tasks.filter(t => t.done).length
-              const pct = tasks.length > 0 ? doneCount / tasks.length : 0
-              const deadlineDate = goal.deadline ? new Date(goal.deadline) : null
-              const isOverdue = deadlineDate && deadlineDate < new Date() && pct < 1
-              return (
-                <Card key={goal.id}>
-                  <CardContent className="p-4 space-y-2.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-para-sm leading-snug flex-1 m-0 font-sans">{goal.name}</h3>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, fontWeight: 600, color: 'rgb(10,10,10)', whiteSpace: 'nowrap' }}>Monthly Goals</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {archivedGoals.length > 0 && (
+                <Link
+                  href="/goals/archive"
+                  style={{ height: 32, padding: '0 12px', border: '1px solid rgb(229,229,229)', borderRadius: 6, background: '#fff', fontFamily: 'Geist, sans-serif', fontSize: 14, lineHeight: '21px', fontWeight: 500, color: 'rgb(23,23,23)', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none', cursor: 'pointer', flexShrink: 0 }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/>
+                  </svg>
+                  <span style={{ fontSize: 12, lineHeight: '18px', fontFamily: '"Geist Mono", monospace', color: 'rgb(163,163,163)' }}>{archivedGoals.length}</span>
+                </Link>
+              )}
+              <button
+                onClick={onOpenGoalSheet}
+                style={{ height: 32, padding: '0 12px', border: '1px solid rgb(229,229,229)', borderRadius: 6, background: '#fff', fontFamily: 'Geist, sans-serif', fontSize: 14, lineHeight: '21px', fontWeight: 500, color: 'rgb(23,23,23)', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', flexShrink: 0 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add
+              </button>
+            </div>
+          </div>
+
+          {/* Goal list */}
+          {activeGoals.length === 0 && archivedGoals.length === 0 ? (
+            <EmptyState icon="🎯" title="No goals yet" desc="Set monthly goals to stay on track" />
+          ) : activeGoals.length === 0 ? (
+            <EmptyState icon="🎯" title="No active goals" desc="All past goals are in the archive" />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+              {activeGoals.map(goal => {
+                const tasks = goalTasks.filter(t => t.goal_id === goal.id)
+                const doneCount = tasks.filter(t => t.done).length
+                const pct = tasks.length > 0 ? doneCount / tasks.length : 0
+                const deadlineDate = goal.deadline ? new Date(goal.deadline) : null
+                const isOverdue = deadlineDate && deadlineDate < new Date() && pct < 1
+                return (
+                  <div key={goal.id} style={{ border: '1px solid rgb(229,229,229)', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                    {/* Goal header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ fontSize: 16, lineHeight: '24px', fontWeight: 600, color: 'rgb(10,10,10)', flex: 1 }}>{goal.name}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         {deadlineDate && (
-                          <span
-                            className="text-para-xs font-bold px-[9px] py-1 rounded-full"
-                            style={{
-                              color: isOverdue ? 'var(--destructive)' : 'var(--muted-foreground)',
-                              background: isOverdue ? '#FDE8E4' : 'var(--secondary)',
-                            }}
-                          >
+                          <span style={{ height: 26, padding: '0 10px', borderRadius: 9999, background: isOverdue ? '#FDE8E4' : 'rgb(245,245,245)', fontSize: 12, lineHeight: '18px', fontWeight: 500, color: isOverdue ? '#e53e3e' : 'rgb(115,115,115)', display: 'flex', alignItems: 'center' }}>
                             {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </span>
                         )}
-                        <button
-                          aria-label="Edit goal"
-                          onClick={() => onEditGoal(goal)}
-                          className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <button aria-label="Edit goal" onClick={() => onEditGoal(goal)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A3A3A3" strokeWidth="2" strokeLinecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>
                         </button>
-                        <button
-                          aria-label="Delete goal"
-                          onClick={() => onDeleteGoal(goal.id)}
-                          className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        <button aria-label="Delete goal" onClick={() => onDeleteGoal(goal.id)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A3A3A3" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                         </button>
                       </div>
                     </div>
 
+                    {/* Narrative */}
                     {goal.narrative && (
-                      <p className="text-para-xs text-muted-foreground m-0 leading-relaxed">{goal.narrative}</p>
+                      <p style={{ fontSize: 14, lineHeight: '21px', color: 'rgb(115,115,115)', margin: 0 }}>{goal.narrative}</p>
                     )}
 
+                    {/* Progress */}
                     {tasks.length > 0 && (
                       <div>
-                        <div className="flex justify-between text-para-xs font-bold text-muted-foreground/60 mb-1.5 uppercase tracking-wider">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, lineHeight: '21px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 500, color: 'rgb(163,163,163)', marginBottom: 8 }}>
                           <span>Progress</span>
                           <span>{doneCount}/{tasks.length} tasks</span>
                         </div>
-                        <Progress value={pct * 100} className="h-[5px]" />
+                        <div style={{ height: 6, borderRadius: 9999, background: 'rgb(245,245,245)', overflow: 'hidden' }}>
+                          <div style={{ width: `${pct * 100}%`, height: 6, background: 'rgb(238,240,64)' }} />
+                        </div>
                       </div>
                     )}
 
+                    {/* Tasks by week */}
                     {([1,2,3,4] as const).map(week => {
                       const weekTasks = tasks.filter(t => t.week === week)
                       if (weekTasks.length === 0) return null
                       return (
-                        <div key={week} className="mb-1">
-                          <span className="text-para-xs font-extrabold tracking-[0.06em] uppercase text-muted-foreground/60 block mb-0.5">Week {week}</span>
+                        <div key={week}>
+                          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgb(163,163,163)', display: 'block', marginBottom: 2 }}>Week {week}</span>
                           {weekTasks.map(t => (
-                            <div key={t.id} className="flex items-center gap-2 py-[5px]">
+                            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0' }}>
                               <div
                                 onClick={() => onToggleTask(t.id)}
-                                className="w-5 h-5 rounded-[7px] flex-shrink-0 cursor-pointer flex items-center justify-center"
-                                style={{
-                                  border: `2px solid ${t.done ? '#171717' : 'var(--border)'}`,
-                                  background: t.done ? '#171717' : 'transparent',
-                                }}
+                                style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', border: t.done ? 'none' : '2px solid rgb(229,229,229)', background: t.done ? 'rgb(10,10,10)' : 'transparent' }}
                               >
-                                {t.done && <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M2 6l3 3 5-5"/></svg>}
+                                {t.done && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#EEF040" strokeWidth="4" strokeLinecap="round"><path d="M5 13l4 4 10-10"/></svg>}
                               </div>
-                              <span className={cn('flex-1 text-para-sm font-medium', t.done ? 'text-muted-foreground/60 line-through' : 'text-foreground')}>{t.task}</span>
-                              <button aria-label="Edit task" onClick={() => onEditTask(t)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                              <span style={{ flex: 1, fontSize: 14, lineHeight: '21px', color: t.done ? 'rgb(163,163,163)' : 'rgb(10,10,10)', textDecoration: t.done ? 'line-through' : 'none' }}>{t.task}</span>
+                              <button aria-label="Edit task" onClick={() => onEditTask(t)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '0.5px', display: 'flex', alignItems: 'center', opacity: 0.6 }}>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>
                               </button>
-                              <button aria-label="Delete task" onClick={() => onDeleteTask(t.id)} className="bg-transparent border-0 cursor-pointer text-muted-foreground/50 p-0.5 flex items-center justify-center opacity-60">
+                              <button aria-label="Delete task" onClick={() => onDeleteTask(t.id)} style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '0.5px', display: 'flex', alignItems: 'center', opacity: 0.6 }}>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
                               </button>
                             </div>
@@ -291,33 +274,18 @@ const HomeTab = React.memo(function HomeTab({
 
                     <button
                       onClick={() => onAddTask(goal.id)}
-                      className="mt-2 bg-transparent border-dashed border rounded-xl px-3 py-[7px] cursor-pointer text-muted-foreground text-para-xs font-bold w-full"
+                      style={{ marginTop: 8, background: 'transparent', border: '1px dashed rgb(229,229,229)', borderRadius: 12, padding: '7px 12px', cursor: 'pointer', color: 'rgb(163,163,163)', fontSize: 12, fontWeight: 700, width: '100%', textAlign: 'center' }}
                     >
                       + Add task
                     </button>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Calendar */}
-        <div className="mt-[22px] mb-2">
-          <h2 className="text-para-lg font-bold tracking-h2 mx-1 mb-3 mt-0 font-sans">Calendar</h2>
-          <div className="rounded-[22px] overflow-hidden">
-            <iframe
-              src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
-              title="Google Calendar"
-              style={{ border: 0, display: 'block', filter: 'sepia(0.55) saturate(0.85) contrast(0.9) brightness(1.04)' }}
-              width="100%"
-              height="500"
-              frameBorder={0}
-              scrolling="no"
-            />
-          </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
-      </div>{/* end light content section */}
+
+      </div>
     </>
   )
 })
