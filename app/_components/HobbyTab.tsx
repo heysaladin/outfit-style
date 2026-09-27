@@ -49,17 +49,14 @@ const HobbyTab = React.memo(function HobbyTab({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {hobbyLinks.map(({ label, href, value }) => {
+          {hobbyLinks.map(({ label, icon, href, value }) => {
             const progress = Math.min(100, hobbyProgress[value] ?? 0)
             const done = progress >= 100
-            const initials = label.slice(0, 2).toUpperCase()
             return (
               <Link key={label} href={href} className="block no-underline min-w-0">
                 <div className="border border-border rounded-[8px] bg-card overflow-hidden">
                   <div className="bg-neutral-100 w-full aspect-[4/3] flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-xl bg-neutral-950 text-[#EEF040] text-base font-semibold flex items-center justify-center">
-                      {initials}
-                    </div>
+                    <span className="text-4xl">{icon}</span>
                   </div>
                   <div className="p-3 pt-2.5 flex flex-col gap-1.5">
                     <div className="flex items-center justify-between gap-1.5 min-w-0">
