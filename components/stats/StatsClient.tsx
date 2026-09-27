@@ -40,6 +40,7 @@ export function StatsClient({ items }: StatsClientProps) {
   const total       = items.length
   const worn        = items.filter(i => i.wear_count > 0)
   const idleItems   = items.filter(i => !i.last_worn || daysDiff(i.last_worn) > 90)
+  const latestUsed  = [...items].filter(i => i.last_worn).sort((a, b) => new Date(b.last_worn!).getTime() - new Date(a.last_worn!).getTime()).slice(0, 8)
   const mostWorn    = [...items].sort((a, b) => b.wear_count - a.wear_count).slice(0, 5)
   const leastWorn   = [...items].filter(i => i.wear_count > 0).sort((a, b) => a.wear_count - b.wear_count).slice(0, 5)
   const withPrice   = items.filter(i => i.price && i.wear_count > 0)
@@ -73,7 +74,7 @@ export function StatsClient({ items }: StatsClientProps) {
             >
               <ChevronLeft size={16} strokeWidth={2} />
             </Link>
-            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">ofit</span>
+            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">Ofit</span>
           </div>
           <div className="flex items-center gap-1.5">
             <button
@@ -141,17 +142,24 @@ export function StatsClient({ items }: StatsClientProps) {
           </section>
         )}
 
-        {/* Idle: not worn in 90 days */}
-        {idleItems.length > 0 && (
+        {/* Latest used */}
+        {latestUsed.length > 0 && (
           <section className="flex flex-col gap-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-xl font-semibold text-foreground">Not worn in 90 days</h2>
-              <span className="text-sm font-mono text-muted-foreground">{idleItems.length}</span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {idleItems.map(item => (
-                <div key={item.id} className="aspect-square rounded-lg overflow-hidden border border-border bg-muted relative">
-                  <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 25vw, 12vw" />
+            <h2 className="text-xl font-semibold text-foreground">Latest used</h2>
+            <div className="border border-border rounded-xl flex flex-col">
+              {latestUsed.map((item, idx, arr) => (
+                <div key={item.id} className={`px-4 py-3 flex items-center gap-3 ${idx < arr.length - 1 ? 'border-b border-border' : ''}`}>
+                  <span className="w-4 text-sm font-mono text-muted-foreground shrink-0">{idx + 1}</span>
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 relative bg-muted border border-border">
+                    <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="40px" />
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {new Date(item.last_worn!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {item.wear_count}× total
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono text-muted-foreground shrink-0">{daysDiff(item.last_worn!) === 0 ? 'today' : `${daysDiff(item.last_worn!)}d ago`}</span>
                 </div>
               ))}
             </div>

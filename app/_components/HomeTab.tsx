@@ -133,7 +133,7 @@ const HomeTab = React.memo(function HomeTab({
 
         {/* Recent Activities */}
         {activities.length > 0 && (
-          <div style={{ padding: '32px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ padding: '16px 20px 0', marginTop: 32, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, fontWeight: 600, color: 'rgb(10,10,10)' }}>Recent</div>
             <div style={{ border: '1px solid rgb(229,229,229)', borderRadius: 10, display: 'flex', flexDirection: 'column' }}>
               {activities.slice(0, 3).map((act, idx) => {
@@ -163,6 +163,20 @@ const HomeTab = React.memo(function HomeTab({
             </div>
           </div>
         )}
+
+        {/* Google Calendar */}
+        <div style={{ padding: '24px 20px 0' }}>
+          <div style={{ fontSize: 20, lineHeight: '24px', fontWeight: 600, color: 'rgb(10,10,10)', marginBottom: 12 }}>Calendar</div>
+          <div style={{ borderRadius: 12, overflow: 'hidden' }}>
+            <iframe
+              src="https://calendar.google.com/calendar/embed?src=79c86e5c0191c5c80b01061a0a7a82c71a621d0d74fab55e7d3091d1a7a5c351%40group.calendar.google.com&ctz=Asia%2FJakarta"
+              style={{ border: 0, display: 'block' }}
+              width="100%"
+              height="500"
+              scrolling="no"
+            />
+          </div>
+        </div>
 
         {/* Monthly Goals */}
         <div style={{ padding: '24px 20px 112px', display: 'flex', flexDirection: 'column', gap: 12 }}>

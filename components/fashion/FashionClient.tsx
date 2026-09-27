@@ -142,7 +142,7 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
   )
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="h-dvh overflow-y-auto bg-background text-foreground">
 
       {/* ── Hero ── */}
       <div
@@ -190,7 +190,7 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
               className="h-9 px-3.5 rounded-full bg-neutral-800 text-neutral-50 text-sm font-medium flex items-center gap-2 shrink-0"
             >
               <Shirt size={16} />
-              Wardrobe
+              Ofit
             </Link>
           </div>
         </div>

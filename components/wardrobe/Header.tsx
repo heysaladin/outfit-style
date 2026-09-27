@@ -35,7 +35,7 @@ export function Header({ user, onUpload, onSelectMode, selectMode, itemCount, ou
             >
               <ChevronLeft size={16} strokeWidth={2} />
             </Link>
-            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">ofit</span>
+            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">Ofit</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -81,8 +81,7 @@ export function Header({ user, onUpload, onSelectMode, selectMode, itemCount, ou
         <div className="pt-7 px-2 flex flex-col gap-2">
           <p className="text-sm font-medium uppercase tracking-[1.5px] text-neutral-400">{dateStrWIB()}</p>
           <h1 className="text-[30px] leading-[30px] tracking-[-1px] font-semibold text-neutral-50">
-            What are you<br />
-            <span className="text-[#EEF040]">wearing</span> today?
+            What are you <span className="text-[#EEF040]">wearing</span> today?
           </h1>
         </div>
       </div>

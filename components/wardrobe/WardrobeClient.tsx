@@ -187,13 +187,14 @@ export function WardrobeClient({ items, wardrobes, user, outfitCount }: Wardrobe
       />
 
       {/* Search bar */}
-      <MobileSearchBar
-        placeholder="Search name, brand, #tag…"
-        aria-label="Search wardrobe items"
-        value={search}
-        onChange={setSearch}
-        className="pt-6 pb-1 px-5"
-      />
+      <div className="pt-6 pb-1 px-5">
+        <MobileSearchBar
+          placeholder="Search name, brand, #tag…"
+          aria-label="Search wardrobe items"
+          value={search}
+          onChange={setSearch}
+        />
+      </div>
 
       <FilterBar
         activeCategory={activeCategory} activeSubcategory={activeSubcategory}
