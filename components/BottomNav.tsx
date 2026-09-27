@@ -16,31 +16,28 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav
-      className="fixed left-1/2 -translate-x-1/2 w-full z-20 bg-background border-t border-border"
-      style={{
-        bottom: 0,
-        maxWidth: 480,
-        height: 80,
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        display: 'grid',
-        gridTemplateColumns: `repeat(${tabs.length}, 1fr)`,
-        alignItems: 'center',
-      }}
+    <div
+      className="fixed left-1/2 -translate-x-1/2 w-full z-20 px-4"
+      style={{ maxWidth: 430, bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}
     >
-      {tabs.map(({ href, icon: Icon, label }) => {
-        const active = pathname === href || pathname.startsWith(href + '/')
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={`flex flex-col items-center justify-center gap-[5px] h-11 transition-colors ${active ? 'text-foreground' : 'text-muted-foreground'}`}
-          >
-            <Icon size={20} strokeWidth={active ? 2 : 1.5} />
-            <span className="text-[11px] font-medium">{label}</span>
-          </Link>
-        )
-      })}
-    </nav>
+      <nav
+        className="h-16 rounded-full bg-neutral-900 px-1.5 flex items-center shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
+        style={{ display: 'grid', gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
+      >
+        {tabs.map(({ href, icon: Icon, label }) => {
+          const active = pathname === href || pathname.startsWith(href + '/')
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex flex-col items-center justify-center gap-[5px] h-12 transition-colors ${active ? 'text-neutral-50' : 'text-neutral-500'}`}
+            >
+              <Icon size={20} strokeWidth={active ? 2 : 1.5} />
+              <span className="text-[11px] font-medium">{label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
   )
 }

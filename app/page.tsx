@@ -68,6 +68,20 @@ export default function Home() {
   const [searchQ, setSearchQ] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
 
+  // Add-to-story picker sheet
+  const [addSheetOpen, setAddSheetOpen] = useState(false)
+  const [addSheetHobby, setAddSheetHobby] = useState('')
+
+  // Add moment sheet
+  const [momentOpen, setMomentOpen] = useState(false)
+  const [momentHobby, setMomentHobby] = useState('')
+  const [momentPhoto, setMomentPhoto] = useState<string | null>(null)
+  const [momentPhotoFile, setMomentPhotoFile] = useState<File | null>(null)
+  const [momentNote, setMomentNote] = useState('')
+  const [momentError, setMomentError] = useState('')
+  const [momentPending, setMomentPending] = useState(false)
+  const momentPhotoInputRef = useRef<HTMLInputElement>(null)
+
   // Create activity sheet
   const [createOpen, setCreateOpen] = useState(false)
   const [createHobby, setCreateHobby] = useState('')
@@ -170,6 +184,48 @@ export default function Home() {
     setCreatePhoto(null); setCreatePhotoFile(null)
     setCreateAt(defaultDatetimeLocal())
   }, [])
+
+  function openAddSheet() { setAddSheetHobby(''); setAddSheetOpen(true) }
+
+  function resetMoment() {
+    setMomentHobby(''); setMomentPhoto(null); setMomentPhotoFile(null)
+    setMomentNote(''); setMomentError('')
+    if (momentPhotoInputRef.current) momentPhotoInputRef.current.value = ''
+  }
+
+  function handleMomentPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setMomentPhotoFile(file)
+    const reader = new FileReader()
+    reader.onload = ev => { setMomentPhoto(ev.target?.result as string) }
+    reader.readAsDataURL(file)
+  }
+
+  async function handleMomentSave() {
+    if (!momentHobby) return setMomentError('Pick an interest')
+    if (!momentPhotoFile) return setMomentError('Add a photo')
+    setMomentError(''); setMomentPending(true)
+    try {
+      const supabase = createClient()
+      const { data: { user: u } } = await supabase.auth.getUser()
+      if (!u) { setMomentError('Not signed in'); setMomentPending(false); return }
+
+      const ext = momentPhotoFile.name.split('.').pop() ?? 'jpg'
+      const path = `${u.id}/hobby/${momentHobby}/${Date.now()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('wardrobe').upload(path, momentPhotoFile, { upsert: false })
+      if (upErr) { setMomentError(upErr.message); setMomentPending(false); return }
+      const { data: urlData } = supabase.storage.from('wardrobe').getPublicUrl(path)
+
+      const { data: newPhoto, error: dbErr } = await supabase.from('hobby_photos').insert({
+        user_id: u.id, hobby: momentHobby, image_url: urlData.publicUrl, note: momentNote.trim() || null,
+      }).select().single()
+      if (dbErr) { setMomentError(dbErr.message); setMomentPending(false); return }
+
+      setPhotos(prev => [newPhoto, ...prev])
+      resetMoment(); setMomentOpen(false)
+    } finally { setMomentPending(false) }
+  }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -521,11 +577,11 @@ export default function Home() {
         {/* ── Sticky Header ── */}
         <header
           className="flex-shrink-0 px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between"
-          style={{ background: tab === 'home' ? '#0A0A0A' : 'var(--background)' }}
+          style={{ background: tab !== 'search' ? '#0A0A0A' : 'var(--background)' }}
         >
           <span
             className="font-sans font-semibold"
-            style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, color: tab === 'home' ? 'rgb(238,240,64)' : 'var(--foreground)' }}
+            style={{ fontSize: 20, lineHeight: '24px', letterSpacing: 0, color: tab !== 'search' ? 'rgb(238,240,64)' : 'var(--foreground)' }}
           >
             interestory
           </span>
@@ -534,7 +590,7 @@ export default function Home() {
               href="/ofit"
               aria-label="Wardrobe"
               className="flex-shrink-0 flex items-center justify-center rounded-full"
-              style={{ width: 36, height: 36, background: tab === 'home' ? 'rgb(31,31,31)' : 'var(--muted)', color: tab === 'home' ? 'rgb(229,229,229)' : 'var(--foreground)' }}
+              style={{ width: 36, height: 36, background: tab !== 'search' ? 'rgb(31,31,31)' : 'var(--muted)', color: tab !== 'search' ? 'rgb(229,229,229)' : 'var(--foreground)' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 7h14l-1 13H6z"/>
@@ -544,7 +600,7 @@ export default function Home() {
             </Link>
             <UserAvatarMenu
               buttonClassName="relative flex-shrink-0 cursor-pointer overflow-hidden rounded-full"
-              buttonStyle={{ width: 36, height: 36, background: tab === 'home' ? 'rgb(38,38,38)' : 'transparent', border: tab === 'home' ? '2px solid rgb(64,64,64)' : '1px solid #E5E5E5' }}
+              buttonStyle={{ width: 36, height: 36, background: tab !== 'search' ? 'rgb(38,38,38)' : 'transparent', border: tab !== 'search' ? '2px solid rgb(64,64,64)' : '1px solid #E5E5E5' }}
               onReorderInterests={() => setReorderOpen(true)}
             />
           </div>
@@ -601,6 +657,8 @@ export default function Home() {
               user={user}
               activities={activities}
               streak={streak}
+              totalPoints={totalPoints}
+              now={now}
               lastActive={lastActive}
               gearCounts={gearCounts}
               fashionActivityCount={fashionActivityCount}
@@ -678,8 +736,8 @@ export default function Home() {
           {/* FAB */}
           <div className="flex items-center justify-center">
             <button
-              aria-label="Log activity"
-              onClick={() => { setCreateOpen(true); setCreateAt(defaultDatetimeLocal()) }}
+              aria-label="Add to your story"
+              onClick={openAddSheet}
               className="rounded-full border-0 cursor-pointer flex items-center justify-center"
               style={{ width: 46, height: 46, background: 'rgb(238,240,64)' }}
             >
@@ -1041,6 +1099,175 @@ export default function Home() {
             <DrawerFooter>
               <Button onClick={saveEditTask} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
                 Save Changes
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+
+        {/* ── Add to your story picker sheet ── */}
+        {addSheetOpen && (
+          <div className="fixed inset-0 z-50" onClick={() => setAddSheetOpen(false)}>
+            <div className="absolute inset-0 bg-black/60" />
+            <div
+              className="absolute left-0 right-0 bottom-0 bg-background rounded-t-[20px] shadow-2xl px-5 pt-2 pb-8 flex flex-col gap-4"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-9 h-1 rounded-full bg-border self-center" />
+              <div className="h-10 flex items-center justify-between">
+                <span className="text-xl font-semibold text-foreground">Add to your story</span>
+                <button
+                  onClick={() => setAddSheetOpen(false)}
+                  aria-label="Close"
+                  className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-foreground"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-medium uppercase tracking-[1.5px] text-neutral-500">Interest</span>
+                <div className="flex gap-2 overflow-x-auto -mx-5 px-5" style={{ scrollbarWidth: 'none' }}>
+                  {[{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(h => ({ label: h.label, icon: h.icon as string, value: h.value }))].map(h => (
+                    <button
+                      key={h.value}
+                      onClick={() => setAddSheetHobby(h.value)}
+                      className="h-9 px-3.5 rounded-full text-sm font-medium shrink-0 whitespace-nowrap transition-colors"
+                      style={{
+                        background: addSheetHobby === h.value ? 'rgb(10,10,10)' : 'transparent',
+                        color: addSheetHobby === h.value ? 'rgb(250,250,250)' : 'rgb(82,82,82)',
+                        border: addSheetHobby === h.value ? 'none' : '1px solid rgb(229,229,229)',
+                      }}
+                    >
+                      {h.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setAddSheetOpen(false)
+                    setCreateHobby(addSheetHobby); setCreateAt(defaultDatetimeLocal()); setCreateOpen(true)
+                  }}
+                  className="p-3.5 border border-border rounded-xl flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-[10px] bg-neutral-950 text-[#EEF040] flex items-center justify-center shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <span className="text-base font-semibold text-foreground">Log activity</span>
+                    <span className="text-sm text-neutral-400 truncate">What did you do today</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(163,163,163)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setAddSheetOpen(false)
+                    resetMoment(); setMomentHobby(addSheetHobby); setMomentOpen(true)
+                  }}
+                  className="p-3.5 border border-border rounded-xl flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-[10px] bg-neutral-950 text-[#EEF040] flex items-center justify-center shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <span className="text-base font-semibold text-foreground">Add moment</span>
+                    <span className="text-sm text-neutral-400 truncate">Photo for your gallery</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(163,163,163)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+
+                <button
+                  onClick={() => { setAddSheetOpen(false); setGoalSheetOpen(true) }}
+                  className="p-3.5 border border-border rounded-xl flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-[10px] bg-neutral-950 text-[#EEF040] flex items-center justify-center shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <span className="text-base font-semibold text-foreground">New goal</span>
+                    <span className="text-sm text-neutral-400 truncate">Monthly goal with tasks</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(163,163,163)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Add Moment Sheet ── */}
+        <Drawer
+          open={momentOpen}
+          onOpenChange={(open: boolean) => { if (!open) { setMomentOpen(false); resetMoment() } }}
+        >
+          <DrawerContent className="max-h-[92dvh]">
+            <DrawerHeader>
+              <DrawerTitle className="font-sans">Add moment</DrawerTitle>
+            </DrawerHeader>
+            <div className="px-4 pb-2 space-y-0 overflow-y-auto">
+              <CField label="Interest *">
+                <div className="flex flex-wrap gap-[7px]">
+                  {[{ label: 'Fashion', icon: '👔', value: 'fashion' }, ...HOBBIES.map(h => ({ label: h.label, icon: h.icon as string, value: h.value }))].map(h => (
+                    <button
+                      key={h.value}
+                      onClick={() => setMomentHobby(h.value)}
+                      className="px-[13px] py-[7px] rounded-full border-2 text-para-sm font-bold cursor-pointer transition-colors"
+                      style={{
+                        borderColor: momentHobby === h.value ? '#171717' : 'var(--border)',
+                        background: momentHobby === h.value ? '#171717' : 'var(--card)',
+                        color: momentHobby === h.value ? '#FAFAFA' : 'var(--foreground)',
+                      }}
+                    >
+                      {h.icon} {h.label}
+                    </button>
+                  ))}
+                </div>
+              </CField>
+
+              <CField label="Photo *">
+                <input
+                  ref={momentPhotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleMomentPhotoChange}
+                  className="hidden"
+                />
+                {momentPhoto ? (
+                  <div className="relative rounded-2xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={momentPhoto} alt="captured" className="w-full block object-cover max-h-[220px]" />
+                    <button onClick={() => { setMomentPhoto(null); setMomentPhotoFile(null) }} className="absolute top-2 right-2 w-8 h-8 rounded-full border-0 cursor-pointer flex items-center justify-center" style={{ background: 'rgba(34,25,15,.7)', color: '#fff' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => momentPhotoInputRef.current?.click()} className="w-full border-2 border-dashed rounded-2xl p-5 cursor-pointer bg-card flex items-center justify-center gap-2.5 text-muted-foreground text-para-sm font-bold">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    Take photo
+                  </button>
+                )}
+              </CField>
+
+              <CField label="Caption (optional)">
+                <textarea
+                  value={momentNote}
+                  onChange={e => setMomentNote(e.target.value)}
+                  placeholder="Add a caption..."
+                  rows={2}
+                  className="w-full bg-card border rounded-2xl text-foreground text-para-md font-medium p-[13px_15px] outline-none resize-none box-border focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </CField>
+
+              {momentError && <p className="text-destructive text-para-xs font-semibold mb-2">{momentError}</p>}
+            </div>
+            <DrawerFooter>
+              <Button onClick={handleMomentSave} disabled={momentPending} className="w-full h-[50px] text-para-md font-extrabold rounded-2xl">
+                {momentPending ? 'Saving…' : 'Save moment'}
               </Button>
             </DrawerFooter>
           </DrawerContent>

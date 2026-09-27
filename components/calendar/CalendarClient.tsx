@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react'
 import { logOutfit, removeOutfitLog } from '@/app/actions'
 import type { Outfit, OutfitLog, WardrobeItem } from '@/lib/types'
+import { daysDiff } from '@/lib/date'
+import { cn } from '@/lib/utils'
 import { BottomNav } from '@/components/BottomNav'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 
@@ -14,7 +17,7 @@ interface CalendarClientProps {
   today: string
 }
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
   const todayDate = new Date(today + 'T12:00:00')
@@ -28,8 +31,23 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
     return m
   }, new Map<string, OutfitLog[]>())
 
+  const daysLoggedCount = logMap.size
+  const thisWeekCount = [...logMap.keys()].filter(d => {
+    const diff = daysDiff(d)
+    return diff >= 0 && diff < 7
+  }).length
+  const dayStreak = (() => {
+    let streak = 0
+    const cur = new Date(today + 'T12:00:00')
+    while (logMap.has(cur.toISOString().split('T')[0])) {
+      streak++
+      cur.setDate(cur.getDate() - 1)
+    }
+    return streak
+  })()
+
   const firstOfMonth = new Date(year, month, 1)
-  const startDayOfWeek = (firstOfMonth.getDay() + 6) % 7
+  const startDayOfWeek = firstOfMonth.getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
 
   const cells: (number | null)[] = [
@@ -67,69 +85,130 @@ export function CalendarClient({ logs, outfits, today }: CalendarClientProps) {
 
   const monthLabel = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
+  const todayLogs = logMap.get(today) ?? []
+  const todayLabel = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+
   return (
-    <div className="h-dvh overflow-y-auto bg-background pb-16">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="text-muted-foreground hover:text-foreground transition-colors p-2">
-          <ChevronLeft size={20} />
-        </button>
-        <h1 className="text-foreground font-bold text-base">{monthLabel}</h1>
-        <div className="flex items-center gap-3">
-          <button onClick={nextMonth} aria-label="Bulan berikutnya" className="text-muted-foreground hover:text-foreground transition-colors p-2">
-            <ChevronRight size={20} />
-          </button>
-          <UserAvatarMenu />
-        </div>
-      </header>
-
-      <div className="p-4">
-        {/* Day headers */}
-        <div className="grid grid-cols-7 mb-2">
-          {DAYS.map(d => (
-            <div key={d} className="text-center text-muted-foreground text-xs font-medium py-1">{d}</div>
-          ))}
+    <div className="h-dvh overflow-y-auto bg-background pb-24">
+      <div
+        className="bg-neutral-950 rounded-b-[28px] px-3 pb-[58px] flex flex-col"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
+        <div className="h-9 flex items-center justify-between px-1">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/fashion"
+              aria-label="Back to Interestory"
+              className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-200 shrink-0"
+            >
+              <ChevronLeft size={16} strokeWidth={2} />
+            </Link>
+            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">ofit</span>
+          </div>
+          <UserAvatarMenu buttonClassName="relative w-9 h-9 rounded-full bg-neutral-800 border-2 border-neutral-700 flex items-center justify-center overflow-hidden flex-shrink-0" />
         </div>
 
-        {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {cells.map((day, i) => {
-            if (!day) return <div key={i} />
-            const ds   = dateStr(day)
-            const dayLogs = logMap.get(ds) ?? []
-            const isToday = ds === today
-            const isFuture = ds > today
-            const coverImg = dayLogs[0]?.outfits?.outfit_items?.[0]?.wardrobe_items?.image_url
+        <div className="pt-7 px-2 flex flex-col gap-2">
+          <p className="text-sm font-medium uppercase tracking-[1.5px] text-neutral-400">Wear log</p>
+          <h1 className="text-[30px] leading-[30px] tracking-[-1px] font-semibold text-neutral-50">Calendar</h1>
+        </div>
+      </div>
 
-            return (
-              <button key={i} onClick={() => !isFuture && setSelectedDate(ds)}
-                disabled={isFuture}
-                title={isFuture ? 'Belum bisa di-log' : undefined}
-                className={`aspect-square rounded-xl overflow-hidden relative flex items-center justify-center transition-all ${
-                  isFuture ? 'opacity-30 cursor-default' :
-                  isToday  ? 'ring-1 ring-primary' : ''
-                } ${selectedDate === ds ? 'ring-2 ring-primary' : ''}`}>
-                {coverImg ? (
-                  <>
-                    <Image src={coverImg} alt="" fill className="object-cover" sizes="(max-width: 768px) 14vw, 60px" />
-                    <div className="absolute inset-0 bg-black/30" />
-                    <span className={`relative z-10 text-xs font-semibold ${isToday ? 'text-white' : 'text-white/80'}`}>{day}</span>
-                  </>
-                ) : (
-                  <div className={`w-full h-full flex items-center justify-center rounded-xl ${
-                    isToday ? 'bg-primary/20' : 'bg-muted'
-                  }`}>
-                    <span className={`text-xs font-medium ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>{day}</span>
+      <div className="-mt-[34px] mx-3 relative bg-neutral-800 rounded-xl px-4 py-3.5 grid grid-cols-3 gap-3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]">
+        {[
+          { label: 'Days logged', value: daysLoggedCount },
+          { label: 'This week', value: thisWeekCount },
+          { label: 'Day streak', value: dayStreak },
+        ].map(stat => (
+          <div key={stat.label} className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-2xl font-semibold tracking-[-0.5px] font-mono text-neutral-50">{stat.value}</span>
+            <span className="text-xs text-neutral-400 truncate">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="px-5 pt-7 pb-28 flex flex-col gap-6">
+        <div className="border border-border rounded-xl p-3 flex flex-col gap-2">
+          <div className="flex items-center justify-between px-1 pb-1">
+            <button onClick={prevMonth} aria-label="Bulan sebelumnya" className="w-8 h-8 rounded-md border border-border flex items-center justify-center text-foreground">
+              <ChevronLeft size={14} />
+            </button>
+            <span className="text-base font-semibold text-foreground">{monthLabel}</span>
+            <button onClick={nextMonth} aria-label="Bulan berikutnya" className="w-8 h-8 rounded-md border border-border flex items-center justify-center text-foreground">
+              <ChevronRight size={14} />
+            </button>
+          </div>
+
+          {/* Day headers */}
+          <div className="grid grid-cols-7 gap-0.5">
+            {DAYS.map((d, i) => (
+              <div key={i} className="h-6 flex items-center justify-center text-xs text-muted-foreground">{d}</div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-0.5">
+            {cells.map((day, i) => {
+              if (!day) return <div key={i} />
+              const ds   = dateStr(day)
+              const dayLogs = logMap.get(ds) ?? []
+              const isToday = ds === today
+              const isFuture = ds > today
+              const isLogged = dayLogs.length > 0
+
+              return (
+                <button key={i} onClick={() => !isFuture && setSelectedDate(ds)}
+                  disabled={isFuture}
+                  title={isFuture ? 'Belum bisa di-log' : undefined}
+                  className={cn(
+                    'h-10 rounded-lg flex flex-col items-center justify-center gap-[3px] transition-all',
+                    isFuture ? 'opacity-30 cursor-default' : '',
+                    isToday ? 'bg-neutral-950' : '',
+                    selectedDate === ds && !isToday ? 'ring-1 ring-foreground' : '',
+                  )}
+                >
+                  <span className={cn('text-sm font-mono', isToday ? 'font-semibold text-neutral-50' : 'text-foreground')}>{day}</span>
+                  <span
+                    className="w-[5px] h-[5px] rounded-full"
+                    style={{ background: isLogged ? (isToday ? '#EEF040' : 'currentColor') : 'transparent' }}
+                  />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-xl font-semibold text-foreground">{todayLabel}</h2>
+            <span className="text-sm text-muted-foreground">Today</span>
+          </div>
+
+          {todayLogs.length > 0 ? (
+            todayLogs.map(log => {
+              const logItems = (log.outfits?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []) as WardrobeItem[]
+              return (
+                <button key={log.id} onClick={() => setSelectedDate(today)} className="border border-border rounded-xl p-3 flex items-center gap-3 text-left">
+                  <div className="flex shrink-0">
+                    {logItems.slice(0, 3).map((item, idx) => (
+                      <div key={item.id} className={cn('w-10 h-[52px] rounded-lg overflow-hidden bg-muted border border-border relative shrink-0', idx > 0 && '-ml-3')}>
+                        <Image src={item.image_url} alt="" fill className="object-cover" sizes="40px" />
+                      </div>
+                    ))}
                   </div>
-                )}
-                {dayLogs.length > 0 && !coverImg && (
-                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
-                )}
-                {dayLogs.length > 1 && (
-                  <div className="absolute top-1 right-1 bg-primary text-primary-foreground text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{dayLogs.length}</div>
-                )}
-              </button>
-            )
-          })}
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <p className="text-sm font-medium text-foreground truncate">{log.outfits?.name ?? 'Logged'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{logItems.map(i => i.name).join(', ')}</p>
+                  </div>
+                  <span className="h-6 px-2.5 rounded-full bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center shrink-0">Worn</span>
+                </button>
+              )
+            })
+          ) : (
+            <button onClick={() => setSelectedDate(today)} className="border border-dashed border-border rounded-xl p-4 text-left">
+              <p className="text-muted-foreground text-sm">No outfit logged. Tap to log today.</p>
+            </button>
+          )}
         </div>
       </div>
 

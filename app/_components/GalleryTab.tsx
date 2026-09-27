@@ -64,26 +64,43 @@ const GalleryTab = React.memo(function GalleryTab({
     ].sort((a, b) => b.date.localeCompare(a.date))
   }, [photos, activities, worthItItems])
 
+  const hero = (
+    <div style={{ background: '#0A0A0A', borderRadius: '0 0 28px 28px', padding: '0 12px 28px' }}>
+      <div style={{ padding: '16px 8px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p style={{ fontSize: 14, lineHeight: '21px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 500, color: 'rgb(163,163,163)', margin: 0 }}>{feed.length} moments</p>
+        <h1 style={{ fontSize: 30, lineHeight: '30px', letterSpacing: '-1px', fontWeight: 600, color: 'rgb(250,250,250)', margin: 0 }}>Gallery</h1>
+      </div>
+    </div>
+  )
+
   if (!user) {
     return (
-      <div className="px-[18px] pt-4">
-        <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
-          <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
-        </EmptyState>
-      </div>
+      <>
+        {hero}
+        <div className="px-[18px] pt-4">
+          <EmptyState icon="🖼️" title="Sign in to see gallery" desc="Your captured moments will appear here">
+            <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
+          </EmptyState>
+        </div>
+      </>
     )
   }
 
   if (feed.length === 0) {
     return (
-      <div className="px-[18px] pt-4">
-        <EmptyState icon="📸" title="No activity yet" desc="Capture moments or log activities from your hobbies" />
-      </div>
+      <>
+        {hero}
+        <div className="px-[18px] pt-4">
+          <EmptyState icon="📸" title="No activity yet" desc="Capture moments or log activities from your hobbies" />
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="px-[18px] pt-4">
+    <>
+    {hero}
+    <div className="px-[18px] pt-6 pb-28">
       <div className="flex flex-col gap-3 mt-1">
         {feed.map(item => {
           if (item.type === 'photo') {
@@ -296,6 +313,7 @@ const GalleryTab = React.memo(function GalleryTab({
         })}
       </div>
     </div>
+    </>
   )
 })
 

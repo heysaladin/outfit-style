@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2 } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -14,16 +15,19 @@ import {
   createWardrobeCollection, updateWardrobeCollection, deleteWardrobeCollection, useCollectionItems,
   reorderOutfitItems, reorderCollectionItems, reorderCollections,
 } from '@/app/actions'
-import type { Outfit, WardrobeCollection, WardrobeItem } from '@/lib/types'
+import type { Outfit, OutfitLog, WardrobeCollection, WardrobeItem } from '@/lib/types'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
 import { calcWorthIt } from '@/lib/worth'
+import { cn } from '@/lib/utils'
+import { formatDateLabel } from '@/lib/date'
 
 interface OutfitsClientProps {
   outfits: Outfit[]
   allItems: WardrobeItem[]
   wardrobeCollections: WardrobeCollection[]
+  logs: OutfitLog[]
 }
 
 function OutfitCollage({ items }: { items: WardrobeItem[] }) {
@@ -46,6 +50,26 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
       {shown.length < 4 && Array.from({ length: 4 - shown.length }).map((_, i) => (
         <div key={`empty-${i}`} className="bg-muted" />
       ))}
+    </div>
+  )
+}
+
+function OutfitThumbCollage({ items }: { items: WardrobeItem[] }) {
+  const shown = items.slice(0, 3)
+  if (shown.length === 0) return (
+    <div className="w-full h-full flex items-center justify-center text-3xl bg-muted">👗</div>
+  )
+  return (
+    <div className="grid grid-cols-2 grid-rows-2 gap-1.5 p-2 w-full h-full box-border">
+      <div className="row-span-2 rounded-md overflow-hidden bg-muted relative">
+        {shown[0] && <Image src={shown[0].image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 25vw, 15vw" />}
+      </div>
+      <div className="rounded-md overflow-hidden bg-muted relative">
+        {shown[1] && <Image src={shown[1].image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 25vw, 15vw" />}
+      </div>
+      <div className="rounded-md overflow-hidden bg-muted relative">
+        {shown[2] && <Image src={shown[2].image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 25vw, 15vw" />}
+      </div>
     </div>
   )
 }
@@ -207,7 +231,38 @@ function SortableCollectionCard({
   )
 }
 
-export function OutfitsClient({ outfits, allItems, wardrobeCollections }: OutfitsClientProps) {
+function OutfitCard({
+  outfit, items, useCount, lastUsed, onPress,
+}: {
+  outfit: Outfit
+  items: WardrobeItem[]
+  useCount: number
+  lastUsed: string | null
+  onPress: () => void
+}) {
+  return (
+    <button
+      onClick={onPress}
+      aria-label={outfit.name}
+      className="border border-border rounded-xl overflow-hidden flex flex-col min-w-0 text-left bg-card"
+    >
+      <div className="aspect-square w-full bg-muted border-b border-border">
+        <OutfitThumbCollage items={items} />
+      </div>
+      <div className="px-3 pt-2.5 pb-3 flex flex-col min-w-0">
+        <p className="text-sm font-medium truncate text-foreground">{outfit.name}</p>
+        <div className="flex items-center justify-between gap-1.5">
+          <span className="text-xs text-muted-foreground truncate">
+            {items.length} item{items.length !== 1 ? 's' : ''}{lastUsed ? ` · ${formatDateLabel(lastUsed)}` : ''}
+          </span>
+          <span className="text-xs font-mono text-neutral-500 shrink-0">{useCount}×</span>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: OutfitsClientProps) {
   const [view, setView] = useState<'outfits' | 'wardrobes'>('outfits')
 
   // ── Outfit state ──────────────────────────────────────────────────────────
@@ -407,33 +462,67 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
   const detailItems = detail?.outfit_items?.map(oi => oi.wardrobe_items).filter(Boolean) ?? []
   const wcDetailItems = wcDetail?.wardrobe_collection_items?.map(ci => ci.wardrobe_items).filter(Boolean) ?? []
 
+  const logsByOutfit = new Map<string, OutfitLog[]>()
+  for (const log of logs) {
+    if (!log.outfit_id) continue
+    logsByOutfit.set(log.outfit_id, [...(logsByOutfit.get(log.outfit_id) ?? []), log])
+  }
+
   return (
-    <div className="h-dvh overflow-y-auto bg-background pb-16">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setView('outfits')}
-            className={`px-3 py-2.5 rounded-full text-sm font-semibold transition-all ${view === 'outfits' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            Outfits
-          </button>
-          <button
-            onClick={() => setView('wardrobes')}
-            className={`px-3 py-2.5 rounded-full text-sm font-semibold transition-all ${view === 'wardrobes' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            Collection (Wardrobe)
-          </button>
+    <div className="h-dvh overflow-y-auto bg-background pb-24">
+      <div
+        className="bg-neutral-950 rounded-b-[28px] px-3 pb-[46px] flex flex-col"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
+        <div className="h-9 flex items-center justify-between px-1">
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/fashion"
+              aria-label="Back to Interestory"
+              className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-200 shrink-0"
+            >
+              <ChevronLeft size={16} strokeWidth={2} />
+            </Link>
+            <span className="text-xl font-semibold tracking-tight text-[#EEF040]">ofit</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => view === 'outfits' ? setCreating(true) : setWcCreating(true)}
+              title="Add"
+              aria-label={view === 'outfits' ? 'Tambah outfit' : 'Tambah koleksi'}
+              className="w-9 h-9 rounded-full bg-[#EEF040] text-neutral-950 flex items-center justify-center shrink-0"
+            >
+              <Plus size={16} strokeWidth={2} />
+            </button>
+            <UserAvatarMenu buttonClassName="relative w-9 h-9 rounded-full bg-neutral-800 border-2 border-neutral-700 flex items-center justify-center overflow-hidden flex-shrink-0" />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => view === 'outfits' ? setCreating(true) : setWcCreating(true)}
-            aria-label={view === 'outfits' ? 'Tambah outfit' : 'Tambah koleksi'}
-            className="w-11 h-11 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
-            <Plus size={18} className="text-primary-foreground" strokeWidth={2.5} />
-          </button>
-          <UserAvatarMenu />
+
+        <div className="pt-7 px-2 flex flex-col gap-2">
+          <p className="text-sm font-medium uppercase tracking-[1.5px] text-neutral-400">
+            {view === 'outfits' ? `${outfits.length} saved` : `${wardrobeCollections.length} collections`}
+          </p>
+          <h1 className="text-[30px] leading-[30px] tracking-[-1px] font-semibold text-neutral-50">Outfits</h1>
         </div>
-      </header>
+      </div>
+
+      <div
+        className="-mt-[22px] mx-4 relative h-11 p-1 rounded-full bg-neutral-800 grid gap-1 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
+        style={{ gridTemplateColumns: '1fr 1.6fr' }}
+      >
+        <button
+          onClick={() => setView('outfits')}
+          className={cn('rounded-full text-sm font-semibold whitespace-nowrap transition-colors', view === 'outfits' ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400')}
+        >
+          Outfits
+        </button>
+        <button
+          onClick={() => setView('wardrobes')}
+          className={cn('rounded-full text-sm font-semibold whitespace-nowrap transition-colors', view === 'wardrobes' ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400')}
+        >
+          Collection (Wardrobe)
+        </button>
+      </div>
 
       {/* ── Outfits view ─────────────────────────────────────────────────── */}
       {view === 'outfits' && (
@@ -444,27 +533,25 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
             <p className="text-muted-foreground text-sm">Tap + to create your first outfit</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 p-4 pb-24">
+          <div className="grid grid-cols-2 gap-3 px-5 pt-7 pb-28">
             {outfits.map(outfit => {
-              const items = [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.wardrobe_items).filter(Boolean) ?? []
+              const items = [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.wardrobe_items).filter(Boolean) as WardrobeItem[]
+              const outfitLogs = logsByOutfit.get(outfit.id) ?? []
+              const lastUsed = outfitLogs.length > 0 ? [...outfitLogs].sort((a, b) => b.date.localeCompare(a.date))[0].date : null
               return (
-                <button key={outfit.id}
-                  aria-label={outfit.name}
-                  onClick={() => {
+                <OutfitCard
+                  key={outfit.id}
+                  outfit={outfit}
+                  items={items}
+                  useCount={outfitLogs.length}
+                  lastUsed={lastUsed}
+                  onPress={() => {
                     setDetail(outfit)
                     setDetailItemOrder(
                       [...(outfit.outfit_items ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(oi => oi.item_id)
                     )
                   }}
-                  className="relative aspect-square rounded-2xl overflow-hidden bg-muted border border-border active:scale-95 transition-transform">
-                  <OutfitCollage items={items as WardrobeItem[]} />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                    <p className="text-white text-xs font-semibold truncate">{outfit.name}</p>
-                    {outfit.occasion && (
-                      <p className="text-white/60 text-xs capitalize">{outfit.occasion}</p>
-                    )}
-                  </div>
-                </button>
+                />
               )
             })}
           </div>
@@ -482,7 +569,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections }: Outfit
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCollectionsDragEnd}>
             <SortableContext items={collectionsOrder} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-2 gap-3 p-4 pb-24">
+              <div className="grid grid-cols-2 gap-3 px-4 pt-5 pb-28">
                 {sortedCollections.map(col => (
                   <SortableCollectionCard
                     key={col.id}

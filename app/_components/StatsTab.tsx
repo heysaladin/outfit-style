@@ -1,11 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyActivity } from '@/lib/types'
-import { cn } from '@/lib/utils'
-import { Card, CardContent } from '@/components/ui/card'
 
 interface HobbyWithCount {
   value: string
@@ -18,6 +16,7 @@ interface StatsTabProps {
   user: User | null
   activities: HobbyActivity[]
   streak: number
+  totalPoints: number
   lastActive: Record<string, string>
   gearCounts: Record<string, number>
   fashionActivityCount: number
@@ -25,6 +24,7 @@ interface StatsTabProps {
   readingActivityCount: number
   workoutActivityCount: number
   hobbiesByActivity: HobbyWithCount[]
+  now: Date
 }
 
 function EmptyState({ icon, title, desc, children }: { icon: string; title: string; desc: string; children?: React.ReactNode }) {
@@ -38,134 +38,153 @@ function EmptyState({ icon, title, desc, children }: { icon: string; title: stri
   )
 }
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
 const StatsTab = React.memo(function StatsTab({
   user,
   activities,
   streak,
-  lastActive,
-  gearCounts,
-  fashionActivityCount,
-  socialActivityCount,
-  readingActivityCount,
-  workoutActivityCount,
+  totalPoints,
   hobbiesByActivity,
+  now,
 }: StatsTabProps) {
-  return (
-    <div className="px-[18px] pt-4">
-      {!user ? (
-        <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
-          <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
-        </EmptyState>
-      ) : activities.length === 0 ? (
-        <EmptyState icon="📈" title="No activities yet" desc="Start logging activities in your hobbies" />
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-[11px] mt-3.5">
-            {[
-              { v: streak, unit: 'days', l: 'Current streak' },
-              { v: activities.length, unit: '', l: 'Total activities' },
-              { v: Object.keys(lastActive).length, unit: '', l: 'Active hobbies' },
-              { v: Object.values(gearCounts).reduce((a, b) => a + b, 0), unit: '', l: 'Items catalogued' },
-            ].map((s, i) => (
-              <Card key={i}>
-                <CardContent className="p-4">
-                  <div className="text-h2 font-extrabold leading-none font-sans">
-                    {s.v}{s.unit ? <small className="text-para-sm text-muted-foreground font-semibold"> {s.unit}</small> : null}
-                  </div>
-                  <div className="text-caption font-bold tracking-caption uppercase text-muted-foreground/60 mt-2">{s.l}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+  const weeklyBuckets = useMemo(() => {
+    const nowMs = now.getTime()
+    const weekStart = (n: number) => nowMs - (n + 1) * WEEK_MS
+    const weekEnd = (n: number) => nowMs - n * WEEK_MS
+    return Array.from({ length: 12 }, (_, i) => {
+      const idx = 11 - i
+      const start = weekStart(idx)
+      const end = weekEnd(idx)
+      const count = activities.filter(a => {
+        const t = new Date(a.activity_at).getTime()
+        return t >= start && t < end
+      }).length
+      return { count, monthLabel: new Date(end).toLocaleDateString('en-US', { month: 'short' }) }
+    })
+  }, [activities, now])
 
-          {fashionActivityCount > 0 && (
-            <Card className="mt-3">
-              <CardContent className="p-[14px_13px]">
-                <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Fashion</h3>
-                <div className="flex items-center gap-2">
-                  <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👔</span>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-para-xs font-medium text-muted-foreground">{fashionActivityCount} activities</span>
-                    <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+  const maxWeekly = Math.max(...weeklyBuckets.map(w => w.count), 1)
+  const thisWeek = weeklyBuckets[weeklyBuckets.length - 1]?.count ?? 0
+  const lastWeek = weeklyBuckets[weeklyBuckets.length - 2]?.count ?? 0
+  const pctChange = lastWeek === 0 ? (thisWeek > 0 ? 100 : 0) : Math.round(((thisWeek - lastWeek) / lastWeek) * 100)
 
-          {(readingActivityCount > 0 || workoutActivityCount > 0) && (
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              {readingActivityCount > 0 && (
-                <Card>
-                  <CardContent className="p-[14px_13px]">
-                    <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Reading</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>📚</span>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-para-xs font-medium text-muted-foreground">{readingActivityCount} activities</span>
-                        <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-              {workoutActivityCount > 0 && (
-                <Card>
-                  <CardContent className="p-[14px_13px]">
-                    <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Workout</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>🏋️</span>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-para-xs font-medium text-muted-foreground">{workoutActivityCount} activities</span>
-                        <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+  const monthLabels = useMemo(() => {
+    const labels = [weeklyBuckets[0]?.monthLabel, weeklyBuckets[5]?.monthLabel, weeklyBuckets[11]?.monthLabel]
+    return [...new Set(labels)].filter(Boolean)
+  }, [weeklyBuckets])
 
-          {hobbiesByActivity.length > 0 && (
-            <Card className="mt-3">
-              <CardContent className="p-[17px_15px]">
-                <h3 className="font-bold text-para-md m-0 mb-1 font-sans">Interesting hobbies</h3>
-                {hobbiesByActivity.map((h, i) => {
-                  const maxC = hobbiesByActivity[0].count
-                  const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                  return (
-                    <div key={h.value} className={cn('flex items-center gap-3 py-3 px-0.5', i > 0 ? 'border-t' : '')}>
-                      <span className="font-extrabold text-para-sm text-muted-foreground/60 w-[18px] font-sans">{i + 1}</span>
-                      <span className="w-[38px] h-[38px] rounded-[13px] flex items-center justify-center text-[19px] flex-shrink-0" style={{ background: 'var(--muted)' }}>{h.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <b className="text-para-sm font-bold block">{h.label}</b>
-                        <span className="text-para-xs font-medium text-muted-foreground">{h.count} activities</span>
-                        <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  )
-                })}
-              </CardContent>
-            </Card>
-          )}
-
-          {socialActivityCount > 0 && (
-            <Card className="mt-3">
-              <CardContent className="p-[14px_13px]">
-                <h3 className="font-bold text-para-md m-0 mb-2 font-sans">Life</h3>
-                <div className="flex items-center gap-2">
-                  <span className="w-[36px] h-[36px] rounded-[12px] flex items-center justify-center text-[18px] flex-shrink-0" style={{ background: 'var(--muted)' }}>👥</span>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-para-xs font-medium text-muted-foreground">{socialActivityCount} activities</span>
-                    <div className="h-[5px] rounded-full mt-1.5" style={{ background: 'var(--foreground)', width: '100%' }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </>
-      )}
+  const hero = (
+    <div style={{ background: '#0A0A0A', borderRadius: '0 0 28px 28px', padding: '0 12px 46px' }}>
+      <div style={{ padding: '16px 8px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p style={{ fontSize: 14, lineHeight: '21px', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 500, color: 'rgb(163,163,163)', margin: 0 }}>Last 90 days</p>
+        <h1 style={{ fontSize: 30, lineHeight: '30px', letterSpacing: '-1px', fontWeight: 600, color: 'rgb(250,250,250)', margin: 0 }}>
+          Your <span style={{ color: 'rgb(238,240,64)' }}>story</span> so far
+        </h1>
+      </div>
     </div>
+  )
+
+  if (!user) {
+    return (
+      <>
+        {hero}
+        <div className="px-[18px] pt-4">
+          <EmptyState icon="📊" title="Sign in to see stats" desc="Track your hobby activity over time">
+            <Link href="/login" className="font-bold text-para-sm mt-3 inline-block underline">Login</Link>
+          </EmptyState>
+        </div>
+      </>
+    )
+  }
+
+  if (activities.length === 0) {
+    return (
+      <>
+        {hero}
+        <div className="px-[18px] pt-4">
+          <EmptyState icon="📈" title="No activities yet" desc="Start logging activities in your hobbies" />
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {hero}
+
+      <div className="-mt-[22px] mx-3 relative bg-neutral-800 rounded-xl px-4 py-3.5 grid grid-cols-3 gap-3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]">
+        {[
+          { label: 'Points', value: totalPoints },
+          { label: 'Day streak', value: streak },
+          { label: 'Activities', value: activities.length },
+        ].map(stat => (
+          <div key={stat.label} className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-2xl font-semibold tracking-[-0.5px] font-mono text-neutral-50">{stat.value}</span>
+            <span className="text-xs text-neutral-400 truncate">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="px-5 pt-7 pb-28 flex flex-col gap-6">
+        <div className="border border-border rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex justify-between items-baseline">
+            <span className="text-sm text-neutral-500">Activities per week</span>
+            <span className="text-sm font-mono text-foreground">{pctChange >= 0 ? '+' : ''}{pctChange}%</span>
+          </div>
+          <div className="h-[120px] flex items-end gap-1.5">
+            {weeklyBuckets.map((w, i) => {
+              const isCurrent = i === weeklyBuckets.length - 1
+              const heightPct = Math.max(4, (w.count / maxWeekly) * 100)
+              return (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t"
+                  style={{
+                    height: `${heightPct}%`,
+                    background: isCurrent ? '#EEF040' : 'rgb(10,10,10)',
+                    border: isCurrent ? '1px solid rgb(10,10,10)' : 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              )
+            })}
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            {monthLabels.map((m, i) => <span key={i}>{m}</span>)}
+          </div>
+        </div>
+
+        {hobbiesByActivity.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <h2 className="text-xl font-semibold text-foreground">By interest</h2>
+            <div className="border border-border rounded-xl flex flex-col">
+              {hobbiesByActivity.map((h, i, arr) => {
+                const maxC = arr[0].count
+                const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
+                const initials = h.label.slice(0, 2).toUpperCase()
+                return (
+                  <div key={h.value} className={`px-4 py-3 flex items-center gap-3 ${i < arr.length - 1 ? 'border-b border-border' : ''}`}>
+                    <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">
+                      {initials}
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-foreground">{h.label}</span>
+                        <span className="text-sm font-mono text-neutral-500">{h.count}</span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-foreground rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   )
 })
 

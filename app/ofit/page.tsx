@@ -11,9 +11,10 @@ export default async function OfitPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: items }, { data: wardrobes }] = await Promise.all([
+  const [{ data: items }, { data: wardrobes }, { count: outfitCount }] = await Promise.all([
     supabase.from('wardrobe_items').select('*').eq('user_id', user.id).order('wear_count', { ascending: true }),
     supabase.from('wardrobes').select('*').eq('user_id', user.id).order('code', { ascending: true }),
+    supabase.from('outfits').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
   ])
 
   return (
@@ -21,6 +22,7 @@ export default async function OfitPage() {
       items={(items ?? []) as WardrobeItem[]}
       wardrobes={(wardrobes ?? []) as Wardrobe[]}
       user={user}
+      outfitCount={outfitCount ?? 0}
     />
   )
 }

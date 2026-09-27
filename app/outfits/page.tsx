@@ -1,14 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { OutfitsClient } from '@/components/outfits/OutfitsClient'
-import type { Outfit, WardrobeCollection, WardrobeItem } from '@/lib/types'
+import type { Outfit, OutfitLog, WardrobeCollection, WardrobeItem } from '@/lib/types'
 
 export default async function OutfitsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: outfits }, { data: items }, { data: collections }] = await Promise.all([
+  const [{ data: outfits }, { data: items }, { data: collections }, { data: logs }] = await Promise.all([
     supabase.from('outfits')
       .select('*, outfit_items(item_id, sort_order, wardrobe_items(*))')
       .eq('user_id', user.id)
@@ -23,6 +23,9 @@ export default async function OutfitsPage() {
       .eq('user_id', user.id)
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: false }),
+    supabase.from('outfit_logs')
+      .select('id, user_id, outfit_id, date, notes, created_at')
+      .eq('user_id', user.id),
   ])
 
   return (
@@ -30,6 +33,7 @@ export default async function OutfitsPage() {
       outfits={(outfits ?? []) as Outfit[]}
       allItems={(items ?? []).sort((a, b) => (a.status === 'verified' ? -1 : 1) - (b.status === 'verified' ? -1 : 1)) as WardrobeItem[]}
       wardrobeCollections={(collections ?? []) as WardrobeCollection[]}
+      logs={(logs ?? []) as OutfitLog[]}
     />
   )
 }

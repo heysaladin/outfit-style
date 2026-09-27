@@ -8,6 +8,7 @@ import type { User } from '@supabase/supabase-js'
 import type { WardrobeItem, Wardrobe } from '@/lib/types'
 import { setItemStatus, deleteItem, createOutfit } from '@/app/actions'
 import { calcWorthIt } from '@/lib/worth'
+import { daysDiff } from '@/lib/date'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { ItemCard } from './ItemCard'
@@ -22,9 +23,10 @@ interface WardrobeClientProps {
   items: WardrobeItem[]
   wardrobes: Wardrobe[]
   user: User | null
+  outfitCount: number
 }
 
-export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) {
+export function WardrobeClient({ items, wardrobes, user, outfitCount }: WardrobeClientProps) {
   const router = useRouter()
   const [uploadOpen, setUploadOpen]     = useState(false)
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null)
@@ -124,6 +126,8 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
     return statusRank(a.status ?? 'draft') - statusRank(b.status ?? 'draft')
   })
 
+  const wornThisWeekCount = items.filter(i => i.last_worn && daysDiff(i.last_worn) >= 0 && daysDiff(i.last_worn) < 7).length
+
   function toggleSelect(id: string) {
     setSelected(s => {
       const n = new Set(s)
@@ -172,7 +176,15 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
 
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
-      <Header user={user} onUpload={() => setUploadOpen(true)} onSelectMode={user ? () => setSelectMode(v => !v) : undefined} />
+      <Header
+        user={user}
+        onUpload={() => setUploadOpen(true)}
+        onSelectMode={user ? () => setSelectMode(v => !v) : undefined}
+        selectMode={selectMode}
+        itemCount={items.length}
+        outfitCount={outfitCount}
+        wornThisWeekCount={wornThisWeekCount}
+      />
 
       {/* Search bar */}
       <MobileSearchBar
@@ -180,7 +192,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
         aria-label="Search wardrobe items"
         value={search}
         onChange={setSearch}
-        className="pt-3 pb-1"
+        className="pt-6 pb-1 px-5"
       />
 
       <FilterBar
@@ -197,6 +209,11 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
         usdRate={usdRate} onUsdRateChange={setUsdRate} onFetchRate={fetchUsdRate}
       />
 
+      <div className="px-5 pt-7 pb-3 flex items-baseline justify-between">
+        <h2 className="text-xl font-semibold text-foreground">Closet</h2>
+        <span className="text-sm font-mono text-muted-foreground">{filtered.length}</span>
+      </div>
+
       {filtered.length === 0 ? (
         <MobileEmptyState
           icon={<Shirt />}
@@ -204,7 +221,7 @@ export function WardrobeClient({ items, wardrobes, user }: WardrobeClientProps) 
           description={items.length === 0 ? (user ? 'Tap Add to start building your wardrobe' : 'Sign in to build your own wardrobe') : 'Adjust the filters above'}
         />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-5 px-5 py-5 pb-28">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 px-5 pb-28">
           {filtered.map(item => (
             <ItemCard key={item.id} item={item}
               onClick={() => handleItemClick(item)}

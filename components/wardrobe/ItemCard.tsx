@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Trash2, RotateCcw } from 'lucide-react'
 import type { WardrobeItem } from '@/lib/types'
-import { DECLUTTER_STATUSES } from '@/lib/types'
+import { DECLUTTER_STATUSES, getCategoryDef } from '@/lib/types'
 import { calcWorthIt } from '@/lib/worth'
 
 interface ItemCardProps {
@@ -44,75 +44,69 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
   const showBadge  = status !== 'verified'
   const statusCfg  = STATUS_CONFIG[status]
   const dimmed     = isTrashed || isDeclutter
+  const categoryLabel = getCategoryDef(item.category)?.label ?? item.category
 
   return (
     <div className={`group relative flex flex-col gap-1.5 ${selected ? 'opacity-90' : ''}`}>
-      {/* Image */}
-      <div className={`relative rounded-2xl overflow-hidden bg-muted transition-all ${
-        dimmed ? 'opacity-50' : ''
-      } ${selected ? 'ring-2 ring-foreground ring-offset-2 ring-offset-background' : ''}`}>
-        <button onClick={onClick} className="w-full block">
-          {src && <Image src={src} alt={item.name} width={800} height={800} className="w-full object-contain mix-blend-multiply dark:mix-blend-normal" style={{ height: 'auto' }} sizes="(max-width: 768px) 50vw, 25vw" />}
-        </button>
-
-        {/* Status badge */}
-        {showBadge && statusCfg && (
-          <div className="absolute top-2 left-2">
-            <span className={`text-[8px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded-full ${statusCfg.badge}`}>
-              {statusCfg.label}
-            </span>
-          </div>
-        )}
-
-        {/* Declutter dot */}
-        {item.declutter_status && (
-          <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: declutterColor }} />
-        )}
-
-        {/* Worth badge */}
-        {isWorthIt && (
-          <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] shadow-sm bg-emerald-100 dark:bg-emerald-900/40">
-            ✅
-          </div>
-        )}
-
-        {/* No-bg toggle */}
-        {hasOriginal && (
-          <button onClick={e => { e.stopPropagation(); setShowOriginal(v => !v) }}
-            className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm text-foreground text-[9px] font-semibold px-2 py-1 rounded-full">
-            {showOriginal ? 'Edit' : 'Raw'}
+      {/* Card */}
+      <div className={`relative flex flex-col min-w-0 rounded-xl border overflow-hidden bg-card transition-all ${
+        selected ? 'border-foreground border-2' : 'border-border'
+      }`}>
+        <div className={`relative aspect-square w-full bg-muted border-b border-border ${dimmed ? 'opacity-50' : ''}`}>
+          <button onClick={onClick} className="absolute inset-0 w-full h-full block" aria-label={item.name}>
+            {src && <Image src={src} alt={item.name} fill className="object-contain mix-blend-multiply dark:mix-blend-normal" sizes="(max-width: 768px) 50vw, 25vw" />}
           </button>
-        )}
 
-        {/* Bulk select */}
-        {selectable && (
-          <div className={`absolute inset-0 rounded-2xl border-2 transition-all pointer-events-none ${
-            selected ? 'border-foreground bg-foreground/10' : 'border-transparent'
-          }`}>
-            {selected && (
-              <div className="absolute top-2.5 right-2.5 w-5 h-5 bg-foreground rounded-full flex items-center justify-center shadow-sm">
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                  <path d="M1 3.5L3 5.5L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            )}
+          {/* Status badge */}
+          {showBadge && statusCfg && (
+            <div className="absolute top-2 left-2 pointer-events-none">
+              <span className={`text-[8px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded-full ${statusCfg.badge}`}>
+                {statusCfg.label}
+              </span>
+            </div>
+          )}
+
+          {/* Declutter dot */}
+          {item.declutter_status && (
+            <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full shadow-sm pointer-events-none" style={{ backgroundColor: declutterColor }} />
+          )}
+
+          {/* Worth badge */}
+          {isWorthIt && (
+            <div className="absolute bottom-2 left-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] shadow-sm bg-emerald-100 dark:bg-emerald-900/40 pointer-events-none">
+              ✅
+            </div>
+          )}
+
+          {/* No-bg toggle */}
+          {hasOriginal && (
+            <button
+              onClick={e => { e.stopPropagation(); setShowOriginal(v => !v) }}
+              className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm text-foreground text-[9px] font-semibold px-2 py-1 rounded-full"
+            >
+              {showOriginal ? 'Edit' : 'Raw'}
+            </button>
+          )}
+
+          {/* Bulk select */}
+          {selectable && selected && (
+            <div className="absolute top-2.5 right-2.5 w-5 h-5 bg-foreground rounded-full flex items-center justify-center shadow-sm pointer-events-none">
+              <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                <path d="M1 3.5L3 5.5L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          )}
+        </div>
+
+        {/* Text below image */}
+        <button onClick={onClick} className="text-left px-3 pt-2.5 pb-3 min-w-0">
+          <p className={`text-sm font-medium truncate leading-tight ${dimmed ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</p>
+          <div className="flex items-center justify-between gap-1.5 mt-0.5">
+            <span className="text-xs text-muted-foreground truncate">{item.brand || categoryLabel}</span>
+            <span className="text-xs text-muted-foreground/70 shrink-0">{categoryLabel}</span>
           </div>
-        )}
+        </button>
       </div>
-
-      {/* Text below image */}
-      <button onClick={onClick} className="text-left px-0.5">
-        <p className={`text-xs font-semibold truncate leading-tight ${dimmed ? 'text-muted-foreground' : 'text-foreground'}`}>{item.name}</p>
-        {item.brand && <p className="text-muted-foreground text-[10px] truncate">{item.brand}</p>}
-        <p className="text-muted-foreground text-[10px] mt-0.5">
-          {item.wear_count > 0 ? `${item.wear_count}× worn` : 'Never worn'}
-        </p>
-        {isWorthIt && (
-          <p className="text-[10px] font-semibold mt-0.5 text-green-600">
-            ✅ Worth It
-          </p>
-        )}
-      </button>
 
       {/* Draft actions: Verify + Trash */}
       {isDraft && (onVerify || onTrash) && (

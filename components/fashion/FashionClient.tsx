@@ -14,12 +14,12 @@ import { calcWorthIt } from '@/lib/worth'
 import { ChevronLeft, Eye, EyeOff, Shirt, Home } from 'lucide-react'
 
 // Cubicle mobileapp components
-import { MobileTopTabs } from '@/components/ui/mobile-shims'
 import { MobileEmptyState } from '@/components/ui/mobile-shims'
 import { MobileSearchBar } from '@/components/ui/mobile-shims'
 
 // Existing UI
 import { FilterBar } from '@/components/wardrobe/FilterBar'
+import { getCategoryDef } from '@/lib/types'
 import {
   Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter,
 } from '@/components/ui/drawer'
@@ -142,73 +142,85 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
   )
 
   return (
-    <div className="h-dvh overflow-y-auto bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
 
-      {/* ── Header — Cubicle MobileTopBar pattern ── */}
-      <div className="sticky top-0 z-10 bg-background border-b">
-        <div
-          className="px-4 pb-2"
-          style={{ paddingTop: 'calc(8px + env(safe-area-inset-top, 0px))' }}
-        >
-          <div className="flex items-center justify-between min-h-[44px]">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-0.5 text-primary text-sm font-medium -ml-1 px-1 py-1 rounded-lg active:bg-muted"
-              >
-                <ChevronLeft className="h-5 w-5" />
-                <span>Back</span>
-              </button>
-              <Link href="/" className="flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground active:bg-muted">
-                <Home className="h-4 w-4" />
-              </Link>
-            </div>
+      {/* ── Hero ── */}
+      <div
+        className="bg-neutral-950 rounded-b-[28px] px-3 pb-[46px] flex flex-col"
+        style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      >
+        <div className="h-9 flex items-center justify-between px-1">
+          <button
+            onClick={() => router.back()}
+            aria-label="Back"
+            className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-200 shrink-0"
+          >
+            <ChevronLeft size={16} strokeWidth={2} />
+          </button>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowNames(v => !v)}
-                aria-label={showNames ? 'Hide names' : 'Show names'}
-                aria-pressed={showNames}
-                className={cn(
-                  'h-8 w-8 rounded-lg flex items-center justify-center transition-colors',
-                  showNames ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground',
-                )}
-              >
-                {showNames ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              </button>
-              {user && (
-                <button
-                  onClick={openQP}
-                  className="h-8 px-3 rounded-full bg-card border border-border text-foreground text-xs font-semibold active:bg-muted"
-                >
-                  + Post
-                </button>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/"
+              aria-label="Home"
+              className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-300 shrink-0"
+            >
+              <Home size={14} />
+            </Link>
+            <button
+              onClick={() => setShowNames(v => !v)}
+              aria-label={showNames ? 'Hide names' : 'Show names'}
+              aria-pressed={showNames}
+              className={cn(
+                'w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors',
+                showNames ? 'bg-[#EEF040] text-neutral-950' : 'bg-neutral-800 text-neutral-300',
               )}
-              <Link
-                href="/ofit"
-                className="h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center active:opacity-90"
+            >
+              {showNames ? <Eye size={14} /> : <EyeOff size={14} />}
+            </button>
+            {user && (
+              <button
+                onClick={openQP}
+                className="h-8 px-3 rounded-full bg-neutral-800 text-neutral-50 text-xs font-semibold shrink-0"
               >
-                Wardrobe
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-1 pb-1">
-            <h1 className="text-2xl font-bold tracking-tight">Fashion</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{items.length} items</p>
+                + Post
+              </button>
+            )}
+            <Link
+              href="/ofit"
+              className="h-9 px-3.5 rounded-full bg-neutral-800 text-neutral-50 text-sm font-medium flex items-center gap-2 shrink-0"
+            >
+              <Shirt size={16} />
+              Wardrobe
+            </Link>
           </div>
         </div>
 
-        <MobileTopTabs
-          tabs={tabItems}
-          activeKey={tab}
-          onChange={(k) => setTab(k as Tab)}
-        />
+        <div className="pt-7 px-2 flex flex-col gap-2">
+          <p className="text-sm font-medium uppercase tracking-[1.5px] text-neutral-400">{items.length} items</p>
+          <h1 className="text-[30px] leading-[30px] tracking-[-1px] font-semibold text-neutral-50">Fashion</h1>
+        </div>
+      </div>
+
+      {/* ── Segmented tabs ── */}
+      <div className="-mt-[22px] mx-4 relative h-11 p-1 rounded-full bg-neutral-800 grid grid-cols-3 gap-1 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]">
+        {tabItems.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key as Tab)}
+            className={cn(
+              'rounded-full text-sm font-semibold flex items-center justify-center transition-colors',
+              tab === t.key ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400',
+            )}
+          >
+            {t.label}{t.badge ? ` ${t.badge}` : ''}
+          </button>
+        ))}
       </div>
 
       {/* ── Items tab ── */}
       {tab === 'items' && (
         <>
+        <div className="mt-5">
         <FilterBar
           activeCategory={activeCategory}
           activeSubcategory={activeSubcategory}
@@ -232,18 +244,23 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
           activePriceFilter={activePriceFilter} onPriceFilterChange={setActivePriceFilter}
           usdRate={usdRate} onUsdRateChange={setUsdRate} onFetchRate={fetchUsdRate}
         />
-        <div className="px-4 pt-4 pb-4">
+        </div>
 
-          <div className="flex items-center gap-2 mb-3">
-            <MobileSearchBar
-              placeholder="Search name, brand, #tag…"
-              aria-label="Search fashion items"
-              value={search}
-              onChange={setSearch}
-              className="flex-1"
-            />
-          </div>
+        <div className="px-5 pt-4">
+          <MobileSearchBar
+            placeholder="Search name, brand, #tag…"
+            aria-label="Search fashion items"
+            value={search}
+            onChange={setSearch}
+          />
+        </div>
 
+        <div className="px-5 pt-5 pb-3 flex items-baseline justify-between">
+          <h2 className="text-xl font-semibold text-foreground">All items</h2>
+          <span className="text-sm font-mono text-muted-foreground">{sortedItems.length}</span>
+        </div>
+
+        <div className="px-5 pb-28">
           {/* Empty state */}
           {sortedItems.length === 0 && (
             <MobileEmptyState
@@ -255,55 +272,50 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
 
           {/* Grid */}
           {sortedItems.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-              {sortedItems.map(item => (
-                <Link
-                  key={item.id}
-                  href={`/fashion/${item.id}`}
-                  className="block bg-card rounded-xl overflow-hidden border border-border"
-                >
-                  <div className="relative aspect-square w-full">
-                    <Image
-                      src={item.image_url}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                    />
-                  </div>
-                  <div className="p-3">
-                    {showNames && (
-                      <>
-                        <p className="text-[13px] font-semibold truncate leading-tight">{item.name}</p>
-                        {item.brand && (
-                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider truncate mt-0.5">
-                            {item.brand}
-                          </p>
-                        )}
-                      </>
-                    )}
-                    {(() => {
-                      const { worthItProgress, isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count })
-                      return (
-                        <div className={cn(showNames && 'mt-2')}>
-                          <div className="h-1 rounded-full bg-muted overflow-hidden">
-                            <div
-                              className={cn(
-                                'h-full rounded-full transition-all',
-                                isWorthIt ? 'bg-emerald-600' : worthItProgress >= 75 ? 'bg-amber-500' : 'bg-slate-400',
-                              )}
-                              style={{ width: `${worthItProgress}%` }}
-                            />
-                          </div>
-                          <p className="text-[10px] font-medium text-muted-foreground mt-1">
-                            {item.wear_count}× · {isWorthIt ? '✅ Worth It!' : `${targetUses - item.wear_count} more to Worth It`}
-                          </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {sortedItems.map(item => {
+                const { worthItProgress, isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
+                const categoryLabel = getCategoryDef(item.category)?.label ?? item.category
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/fashion/${item.id}`}
+                    className="block bg-card rounded-xl overflow-hidden border border-border min-w-0"
+                  >
+                    <div className="relative aspect-square w-full bg-muted border-b border-border">
+                      <Image
+                        src={item.image_url}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                    </div>
+                    <div className="p-3 pt-2.5 flex flex-col gap-2.5 min-w-0">
+                      {showNames && (
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-sm font-medium truncate leading-tight text-foreground">{item.name}</p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{item.brand || categoryLabel}</p>
                         </div>
-                      )
-                    })()}
-                  </div>
-                </Link>
-              ))}
+                      )}
+                      <div className="flex flex-col gap-1.5">
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full transition-all', isWorthIt ? 'bg-[#EEF040]' : 'bg-foreground')}
+                            style={{ width: `${worthItProgress}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-1.5">
+                          <span className="text-xs font-mono text-neutral-500">{item.wear_count}/{targetUses}</span>
+                          <span className={cn('text-xs whitespace-nowrap', isWorthIt ? 'font-semibold text-foreground' : 'text-muted-foreground')}>
+                            {isWorthIt ? 'Worth it' : `${targetUses - item.wear_count} to Worth it`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>
