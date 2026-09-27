@@ -1,0 +1,121 @@
+[    4876ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    4993ms] [LOG] [HMR] connected @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5120ms] [ERROR] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:57
+[    5125ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5218ms] [LOG] [Fast Refresh] done in 93ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5218ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5317ms] [LOG] [Fast Refresh] done in 99ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5319ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5498ms] [LOG] [Fast Refresh] done in 180ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5500ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5621ms] [LOG] [Fast Refresh] done in 121ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5622ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5725ms] [LOG] [Fast Refresh] done in 104ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5725ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5844ms] [LOG] [Fast Refresh] done in 118ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5845ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5948ms] [LOG] [Fast Refresh] done in 103ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    5948ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6069ms] [LOG] [Fast Refresh] done in 121ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6070ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6162ms] [LOG] [Fast Refresh] done in 93ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6164ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6326ms] [LOG] [Fast Refresh] done in 163ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6328ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6423ms] [LOG] [Fast Refresh] done in 95ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6424ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6513ms] [LOG] [Fast Refresh] done in 90ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6514ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6632ms] [LOG] [Fast Refresh] done in 117ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6632ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6721ms] [LOG] [Fast Refresh] done in 90ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6722ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6807ms] [LOG] [Fast Refresh] done in 85ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6808ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6898ms] [LOG] [Fast Refresh] done in 90ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    6899ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7117ms] [LOG] [Fast Refresh] done in 218ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7119ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7382ms] [LOG] [Fast Refresh] done in 263ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7382ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7623ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7623ms] [LOG] [Fast Refresh] done in 0ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7687ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7690ms] [LOG] [Fast Refresh] done in 2ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7725ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7725ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/gear?_rsc=k2t9z:0
+[    7856ms] [LOG] [Fast Refresh] done in 132ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    7877ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8109ms] [LOG] [Fast Refresh] done in 232ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8172ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8204ms] [LOG] [Fast Refresh] done in 31ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8258ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8290ms] [LOG] [Fast Refresh] done in 32ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8360ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8388ms] [LOG] [Fast Refresh] done in 29ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8392ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8480ms] [LOG] [Fast Refresh] done in 88ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8491ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8567ms] [LOG] [Fast Refresh] done in 77ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8652ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8695ms] [LOG] [Fast Refresh] done in 44ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8700ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8786ms] [LOG] [Fast Refresh] done in 86ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8838ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8896ms] [LOG] [Fast Refresh] done in 58ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8910ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    8994ms] [LOG] [Fast Refresh] done in 84ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    9005ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    9108ms] [LOG] [Fast Refresh] done in 103ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    9165ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    9198ms] [LOG] [Fast Refresh] done in 34ms @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[    9449ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/gear:0
+[    9827ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(pages-dir-browser)/./node_modules/react-dom/cjs/react-dom-client.development.js:28004
+[    9878ms] SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at loadManifest (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/load-manifest.external.js:54:25)
+    at DevServer.getNextFontManifest (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/next-server.js:867:55)
+    at DevServer.findPageComponents (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/dev/next-dev-server.js:703:39)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async DevServer.renderPageComponent (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/base-server.js:1492:24)
+    at async DevServer.renderToResponseImpl (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/base-server.js:1556:32)
+    at async DevServer.pipeImpl (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/base-server.js:1043:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/base-server.js:934:17)
+    at async (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/dev/next-dev-server.js:394:20)
+    at async Span.traceAsyncFn (file:///Users/saladin/Developments/interestory/node_modules/next/dist/trace/trace.js:164:20)
+    at async DevServer.handleRequest (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/dev/next-dev-server.js:390:24)
+    at async invokeRender (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/lib/router-server.js:266:21)
+    at async handleRequest (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/lib/router-server.js:465:24)
+    at async requestHandlerImpl (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/lib/router-server.js:514:13)
+    at async Server.requestListener (file:///Users/saladin/Developments/interestory/node_modules/next/dist/server/lib/start-server.js:225:13)
+[    9889ms] [LOG] [HMR] connected @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10185ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10234ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10251ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10325ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10388ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10743ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   10761ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11091ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11100ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11188ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11196ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11271ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11274ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11357ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11366ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11447ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11450ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11538ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11557ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11699ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11703ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11801ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11808ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11889ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11892ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11980ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   11987ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   12558ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27
+[   12567ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/shared/forward-logs-shared.js:27

@@ -1,0 +1,222 @@
+- generic [active] [ref=f108e1]:
+  - generic [ref=f108e4]:
+    - banner [ref=f108e5]:
+      - generic [ref=f108e6]: interestory
+      - link [ref=f108e8] [cursor=pointer]:
+        - /url: /ofit
+    - generic [ref=f108e12]:
+      - generic [ref=f108e13]:
+        - generic [ref=f108e14]:
+          - paragraph [ref=f108e15]: Tuesday, Sep 22
+          - heading [level=1] [ref=f108e16]:
+            - text: Hey Saladin,let's add to your
+            - emphasis [ref=f108e17]: story
+        - generic [ref=f108e18]:
+          - img "Momo" [ref=f108e19]
+          - generic [ref=f108e20]:
+            - paragraph [ref=f108e21]: Start logging to build your story
+            - text: Momo · your interest friend
+      - generic [ref=f108e23]:
+        - generic [ref=f108e24]:
+          - generic [ref=f108e25]: 🔥
+          - generic [ref=f108e26]:
+            - generic [ref=f108e27]: "0"
+            - generic [ref=f108e28]: day streak
+        - generic [ref=f108e29]:
+          - generic [ref=f108e30]: W
+          - generic [ref=f108e33]: T
+          - generic [ref=f108e36]: F
+          - generic [ref=f108e39]: S
+          - generic [ref=f108e42]: S
+          - generic [ref=f108e45]: M
+          - generic [ref=f108e48]: T
+      - generic [ref=f108e51]:
+        - generic [ref=f108e52]:
+          - heading "Monthly Goals" [level=2] [ref=f108e53]
+          - button "Add" [ref=f108e54] [cursor=pointer]
+        - generic [ref=f108e55]:
+          - generic [ref=f108e56]: 🎯
+          - generic [ref=f108e57]: No goals yet
+          - paragraph [ref=f108e58]: Set monthly goals to stay on track
+        - generic [ref=f108e59]:
+          - heading "Calendar" [level=2] [ref=f108e60]
+          - iframe [ref=f108e62]:
+            - generic [ref=f109e3]:
+              - progressbar "Loading calendar" [ref=f109e5]
+              - banner [ref=f109e8]:
+                - generic [ref=f109e9]:
+                  - navigation "Date navigation" [ref=f109e11]:
+                    - generic [ref=f109e12]:
+                      - tooltip [aria-hidden] [ref=f109e13]: Tuesday, September 22
+                      - generic [ref=f109e14]:
+                        - button "Previous month" [ref=f109e15] [cursor=pointer]
+                        - tooltip [aria-hidden] [ref=f109e21]: Previous month
+                      - generic [ref=f109e22]:
+                        - button "Next month" [ref=f109e23] [cursor=pointer]
+                        - tooltip [aria-hidden] [ref=f109e29]: Next month
+                    - button "September 2026" [ref=f109e34]:
+                      - generic [ref=f109e35]:
+                        - generic [ref=f109e36]: September 2026
+                        - generic [ref=f109e38]: Sep 2026
+                  - generic [ref=f109e42]:
+                    - tooltip [aria-hidden] [ref=f109e43]: Send feedback to Google
+                    - generic [ref=f109e46]:
+                      - button "Select calendar" [ref=f109e47] [cursor=pointer]
+                      - tooltip [aria-hidden] [ref=f109e53]: Select calendar
+                    - tooltip [aria-hidden] [ref=f109e54]: Print my calendar (shows preview in new window)
+                    - navigation "View navigation" [ref=f109e55]:
+                      - button "Month" [ref=f109e58] [cursor=pointer]
+              - main [ref=f109e64]:
+                - generic "September 2026" [ref=f109e66]:
+                  - grid [ref=f109e67]:
+                    - row [ref=f109e68]:
+                      - columnheader "Sunday" [ref=f109e69]:
+                        - generic [aria-hidden] [ref=f109e71]: Sun
+                      - columnheader "Monday" [ref=f109e72]:
+                        - generic [aria-hidden] [ref=f109e74]: Mon
+                      - columnheader "Tuesday" [ref=f109e75]:
+                        - generic [aria-hidden] [ref=f109e77]: Tue
+                      - columnheader "Wednesday" [ref=f109e78]:
+                        - generic [aria-hidden] [ref=f109e80]: Wed
+                      - columnheader "Thursday" [ref=f109e81]:
+                        - generic [aria-hidden] [ref=f109e83]: Thu
+                      - columnheader "Friday" [ref=f109e84]:
+                        - generic [aria-hidden] [ref=f109e86]: Fri
+                      - columnheader "Saturday" [ref=f109e87]:
+                        - generic [aria-hidden] [ref=f109e89]: Sat
+                    - row [ref=f109e90]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f109e99]: "30"
+                        - heading [level=2] [aria-hidden] [ref=f109e100]: "31"
+                        - heading [level=2] [aria-hidden] [ref=f109e101]: Sep 1
+                        - heading [level=2] [aria-hidden] [ref=f109e102]: "2"
+                        - heading [level=2] [aria-hidden] [ref=f109e103]: "3"
+                        - heading [level=2] [aria-hidden] [ref=f109e104]: "4"
+                        - heading [level=2] [aria-hidden] [ref=f109e105]: "5"
+                      - generic [ref=f109e106]:
+                        - gridcell "No events, Sunday, August 30":
+                          - heading "No events, Sunday, August 30" [level=2] [ref=f109e107]
+                        - gridcell "No events, Monday, August 31":
+                          - heading "No events, Monday, August 31" [level=2] [ref=f109e108]
+                        - gridcell "No events, Tuesday, September 1":
+                          - heading "No events, Tuesday, September 1" [level=2] [ref=f109e109]
+                        - gridcell "No events, Wednesday, September 2":
+                          - heading "No events, Wednesday, September 2" [level=2] [ref=f109e110]
+                        - gridcell "No events, Thursday, September 3":
+                          - heading "No events, Thursday, September 3" [level=2] [ref=f109e111]
+                        - gridcell "No events, Friday, September 4":
+                          - heading "No events, Friday, September 4" [level=2] [ref=f109e112]
+                        - gridcell "No events, Saturday, September 5":
+                          - heading "No events, Saturday, September 5" [level=2] [ref=f109e113]
+                    - row [ref=f109e114]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f109e123]: "6"
+                        - heading [level=2] [aria-hidden] [ref=f109e124]: "7"
+                        - heading [level=2] [aria-hidden] [ref=f109e125]: "8"
+                        - heading [level=2] [aria-hidden] [ref=f109e126]: "9"
+                        - heading [level=2] [aria-hidden] [ref=f109e127]: "10"
+                        - heading [level=2] [aria-hidden] [ref=f109e128]: "11"
+                        - heading [level=2] [aria-hidden] [ref=f109e129]: "12"
+                      - generic [ref=f109e130]:
+                        - gridcell "No events, Sunday, September 6":
+                          - heading "No events, Sunday, September 6" [level=2] [ref=f109e131]
+                        - gridcell "No events, Monday, September 7":
+                          - heading "No events, Monday, September 7" [level=2] [ref=f109e132]
+                        - gridcell "No events, Tuesday, September 8":
+                          - heading "No events, Tuesday, September 8" [level=2] [ref=f109e133]
+                        - gridcell "No events, Wednesday, September 9":
+                          - heading "No events, Wednesday, September 9" [level=2] [ref=f109e134]
+                        - gridcell "No events, Thursday, September 10":
+                          - heading "No events, Thursday, September 10" [level=2] [ref=f109e135]
+                        - gridcell "No events, Friday, September 11":
+                          - heading "No events, Friday, September 11" [level=2] [ref=f109e136]
+                        - gridcell "No events, Saturday, September 12":
+                          - heading "No events, Saturday, September 12" [level=2] [ref=f109e137]
+                    - row [ref=f109e138]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f109e147]: "13"
+                        - heading [level=2] [aria-hidden] [ref=f109e148]: "14"
+                        - heading [level=2] [aria-hidden] [ref=f109e149]: "15"
+                        - heading [level=2] [aria-hidden] [ref=f109e150]: "16"
+                        - heading [level=2] [aria-hidden] [ref=f109e151]: "17"
+                        - heading [level=2] [aria-hidden] [ref=f109e152]: "18"
+                        - heading [level=2] [aria-hidden] [ref=f109e153]: "19"
+                      - generic [ref=f109e154]:
+                        - gridcell "No events, Sunday, September 13":
+                          - heading "No events, Sunday, September 13" [level=2] [ref=f109e155]
+                        - gridcell "No events, Monday, September 14":
+                          - heading "No events, Monday, September 14" [level=2] [ref=f109e156]
+                        - gridcell "No events, Tuesday, September 15":
+                          - heading "No events, Tuesday, September 15" [level=2] [ref=f109e157]
+                        - gridcell "No events, Wednesday, September 16":
+                          - heading "No events, Wednesday, September 16" [level=2] [ref=f109e158]
+                        - gridcell "No events, Thursday, September 17":
+                          - heading "No events, Thursday, September 17" [level=2] [ref=f109e159]
+                        - gridcell "No events, Friday, September 18":
+                          - heading "No events, Friday, September 18" [level=2] [ref=f109e160]
+                        - gridcell "No events, Saturday, September 19":
+                          - heading "No events, Saturday, September 19" [level=2] [ref=f109e161]
+                    - row [ref=f109e162]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f109e171]: "20"
+                        - heading [level=2] [aria-hidden] [ref=f109e172]: "21"
+                        - heading [level=2] [aria-hidden] [ref=f109e173]: "22"
+                        - heading [level=2] [aria-hidden] [ref=f109e174]: "23"
+                        - heading [level=2] [aria-hidden] [ref=f109e175]: "24"
+                        - heading [level=2] [aria-hidden] [ref=f109e176]: "25"
+                        - heading [level=2] [aria-hidden] [ref=f109e177]: "26"
+                      - generic [ref=f109e178]:
+                        - gridcell "No events, Sunday, September 20":
+                          - heading "No events, Sunday, September 20" [level=2] [ref=f109e179]
+                        - gridcell "No events, Monday, September 21":
+                          - heading "No events, Monday, September 21" [level=2] [ref=f109e180]
+                        - gridcell "No events, Tuesday, September 22, today":
+                          - heading "No events, Tuesday, September 22, today" [level=2] [ref=f109e181]
+                        - gridcell "No events, Wednesday, September 23":
+                          - heading "No events, Wednesday, September 23" [level=2] [ref=f109e182]
+                        - gridcell "No events, Thursday, September 24":
+                          - heading "No events, Thursday, September 24" [level=2] [ref=f109e183]
+                        - gridcell "No events, Friday, September 25":
+                          - heading "No events, Friday, September 25" [level=2] [ref=f109e184]
+                        - gridcell "No events, Saturday, September 26":
+                          - heading "No events, Saturday, September 26" [level=2] [ref=f109e185]
+                    - row [ref=f109e186]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f109e195]: "27"
+                        - heading [level=2] [aria-hidden] [ref=f109e196]: "28"
+                        - heading [level=2] [aria-hidden] [ref=f109e197]: "29"
+                        - heading [level=2] [aria-hidden] [ref=f109e198]: "30"
+                        - heading [level=2] [aria-hidden] [ref=f109e199]: Oct 1
+                        - heading [level=2] [aria-hidden] [ref=f109e200]: "2"
+                        - heading [level=2] [aria-hidden] [ref=f109e201]: "3"
+                      - generic [ref=f109e202]:
+                        - gridcell "No events, Sunday, September 27":
+                          - heading "No events, Sunday, September 27" [level=2] [ref=f109e203]
+                        - gridcell "No events, Monday, September 28":
+                          - heading "No events, Monday, September 28" [level=2] [ref=f109e204]
+                        - gridcell "No events, Tuesday, September 29":
+                          - heading "No events, Tuesday, September 29" [level=2] [ref=f109e205]
+                        - gridcell "No events, Wednesday, September 30":
+                          - heading "No events, Wednesday, September 30" [level=2] [ref=f109e206]
+                        - gridcell "No events, Thursday, October 1":
+                          - heading "No events, Thursday, October 1" [level=2] [ref=f109e207]
+                        - gridcell "No events, Friday, October 2":
+                          - heading "No events, Friday, October 2" [level=2] [ref=f109e208]
+                        - gridcell "No events, Saturday, October 3":
+                          - heading "No events, Saturday, October 3" [level=2] [ref=f109e209]
+              - contentinfo [ref=f109e210]:
+                - generic [ref=f109e211]:
+                  - generic [ref=f109e212]: Interestory
+                  - generic [ref=f109e214]:
+                    - text: GMT+07
+                    - generic [ref=f109e215]: "Events shown in time zone: (GMT+07:00) Western Indonesia Time - Jakarta"
+                  - generic [ref=f109e216]:
+                    - button "Add to Google Calendar (opens a new tab)" [ref=f109e217] [cursor=pointer]
+                    - tooltip [aria-hidden] [ref=f109e223]: Add to Google Calendar (opens a new tab)
+    - navigation [ref=f108e63]:
+      - button [ref=f108e64] [cursor=pointer]
+      - button [ref=f108e68] [cursor=pointer]
+      - button [ref=f108e74] [cursor=pointer]
+      - button [ref=f108e77] [cursor=pointer]
+      - button [ref=f108e80] [cursor=pointer]
+  - alert [ref=f108e84]

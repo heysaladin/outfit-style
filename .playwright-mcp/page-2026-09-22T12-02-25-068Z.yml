@@ -1,0 +1,56 @@
+- generic [ref=f134e3]:
+  - banner [ref=f134e4]:
+    - button [ref=f134e5]
+    - heading "September 2026" [level=1] [ref=f134e8]
+    - button [ref=f134e10]
+  - generic [ref=f134e13]:
+    - generic [ref=f134e14]:
+      - generic [ref=f134e15]: Mon
+      - generic [ref=f134e16]: Tue
+      - generic [ref=f134e17]: Wed
+      - generic [ref=f134e18]: Thu
+      - generic [ref=f134e19]: Fri
+      - generic [ref=f134e20]: Sat
+      - generic [ref=f134e21]: Sun
+    - generic [ref=f134e22]:
+      - button "1" [ref=f134e24]
+      - button "2" [ref=f134e27]
+      - button "3" [ref=f134e30]
+      - button "4" [ref=f134e33]
+      - button "5" [ref=f134e36]
+      - button "6" [ref=f134e39]
+      - button "7" [ref=f134e42]
+      - button "8" [ref=f134e45]
+      - button "9" [ref=f134e48]
+      - button "10" [ref=f134e51]
+      - button "11" [ref=f134e54]
+      - button "12" [ref=f134e57]
+      - button "13" [ref=f134e60]
+      - button "14" [ref=f134e63]
+      - button "15" [ref=f134e66]
+      - button "16" [ref=f134e69]
+      - button "17" [ref=f134e72]
+      - button "18" [ref=f134e75]
+      - button "19" [ref=f134e78]
+      - button "20" [ref=f134e81]
+      - button "21" [ref=f134e84]
+      - button "22" [ref=f134e87]
+      - button "23" [disabled] [ref=f134e90]
+      - button "24" [disabled] [ref=f134e93]
+      - button "25" [disabled] [ref=f134e96]
+      - button "26" [disabled] [ref=f134e99]
+      - button "27" [disabled] [ref=f134e102]
+      - button "28" [disabled] [ref=f134e105]
+      - button "29" [disabled] [ref=f134e108]
+      - button "30" [disabled] [ref=f134e111]
+  - navigation [ref=f134e118]:
+    - link "Closet" [ref=f134e119] [cursor=pointer]:
+      - /url: /ofit
+    - link "Wardrobes" [ref=f134e126] [cursor=pointer]:
+      - /url: /wardrobes
+    - link "Outfits" [ref=f134e131] [cursor=pointer]:
+      - /url: /outfits
+    - link "Calendar" [ref=f134e137] [cursor=pointer]:
+      - /url: /calendar
+    - link "Stats" [ref=f134e141] [cursor=pointer]:
+      - /url: /stats

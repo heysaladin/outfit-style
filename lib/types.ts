@@ -215,6 +215,27 @@ export interface WardrobeCollection {
   wardrobe_collection_items?: { item_id: string; sort_order: number; wardrobe_items: WardrobeItem }[]
 }
 
+export interface LookbookPhoto {
+  id: string
+  lookbook_id: string
+  image_url: string
+  caption: string | null
+  tag: string | null
+  sort_order: number
+  created_at: string
+  lookbook_photo_outfits?: { outfit_id: string; outfits?: Pick<Outfit, 'id' | 'name' | 'outfit_items'> | null }[]
+}
+
+export interface Lookbook {
+  id: string
+  user_id: string
+  name: string
+  tag: string | null
+  sort_order: number
+  created_at: string
+  lookbook_photos?: LookbookPhoto[]
+}
+
 export interface PlanEntry {
   id: string
   user_id: string

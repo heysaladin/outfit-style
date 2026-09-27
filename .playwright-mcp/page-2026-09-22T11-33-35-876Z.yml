@@ -1,0 +1,37 @@
+- generic [ref=f85e3]:
+  - banner [ref=f85e4]:
+    - heading "Admin" [level=1] [ref=f85e5]
+  - generic [ref=f85e6]:
+    - generic [ref=f85e7]:
+      - link "Zopavo Backlog management Manage →" [ref=f85e8] [cursor=pointer]:
+        - /url: /admin/backlog
+        - generic [ref=f85e14]:
+          - paragraph [ref=f85e15]: Zopavo
+          - paragraph [ref=f85e16]: Backlog management
+        - generic [ref=f85e17]: Manage →
+      - generic [ref=f85e18]:
+        - code [ref=f85e19]: /api/backlog
+        - link "zopavo.vercel.app" [ref=f85e20] [cursor=pointer]:
+          - /url: https://zopavo.vercel.app
+    - generic [ref=f85e25]:
+      - link "Hyperfantasy Blog posts Manage →" [ref=f85e26] [cursor=pointer]:
+        - /url: /admin/blogs
+        - generic [ref=f85e30]:
+          - paragraph [ref=f85e31]: Hyperfantasy
+          - paragraph [ref=f85e32]: Blog posts
+        - generic [ref=f85e33]: Manage →
+      - generic [ref=f85e34]:
+        - code [ref=f85e35]: /api/blogs
+        - link "hyperfantasy.co" [ref=f85e36] [cursor=pointer]:
+          - /url: https://hyperfantasy.co/blogs
+  - navigation [ref=f85e41]:
+    - link "Closet" [ref=f85e42] [cursor=pointer]:
+      - /url: /ofit
+    - link "Wardrobes" [ref=f85e49] [cursor=pointer]:
+      - /url: /wardrobes
+    - link "Outfits" [ref=f85e54] [cursor=pointer]:
+      - /url: /outfits
+    - link "Calendar" [ref=f85e60] [cursor=pointer]:
+      - /url: /calendar
+    - link "Stats" [ref=f85e64] [cursor=pointer]:
+      - /url: /stats

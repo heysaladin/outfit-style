@@ -1,0 +1,478 @@
+- generic [active] [ref=f196e1]:
+  - generic [ref=f196e4]:
+    - banner [ref=f196e5]:
+      - generic [ref=f196e6]: interestory
+      - generic [ref=f196e7]:
+        - link "Wardrobe" [ref=f196e8] [cursor=pointer]:
+          - /url: /ofit
+        - button [ref=f196e83] [cursor=pointer]:
+          - img "Hyperfantasy" [ref=f196e84]
+    - generic [ref=f196e12]:
+      - generic [ref=f196e13]:
+        - generic [ref=f196e14]:
+          - paragraph [ref=f196e15]: Thursday, Sep 24
+          - heading [level=1] [ref=f196e16]:
+            - text: Hey Saladin,let's add to your
+            - emphasis [ref=f196e17]: story
+        - generic [ref=f196e18]:
+          - img "Momo" [ref=f196e19]
+          - generic [ref=f196e20]:
+            - paragraph [ref=f196e21]: 36-day streak! You're on fire 🔥
+            - text: Momo · your interest friend
+          - generic [ref=f196e85]:
+            - generic [ref=f196e86]: ⭐
+            - generic [ref=f196e87]: "825"
+            - generic [ref=f196e88]: pts
+      - generic [ref=f196e23]:
+        - generic [ref=f196e24]:
+          - generic [ref=f196e25]: 🔥
+          - generic [ref=f196e26]:
+            - generic [ref=f196e27]: "36"
+            - generic [ref=f196e89]: day streak
+        - generic [ref=f196e28]:
+          - generic [ref=f196e29]: F
+          - generic [ref=f196e32]: S
+          - generic [ref=f196e35]: S
+          - generic [ref=f196e38]: M
+          - generic [ref=f196e41]: T
+          - generic [ref=f196e44]: W
+          - generic [ref=f196e47]: T
+      - generic [ref=f196e50]:
+        - heading "Recent" [level=2] [ref=f196e91]
+        - generic [ref=f196e92]:
+          - button "View Fashion activity" [ref=f196e93] [cursor=pointer]:
+            - generic [ref=f196e94]: FA
+            - generic [ref=f196e95]:
+              - generic [ref=f196e96]: Fashion
+              - paragraph [ref=f196e97]: Anti Food Waste
+            - generic [ref=f196e98]: Today
+          - button "View Fashion activity" [ref=f196e99] [cursor=pointer]:
+            - generic [ref=f196e100]: FA
+            - generic [ref=f196e101]:
+              - generic [ref=f196e102]: Fashion
+              - paragraph [ref=f196e103]: The Tourist
+            - generic [ref=f196e104]: Today
+          - button "View Fashion activity" [ref=f196e105] [cursor=pointer]:
+            - generic [ref=f196e106]: FA
+            - generic [ref=f196e107]:
+              - generic [ref=f196e108]: Fashion
+              - paragraph [ref=f196e109]: All Gray in the Night
+            - generic [ref=f196e110]: Today
+        - generic [ref=f196e51]:
+          - heading "Monthly Goals" [level=2] [ref=f196e52]
+          - button "Add" [ref=f196e53] [cursor=pointer]
+        - generic [ref=f196e111]:
+          - generic [ref=f196e113]:
+            - generic [ref=f196e114]:
+              - heading "End of September" [level=3] [ref=f196e115]
+              - generic [ref=f196e116]:
+                - generic [ref=f196e117]: Sep 30
+                - button "Edit goal" [ref=f196e118] [cursor=pointer]
+                - button "Delete goal" [ref=f196e122] [cursor=pointer]
+            - paragraph [ref=f196e125]: Styling by event in Sempember
+            - generic [ref=f196e126]:
+              - generic [ref=f196e127]:
+                - generic [ref=f196e128]: Progress
+                - generic [ref=f196e129]: 4/10 tasks
+              - progressbar [ref=f196e130]
+            - generic [ref=f196e132]:
+              - generic [ref=f196e133]: Week 4
+              - generic [ref=f196e134]:
+                - generic [ref=f196e135] [cursor=pointer]
+                - generic [ref=f196e138]: 21 Peace
+                - button "Edit task" [ref=f196e139] [cursor=pointer]
+                - button "Delete task" [ref=f196e143] [cursor=pointer]
+              - generic [ref=f196e146]:
+                - generic [ref=f196e147] [cursor=pointer]
+                - generic [ref=f196e148]: 23 Maritime
+                - button "Edit task" [ref=f196e149] [cursor=pointer]
+                - button "Delete task" [ref=f196e153] [cursor=pointer]
+              - generic [ref=f196e156]:
+                - generic [ref=f196e157] [cursor=pointer]
+                - generic [ref=f196e158]: 24 Farm
+                - button "Edit task" [ref=f196e159] [cursor=pointer]
+                - button "Delete task" [ref=f196e163] [cursor=pointer]
+              - generic [ref=f196e166]:
+                - generic [ref=f196e167] [cursor=pointer]
+                - generic [ref=f196e168]: 27 Tourism
+                - button "Edit task" [ref=f196e169] [cursor=pointer]
+                - button "Delete task" [ref=f196e173] [cursor=pointer]
+              - generic [ref=f196e176]:
+                - generic [ref=f196e177] [cursor=pointer]
+                - generic [ref=f196e178]: 29 Anti Food Waste
+                - button "Edit task" [ref=f196e179] [cursor=pointer]
+                - button "Delete task" [ref=f196e183] [cursor=pointer]
+              - generic [ref=f196e186]:
+                - generic [ref=f196e187] [cursor=pointer]
+                - generic [ref=f196e190]: 20-gb
+                - button "Edit task" [ref=f196e191] [cursor=pointer]
+                - button "Delete task" [ref=f196e195] [cursor=pointer]
+              - generic [ref=f196e198]:
+                - generic [ref=f196e199] [cursor=pointer]
+                - generic [ref=f196e202]: 22-gb
+                - button "Edit task" [ref=f196e203] [cursor=pointer]
+                - button "Delete task" [ref=f196e207] [cursor=pointer]
+              - generic [ref=f196e210]:
+                - generic [ref=f196e211] [cursor=pointer]
+                - generic [ref=f196e214]: 28-gb-(22-afternoon)
+                - button "Edit task" [ref=f196e215] [cursor=pointer]
+                - button "Delete task" [ref=f196e219] [cursor=pointer]
+              - generic [ref=f196e222]:
+                - generic [ref=f196e223] [cursor=pointer]
+                - generic [ref=f196e224]: 26-gb
+                - button "Edit task" [ref=f196e225] [cursor=pointer]
+                - button "Delete task" [ref=f196e229] [cursor=pointer]
+              - generic [ref=f196e232]:
+                - generic [ref=f196e233] [cursor=pointer]
+                - generic [ref=f196e234]: 30-gb
+                - button "Edit task" [ref=f196e235] [cursor=pointer]
+                - button "Delete task" [ref=f196e239] [cursor=pointer]
+            - button "+ Add task" [ref=f196e242] [cursor=pointer]
+          - generic [ref=f196e244]:
+            - generic [ref=f196e245]:
+              - heading "30 Days Wardrobe 15 items" [level=3] [ref=f196e246]
+              - generic [ref=f196e247]:
+                - generic [ref=f196e248]: Sep 3
+                - button "Edit goal" [ref=f196e249] [cursor=pointer]
+                - button "Delete goal" [ref=f196e253] [cursor=pointer]
+            - paragraph [ref=f196e256]: try capsule wardrobe >>> sergio ines
+            - generic [ref=f196e257]:
+              - generic [ref=f196e258]:
+                - generic [ref=f196e259]: Progress
+                - generic [ref=f196e260]: 30/30 tasks
+              - progressbar [ref=f196e261]
+            - generic [ref=f196e263]:
+              - generic [ref=f196e264]: Week 1
+              - generic [ref=f196e265]:
+                - generic [ref=f196e266] [cursor=pointer]
+                - generic [ref=f196e269]: 01/30
+                - button "Edit task" [ref=f196e270] [cursor=pointer]
+                - button "Delete task" [ref=f196e274] [cursor=pointer]
+              - generic [ref=f196e277]:
+                - generic [ref=f196e278] [cursor=pointer]
+                - generic [ref=f196e281]: 02/30
+                - button "Edit task" [ref=f196e282] [cursor=pointer]
+                - button "Delete task" [ref=f196e286] [cursor=pointer]
+              - generic [ref=f196e289]:
+                - generic [ref=f196e290] [cursor=pointer]
+                - generic [ref=f196e293]: 03/30
+                - button "Edit task" [ref=f196e294] [cursor=pointer]
+                - button "Delete task" [ref=f196e298] [cursor=pointer]
+              - generic [ref=f196e301]:
+                - generic [ref=f196e302] [cursor=pointer]
+                - generic [ref=f196e305]: 04/30
+                - button "Edit task" [ref=f196e306] [cursor=pointer]
+                - button "Delete task" [ref=f196e310] [cursor=pointer]
+              - generic [ref=f196e313]:
+                - generic [ref=f196e314] [cursor=pointer]
+                - generic [ref=f196e317]: 05/30
+                - button "Edit task" [ref=f196e318] [cursor=pointer]
+                - button "Delete task" [ref=f196e322] [cursor=pointer]
+              - generic [ref=f196e325]:
+                - generic [ref=f196e326] [cursor=pointer]
+                - generic [ref=f196e329]: 06/30
+                - button "Edit task" [ref=f196e330] [cursor=pointer]
+                - button "Delete task" [ref=f196e334] [cursor=pointer]
+              - generic [ref=f196e337]:
+                - generic [ref=f196e338] [cursor=pointer]
+                - generic [ref=f196e341]: 07/30
+                - button "Edit task" [ref=f196e342] [cursor=pointer]
+                - button "Delete task" [ref=f196e346] [cursor=pointer]
+              - generic [ref=f196e349]:
+                - generic [ref=f196e350] [cursor=pointer]
+                - generic [ref=f196e353]: 08/30
+                - button "Edit task" [ref=f196e354] [cursor=pointer]
+                - button "Delete task" [ref=f196e358] [cursor=pointer]
+              - generic [ref=f196e361]:
+                - generic [ref=f196e362] [cursor=pointer]
+                - generic [ref=f196e365]: 09/30
+                - button "Edit task" [ref=f196e366] [cursor=pointer]
+                - button "Delete task" [ref=f196e370] [cursor=pointer]
+              - generic [ref=f196e373]:
+                - generic [ref=f196e374] [cursor=pointer]
+                - generic [ref=f196e377]: 10/30
+                - button "Edit task" [ref=f196e378] [cursor=pointer]
+                - button "Delete task" [ref=f196e382] [cursor=pointer]
+              - generic [ref=f196e385]:
+                - generic [ref=f196e386] [cursor=pointer]
+                - generic [ref=f196e389]: 11/30
+                - button "Edit task" [ref=f196e390] [cursor=pointer]
+                - button "Delete task" [ref=f196e394] [cursor=pointer]
+              - generic [ref=f196e397]:
+                - generic [ref=f196e398] [cursor=pointer]
+                - generic [ref=f196e401]: 12/30
+                - button "Edit task" [ref=f196e402] [cursor=pointer]
+                - button "Delete task" [ref=f196e406] [cursor=pointer]
+              - generic [ref=f196e409]:
+                - generic [ref=f196e410] [cursor=pointer]
+                - generic [ref=f196e413]: 13/30
+                - button "Edit task" [ref=f196e414] [cursor=pointer]
+                - button "Delete task" [ref=f196e418] [cursor=pointer]
+              - generic [ref=f196e421]:
+                - generic [ref=f196e422] [cursor=pointer]
+                - generic [ref=f196e425]: 14/30
+                - button "Edit task" [ref=f196e426] [cursor=pointer]
+                - button "Delete task" [ref=f196e430] [cursor=pointer]
+              - generic [ref=f196e433]:
+                - generic [ref=f196e434] [cursor=pointer]
+                - generic [ref=f196e437]: 15/30
+                - button "Edit task" [ref=f196e438] [cursor=pointer]
+                - button "Delete task" [ref=f196e442] [cursor=pointer]
+              - generic [ref=f196e445]:
+                - generic [ref=f196e446] [cursor=pointer]
+                - generic [ref=f196e449]: 16/30
+                - button "Edit task" [ref=f196e450] [cursor=pointer]
+                - button "Delete task" [ref=f196e454] [cursor=pointer]
+              - generic [ref=f196e457]:
+                - generic [ref=f196e458] [cursor=pointer]
+                - generic [ref=f196e461]: 17/30
+                - button "Edit task" [ref=f196e462] [cursor=pointer]
+                - button "Delete task" [ref=f196e466] [cursor=pointer]
+              - generic [ref=f196e469]:
+                - generic [ref=f196e470] [cursor=pointer]
+                - generic [ref=f196e473]: 18/30
+                - button "Edit task" [ref=f196e474] [cursor=pointer]
+                - button "Delete task" [ref=f196e478] [cursor=pointer]
+              - generic [ref=f196e481]:
+                - generic [ref=f196e482] [cursor=pointer]
+                - generic [ref=f196e485]: 19/30
+                - button "Edit task" [ref=f196e486] [cursor=pointer]
+                - button "Delete task" [ref=f196e490] [cursor=pointer]
+              - generic [ref=f196e493]:
+                - generic [ref=f196e494] [cursor=pointer]
+                - generic [ref=f196e497]: 20/30
+                - button "Edit task" [ref=f196e498] [cursor=pointer]
+                - button "Delete task" [ref=f196e502] [cursor=pointer]
+              - generic [ref=f196e505]:
+                - generic [ref=f196e506] [cursor=pointer]
+                - generic [ref=f196e509]: 21/30
+                - button "Edit task" [ref=f196e510] [cursor=pointer]
+                - button "Delete task" [ref=f196e514] [cursor=pointer]
+              - generic [ref=f196e517]:
+                - generic [ref=f196e518] [cursor=pointer]
+                - generic [ref=f196e521]: 22/30
+                - button "Edit task" [ref=f196e522] [cursor=pointer]
+                - button "Delete task" [ref=f196e526] [cursor=pointer]
+              - generic [ref=f196e529]:
+                - generic [ref=f196e530] [cursor=pointer]
+                - generic [ref=f196e533]: 23/30
+                - button "Edit task" [ref=f196e534] [cursor=pointer]
+                - button "Delete task" [ref=f196e538] [cursor=pointer]
+              - generic [ref=f196e541]:
+                - generic [ref=f196e542] [cursor=pointer]
+                - generic [ref=f196e545]: 24/30
+                - button "Edit task" [ref=f196e546] [cursor=pointer]
+                - button "Delete task" [ref=f196e550] [cursor=pointer]
+              - generic [ref=f196e553]:
+                - generic [ref=f196e554] [cursor=pointer]
+                - generic [ref=f196e557]: 25/30
+                - button "Edit task" [ref=f196e558] [cursor=pointer]
+                - button "Delete task" [ref=f196e562] [cursor=pointer]
+              - generic [ref=f196e565]:
+                - generic [ref=f196e566] [cursor=pointer]
+                - generic [ref=f196e569]: 26/30
+                - button "Edit task" [ref=f196e570] [cursor=pointer]
+                - button "Delete task" [ref=f196e574] [cursor=pointer]
+              - generic [ref=f196e577]:
+                - generic [ref=f196e578] [cursor=pointer]
+                - generic [ref=f196e581]: 27/30
+                - button "Edit task" [ref=f196e582] [cursor=pointer]
+                - button "Delete task" [ref=f196e586] [cursor=pointer]
+              - generic [ref=f196e589]:
+                - generic [ref=f196e590] [cursor=pointer]
+                - generic [ref=f196e593]: 28/30
+                - button "Edit task" [ref=f196e594] [cursor=pointer]
+                - button "Delete task" [ref=f196e598] [cursor=pointer]
+              - generic [ref=f196e601]:
+                - generic [ref=f196e602] [cursor=pointer]
+                - generic [ref=f196e605]: 29/30
+                - button "Edit task" [ref=f196e606] [cursor=pointer]
+                - button "Delete task" [ref=f196e610] [cursor=pointer]
+              - generic [ref=f196e613]:
+                - generic [ref=f196e614] [cursor=pointer]
+                - generic [ref=f196e617]: 30/30
+                - button "Edit task" [ref=f196e618] [cursor=pointer]
+                - button "Delete task" [ref=f196e622] [cursor=pointer]
+            - button "+ Add task" [ref=f196e625] [cursor=pointer]
+        - generic [ref=f196e58]:
+          - heading "Calendar" [level=2] [ref=f196e59]
+          - iframe [ref=f196e61]:
+            - generic [ref=f197e3]:
+              - banner [ref=f197e4]:
+                - generic [ref=f197e5]:
+                  - navigation "Date navigation" [ref=f197e7]:
+                    - generic [ref=f197e8]:
+                      - tooltip [aria-hidden] [ref=f197e9]: Thursday, September 24
+                      - generic [ref=f197e10]:
+                        - button "Previous month" [ref=f197e11] [cursor=pointer]
+                        - tooltip [aria-hidden] [ref=f197e17]: Previous month
+                      - generic [ref=f197e18]:
+                        - button "Next month" [ref=f197e19] [cursor=pointer]
+                        - tooltip [aria-hidden] [ref=f197e25]: Next month
+                    - button "September 2026" [ref=f197e30]:
+                      - generic [ref=f197e31]:
+                        - generic [ref=f197e32]: September 2026
+                        - generic [ref=f197e34]: Sep 2026
+                  - generic [ref=f197e38]:
+                    - tooltip [aria-hidden] [ref=f197e39]: Send feedback to Google
+                    - generic [ref=f197e42]:
+                      - button "Select calendar" [ref=f197e43] [cursor=pointer]
+                      - tooltip [aria-hidden] [ref=f197e49]: Select calendar
+                    - tooltip [aria-hidden] [ref=f197e50]: Print my calendar (shows preview in new window)
+                    - navigation "View navigation" [ref=f197e51]:
+                      - button "Month" [ref=f197e54] [cursor=pointer]
+              - main [ref=f197e60]:
+                - generic "September 2026" [ref=f197e62]:
+                  - grid [ref=f197e63]:
+                    - row [ref=f197e64]:
+                      - columnheader "Sunday" [ref=f197e65]:
+                        - generic [aria-hidden] [ref=f197e67]: Sun
+                      - columnheader "Monday" [ref=f197e68]:
+                        - generic [aria-hidden] [ref=f197e70]: Mon
+                      - columnheader "Tuesday" [ref=f197e71]:
+                        - generic [aria-hidden] [ref=f197e73]: Tue
+                      - columnheader "Wednesday" [ref=f197e74]:
+                        - generic [aria-hidden] [ref=f197e76]: Wed
+                      - columnheader "Thursday" [ref=f197e77]:
+                        - generic [aria-hidden] [ref=f197e79]: Thu
+                      - columnheader "Friday" [ref=f197e80]:
+                        - generic [aria-hidden] [ref=f197e82]: Fri
+                      - columnheader "Saturday" [ref=f197e83]:
+                        - generic [aria-hidden] [ref=f197e85]: Sat
+                    - row [ref=f197e86]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f197e95]: "30"
+                        - heading [level=2] [aria-hidden] [ref=f197e96]: "31"
+                        - heading [level=2] [aria-hidden] [ref=f197e97]: Sep 1
+                        - heading [level=2] [aria-hidden] [ref=f197e98]: "2"
+                        - heading [level=2] [aria-hidden] [ref=f197e99]: "3"
+                        - heading [level=2] [aria-hidden] [ref=f197e100]: "4"
+                        - heading [level=2] [aria-hidden] [ref=f197e101]: "5"
+                      - generic [ref=f197e102]:
+                        - gridcell "No events, Sunday, August 30":
+                          - heading "No events, Sunday, August 30" [level=2] [ref=f197e103]
+                        - gridcell "No events, Monday, August 31":
+                          - heading "No events, Monday, August 31" [level=2] [ref=f197e104]
+                        - gridcell "No events, Tuesday, September 1":
+                          - heading "No events, Tuesday, September 1" [level=2] [ref=f197e105]
+                        - gridcell "No events, Wednesday, September 2":
+                          - heading "No events, Wednesday, September 2" [level=2] [ref=f197e106]
+                        - gridcell "No events, Thursday, September 3":
+                          - heading "No events, Thursday, September 3" [level=2] [ref=f197e107]
+                        - gridcell "No events, Friday, September 4":
+                          - heading "No events, Friday, September 4" [level=2] [ref=f197e108]
+                        - gridcell "No events, Saturday, September 5":
+                          - heading "No events, Saturday, September 5" [level=2] [ref=f197e109]
+                    - row [ref=f197e110]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f197e119]: "6"
+                        - heading [level=2] [aria-hidden] [ref=f197e120]: "7"
+                        - heading [level=2] [aria-hidden] [ref=f197e121]: "8"
+                        - heading [level=2] [aria-hidden] [ref=f197e122]: "9"
+                        - heading [level=2] [aria-hidden] [ref=f197e123]: "10"
+                        - heading [level=2] [aria-hidden] [ref=f197e124]: "11"
+                        - heading [level=2] [aria-hidden] [ref=f197e125]: "12"
+                      - generic [ref=f197e126]:
+                        - gridcell "No events, Sunday, September 6":
+                          - heading "No events, Sunday, September 6" [level=2] [ref=f197e127]
+                        - gridcell "No events, Monday, September 7":
+                          - heading "No events, Monday, September 7" [level=2] [ref=f197e128]
+                        - gridcell "No events, Tuesday, September 8":
+                          - heading "No events, Tuesday, September 8" [level=2] [ref=f197e129]
+                        - gridcell "No events, Wednesday, September 9":
+                          - heading "No events, Wednesday, September 9" [level=2] [ref=f197e130]
+                        - gridcell "No events, Thursday, September 10":
+                          - heading "No events, Thursday, September 10" [level=2] [ref=f197e131]
+                        - gridcell "No events, Friday, September 11":
+                          - heading "No events, Friday, September 11" [level=2] [ref=f197e132]
+                        - gridcell "No events, Saturday, September 12":
+                          - heading "No events, Saturday, September 12" [level=2] [ref=f197e133]
+                    - row [ref=f197e134]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f197e143]: "13"
+                        - heading [level=2] [aria-hidden] [ref=f197e144]: "14"
+                        - heading [level=2] [aria-hidden] [ref=f197e145]: "15"
+                        - heading [level=2] [aria-hidden] [ref=f197e146]: "16"
+                        - heading [level=2] [aria-hidden] [ref=f197e147]: "17"
+                        - heading [level=2] [aria-hidden] [ref=f197e148]: "18"
+                        - heading [level=2] [aria-hidden] [ref=f197e149]: "19"
+                      - generic [ref=f197e150]:
+                        - gridcell "No events, Sunday, September 13":
+                          - heading "No events, Sunday, September 13" [level=2] [ref=f197e151]
+                        - gridcell "No events, Monday, September 14":
+                          - heading "No events, Monday, September 14" [level=2] [ref=f197e152]
+                        - gridcell "No events, Tuesday, September 15":
+                          - heading "No events, Tuesday, September 15" [level=2] [ref=f197e153]
+                        - gridcell "No events, Wednesday, September 16":
+                          - heading "No events, Wednesday, September 16" [level=2] [ref=f197e154]
+                        - gridcell "No events, Thursday, September 17":
+                          - heading "No events, Thursday, September 17" [level=2] [ref=f197e155]
+                        - gridcell "No events, Friday, September 18":
+                          - heading "No events, Friday, September 18" [level=2] [ref=f197e156]
+                        - gridcell "No events, Saturday, September 19":
+                          - heading "No events, Saturday, September 19" [level=2] [ref=f197e157]
+                    - row [ref=f197e158]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f197e167]: "20"
+                        - heading [level=2] [aria-hidden] [ref=f197e168]: "21"
+                        - heading [level=2] [aria-hidden] [ref=f197e169]: "22"
+                        - heading [level=2] [aria-hidden] [ref=f197e170]: "23"
+                        - heading [level=2] [aria-hidden] [ref=f197e171]: "24"
+                        - heading [level=2] [aria-hidden] [ref=f197e172]: "25"
+                        - heading [level=2] [aria-hidden] [ref=f197e173]: "26"
+                      - generic [ref=f197e174]:
+                        - gridcell "No events, Sunday, September 20":
+                          - heading "No events, Sunday, September 20" [level=2] [ref=f197e175]
+                        - gridcell "No events, Monday, September 21":
+                          - heading "No events, Monday, September 21" [level=2] [ref=f197e176]
+                        - gridcell "No events, Tuesday, September 22":
+                          - heading "No events, Tuesday, September 22" [level=2] [ref=f197e177]
+                        - gridcell "No events, Wednesday, September 23":
+                          - heading "No events, Wednesday, September 23" [level=2] [ref=f197e178]
+                        - gridcell "No events, Thursday, September 24, today":
+                          - heading "No events, Thursday, September 24, today" [level=2] [ref=f197e179]
+                        - gridcell "No events, Friday, September 25":
+                          - heading "No events, Friday, September 25" [level=2] [ref=f197e180]
+                        - gridcell "No events, Saturday, September 26":
+                          - heading "No events, Saturday, September 26" [level=2] [ref=f197e181]
+                    - row [ref=f197e182]:
+                      - generic [aria-hidden]:
+                        - heading [level=2] [aria-hidden] [ref=f197e191]: "27"
+                        - heading [level=2] [aria-hidden] [ref=f197e192]: "28"
+                        - heading [level=2] [aria-hidden] [ref=f197e193]: "29"
+                        - heading [level=2] [aria-hidden] [ref=f197e194]: "30"
+                        - heading [level=2] [aria-hidden] [ref=f197e195]: Oct 1
+                        - heading [level=2] [aria-hidden] [ref=f197e196]: "2"
+                        - heading [level=2] [aria-hidden] [ref=f197e197]: "3"
+                      - generic [ref=f197e198]:
+                        - gridcell "No events, Sunday, September 27":
+                          - heading "No events, Sunday, September 27" [level=2] [ref=f197e199]
+                        - gridcell "No events, Monday, September 28":
+                          - heading "No events, Monday, September 28" [level=2] [ref=f197e200]
+                        - gridcell "No events, Tuesday, September 29":
+                          - heading "No events, Tuesday, September 29" [level=2] [ref=f197e201]
+                        - gridcell "No events, Wednesday, September 30":
+                          - heading "No events, Wednesday, September 30" [level=2] [ref=f197e202]
+                        - gridcell "No events, Thursday, October 1":
+                          - heading "No events, Thursday, October 1" [level=2] [ref=f197e203]
+                        - gridcell "No events, Friday, October 2":
+                          - heading "No events, Friday, October 2" [level=2] [ref=f197e204]
+                        - gridcell "No events, Saturday, October 3":
+                          - heading "No events, Saturday, October 3" [level=2] [ref=f197e205]
+              - contentinfo [ref=f197e206]:
+                - generic [ref=f197e207]:
+                  - generic [ref=f197e208]: Interestory
+                  - generic [ref=f197e210]:
+                    - text: GMT+07
+                    - generic [ref=f197e211]: "Events shown in time zone: (GMT+07:00) Western Indonesia Time - Jakarta"
+                  - generic [ref=f197e212]:
+                    - button "Add to Google Calendar (opens a new tab)" [ref=f197e213] [cursor=pointer]
+                    - tooltip [aria-hidden] [ref=f197e219]: Add to Google Calendar (opens a new tab)
+    - navigation [ref=f196e62]:
+      - button "Home" [ref=f196e63] [cursor=pointer]
+      - button "Gallery" [ref=f196e67] [cursor=pointer]
+      - button "Log activity" [ref=f196e73] [cursor=pointer]
+      - button "Stats" [ref=f196e76] [cursor=pointer]
+      - button "Explore hobbies" [ref=f196e79] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=f196e626]

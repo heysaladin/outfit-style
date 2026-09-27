@@ -1245,3 +1245,79 @@ export async function deleteFamilySchedule(id: string): Promise<{ error?: string
   revalidatePath('/family')
   return {}
 }
+
+// ─── Lookbook ─────────────────────────────────────────────────────────────
+
+export async function createLookbook(name: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated.' }
+  const { error } = await supabase.from('lookbooks').insert({ name, user_id: user.id })
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function renameLookbook(id: string, name: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbooks').update({ name }).eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function setLookbookTag(id: string, tag: string | null): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbooks').update({ tag }).eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function deleteLookbook(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbooks').delete().eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function addLookbookPhoto(lookbookId: string, imageUrl: string, caption?: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbook_photos').insert({ lookbook_id: lookbookId, image_url: imageUrl, caption: caption ?? null })
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function updateLookbookPhoto(id: string, imageUrl: string, caption?: string, tag?: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbook_photos').update({ image_url: imageUrl, caption: caption ?? null, tag: tag ?? null }).eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function deleteLookbookPhoto(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbook_photos').delete().eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function linkOutfitToPhoto(photoId: string, outfitId: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbook_photo_outfits').upsert({ lookbook_photo_id: photoId, outfit_id: outfitId })
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}
+
+export async function unlinkOutfitFromPhoto(photoId: string, outfitId: string): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('lookbook_photo_outfits').delete().eq('lookbook_photo_id', photoId).eq('outfit_id', outfitId)
+  if (error) return { error: error.message }
+  revalidatePath('/outfits')
+  return {}
+}

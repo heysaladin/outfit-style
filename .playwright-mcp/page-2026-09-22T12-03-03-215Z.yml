@@ -1,0 +1,54 @@
+- generic [ref=f138e3]:
+  - banner [ref=f138e4]:
+    - heading "Weekly Plan" [level=1] [ref=f138e5]
+    - generic [ref=f138e6]:
+      - button [ref=f138e7]
+      - generic [ref=f138e10]: Sep 21 – Sep 27
+      - button [ref=f138e11]
+  - generic [ref=f138e14]:
+    - generic [ref=f138e15]:
+      - generic [ref=f138e16]:
+        - paragraph [ref=f138e17]: Mon
+        - paragraph [ref=f138e18]: Sep 21
+      - button [ref=f138e20]
+    - generic [ref=f138e22]:
+      - generic [ref=f138e23]:
+        - paragraph [ref=f138e24]: Tue
+        - paragraph [ref=f138e25]: Sep 22
+      - button [ref=f138e28]
+    - generic [ref=f138e30]:
+      - generic [ref=f138e31]:
+        - paragraph [ref=f138e32]: Wed
+        - paragraph [ref=f138e33]: Sep 23
+      - button [ref=f138e35]
+    - generic [ref=f138e37]:
+      - generic [ref=f138e38]:
+        - paragraph [ref=f138e39]: Thu
+        - paragraph [ref=f138e40]: Sep 24
+      - button [ref=f138e42]
+    - generic [ref=f138e44]:
+      - generic [ref=f138e45]:
+        - paragraph [ref=f138e46]: Fri
+        - paragraph [ref=f138e47]: Sep 25
+      - button [ref=f138e49]
+    - generic [ref=f138e51]:
+      - generic [ref=f138e52]:
+        - paragraph [ref=f138e53]: Sat
+        - paragraph [ref=f138e54]: Sep 26
+      - button [ref=f138e56]
+    - generic [ref=f138e58]:
+      - generic [ref=f138e59]:
+        - paragraph [ref=f138e60]: Sun
+        - paragraph [ref=f138e61]: Sep 27
+      - button [ref=f138e63]
+  - navigation [ref=f138e65]:
+    - link "Closet" [ref=f138e66] [cursor=pointer]:
+      - /url: /ofit
+    - link "Wardrobes" [ref=f138e73] [cursor=pointer]:
+      - /url: /wardrobes
+    - link "Outfits" [ref=f138e78] [cursor=pointer]:
+      - /url: /outfits
+    - link "Calendar" [ref=f138e84] [cursor=pointer]:
+      - /url: /calendar
+    - link "Stats" [ref=f138e88] [cursor=pointer]:
+      - /url: /stats

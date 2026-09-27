@@ -15,7 +15,8 @@ import {
   createWardrobeCollection, updateWardrobeCollection, deleteWardrobeCollection, useCollectionItems,
   reorderOutfitItems, reorderCollectionItems, reorderCollections,
 } from '@/app/actions'
-import type { Outfit, OutfitLog, WardrobeCollection, WardrobeItem } from '@/lib/types'
+import type { Outfit, OutfitLog, WardrobeCollection, WardrobeItem, Lookbook } from '@/lib/types'
+import { LookbookTab } from './LookbookTab'
 import { BottomNav } from '@/components/BottomNav'
 import { OCCASIONS } from '@/lib/types'
 import { UserAvatarMenu } from '@/components/UserAvatarMenu'
@@ -28,6 +29,7 @@ interface OutfitsClientProps {
   allItems: WardrobeItem[]
   wardrobeCollections: WardrobeCollection[]
   logs: OutfitLog[]
+  lookbooks: Lookbook[]
 }
 
 function OutfitCollage({ items }: { items: WardrobeItem[] }) {
@@ -262,8 +264,9 @@ function OutfitCard({
   )
 }
 
-export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: OutfitsClientProps) {
-  const [view, setView] = useState<'outfits' | 'wardrobes'>('outfits')
+export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lookbooks }: OutfitsClientProps) {
+  const [view, setView] = useState<'outfits' | 'wardrobes' | 'lookbook'>('outfits')
+  const [lbCreating, setLbCreating] = useState(false)
 
   // ── Outfit state ──────────────────────────────────────────────────────────
   const [creating, setCreating]             = useState(false)
@@ -487,9 +490,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: 
           </div>
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => view === 'outfits' ? setCreating(true) : setWcCreating(true)}
+              onClick={() => view === 'outfits' ? setCreating(true) : view === 'wardrobes' ? setWcCreating(true) : setLbCreating(true)}
               title="Add"
-              aria-label={view === 'outfits' ? 'Tambah outfit' : 'Tambah koleksi'}
+              aria-label={view === 'outfits' ? 'Tambah outfit' : view === 'wardrobes' ? 'Tambah koleksi' : 'Tambah lookbook'}
               className="w-9 h-9 rounded-full bg-[#EEF040] text-neutral-950 flex items-center justify-center shrink-0"
             >
               <Plus size={16} strokeWidth={2} />
@@ -500,15 +503,14 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: 
 
         <div className="pt-7 px-2 flex flex-col gap-2">
           <p className="text-sm font-medium uppercase tracking-[1.5px] text-neutral-400">
-            {view === 'outfits' ? `${outfits.length} saved` : `${wardrobeCollections.length} collections`}
+            {view === 'outfits' ? `${outfits.length} saved` : view === 'wardrobes' ? `${wardrobeCollections.length} collections` : `${lookbooks.length} lookbooks`}
           </p>
           <h1 className="text-[30px] leading-[30px] tracking-[-1px] font-semibold text-neutral-50">Outfits</h1>
         </div>
       </div>
 
       <div
-        className="-mt-[22px] mx-4 relative h-11 p-1 rounded-full bg-neutral-800 grid gap-1 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
-        style={{ gridTemplateColumns: '1fr 1.6fr' }}
+        className="-mt-[22px] mx-4 relative h-11 p-1 rounded-full bg-neutral-800 grid grid-cols-3 gap-1 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
       >
         <button
           onClick={() => setView('outfits')}
@@ -518,9 +520,15 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: 
         </button>
         <button
           onClick={() => setView('wardrobes')}
-          className={cn('rounded-full text-sm font-semibold whitespace-nowrap transition-colors', view === 'wardrobes' ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400')}
+          className={cn('rounded-full text-xs font-semibold whitespace-nowrap transition-colors', view === 'wardrobes' ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400')}
         >
-          Collection (Wardrobe)
+          Collection
+        </button>
+        <button
+          onClick={() => setView('lookbook')}
+          className={cn('rounded-full text-sm font-semibold whitespace-nowrap transition-colors', view === 'lookbook' ? 'bg-[#EEF040] text-neutral-950' : 'text-neutral-400')}
+        >
+          Lookbook
         </button>
       </div>
 
@@ -586,6 +594,16 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs }: 
             </SortableContext>
           </DndContext>
         )
+      )}
+
+      {/* ── Lookbook view ────────────────────────────────────────────────── */}
+      {view === 'lookbook' && (
+        <LookbookTab
+          lookbooks={lookbooks}
+          outfits={outfits}
+          creating={lbCreating}
+          onCreateClose={() => setLbCreating(false)}
+        />
       )}
 
       <BottomNav />

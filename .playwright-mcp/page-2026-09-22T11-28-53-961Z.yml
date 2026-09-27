@@ -1,0 +1,29 @@
+- generic [ref=f8e3]:
+  - banner [ref=f8e4]:
+    - button [ref=f8e5]
+    - generic [ref=f8e8]:
+      - heading "Family" [level=1] [ref=f8e9]
+      - text: Embun · Langit · Senja
+  - generic [ref=f8e10]:
+    - button "Embun" [ref=f8e11]
+    - button "Langit" [ref=f8e12]
+    - button "Senja" [ref=f8e13]
+  - generic [ref=f8e14]:
+    - generic [ref=f8e15]:
+      - generic [ref=f8e16]: 🌿
+      - generic [ref=f8e17]:
+        - generic [ref=f8e18]: Embun
+        - generic [ref=f8e19]: PAUD
+    - generic [ref=f8e20]:
+      - button "Sen" [ref=f8e21]
+      - button "Sel" [ref=f8e22]
+      - button "Rab" [ref=f8e23]
+      - button "Kam" [ref=f8e24]
+      - button "Jum" [ref=f8e25]
+    - generic [ref=f8e26]:
+      - generic [ref=f8e27] [cursor=pointer]:
+        - generic [ref=f8e28]:
+          - generic [ref=f8e29]: 08:00
+          - generic [ref=f8e30]: 09:00
+        - paragraph [ref=f8e32]: PAUD
+      - button "Tambah pelajaran" [ref=f8e35]

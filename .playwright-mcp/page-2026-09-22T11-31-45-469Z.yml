@@ -1,0 +1,21 @@
+- generic [ref=f65e1]:
+  - generic [ref=f65e3]:
+    - banner [ref=f65e4]:
+      - button [ref=f65e5]
+      - generic [ref=f65e8]:
+        - heading "Family" [level=1] [ref=f65e9]
+        - text: Embun · Langit · Senja
+    - generic [ref=f65e10]:
+      - button "Embun" [ref=f65e11]
+      - button "Langit" [active] [ref=f65e12]
+      - button "Senja" [ref=f65e13]
+    - generic [ref=f65e14]:
+      - generic [ref=f65e15]:
+        - generic [ref=f65e16]: ☁️
+        - generic [ref=f65e17]:
+          - generic [ref=f65e18]: Langit
+          - generic [ref=f65e19]: Belum sekolah
+      - generic [ref=f65e37]:
+        - generic [ref=f65e38]: ☁️
+        - paragraph [ref=f65e39]: Belum ada jadwal sekolah
+  - alert [ref=f65e40]
