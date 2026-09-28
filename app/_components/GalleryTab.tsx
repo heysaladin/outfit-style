@@ -165,9 +165,11 @@ const GalleryTab = React.memo(function GalleryTab({
                     <p className="m-0 text-para-xs font-medium mt-0.5" style={{ color: '#78716C' }}>
                       {wi.category} · {formatDateLabel(wi.last_worn!, now)}
                     </p>
-                    <p className="m-0 text-para-xs font-medium mt-1" style={{ color: '#92400E' }}>
-                      Selamat! Item ini sudah mencapai batas worth it 🎉
-                    </p>
+                    {wi.item_type !== 'underwear' && (
+                      <p className="m-0 text-para-xs font-medium mt-1" style={{ color: '#92400E' }}>
+                        Selamat! Item ini sudah mencapai batas worth it 🎉
+                      </p>
+                    )}
                   </div>
                 </div>
               </Link>
