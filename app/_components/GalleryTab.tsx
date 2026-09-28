@@ -60,7 +60,7 @@ const GalleryTab = React.memo(function GalleryTab({
         return { type: 'photo' as const, date: linked?.activity_at ?? p.created_at, photo: p }
       }),
       ...noPhotoActs.map(a => ({ type: 'activity' as const, date: a.activity_at, act: a })),
-      ...worthItItems.filter(i => i.last_worn).map(i => ({ type: 'worth_it' as const, date: i.last_worn!, item: i })),
+      ...worthItItems.filter(i => i.last_worn && i.item_type !== 'underwear').map(i => ({ type: 'worth_it' as const, date: i.last_worn!, item: i })),
     ].sort((a, b) => b.date.localeCompare(a.date))
   }, [photos, activities, worthItItems])
 
