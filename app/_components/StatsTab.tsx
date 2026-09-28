@@ -161,7 +161,7 @@ const StatsTab = React.memo(function StatsTab({
 
         {fashionActivityCount > 0 && (
           <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">FA</div>
+            <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center shrink-0 text-base">👔</div>
             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-foreground">Fashion</span>
@@ -178,7 +178,7 @@ const StatsTab = React.memo(function StatsTab({
           <div className="grid grid-cols-2 gap-4">
             {workoutActivityCount > 0 && (
               <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">WO</div>
+                <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center shrink-0 text-base">🏋️</div>
                 <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                   <div className="flex justify-between">
                     <span className="text-sm font-medium text-foreground">Workout</span>
@@ -192,7 +192,7 @@ const StatsTab = React.memo(function StatsTab({
             )}
             {readingActivityCount > 0 && (
               <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">RE</div>
+                <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center shrink-0 text-base">📚</div>
                 <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                   <div className="flex justify-between">
                     <span className="text-sm font-medium text-foreground">Reading</span>
@@ -214,11 +214,10 @@ const StatsTab = React.memo(function StatsTab({
               {hobbiesByActivity.map((h, i, arr) => {
                 const maxC = arr[0].count
                 const pct = maxC > 0 ? (h.count / maxC) * 100 : 0
-                const initials = h.label.slice(0, 2).toUpperCase()
                 return (
                   <div key={h.value} className={`px-4 py-3 flex items-center gap-3 ${i < arr.length - 1 ? 'border-b border-border' : ''}`}>
-                    <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">
-                      {initials}
+                    <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center shrink-0 text-base">
+                      {h.icon}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                       <div className="flex justify-between">
@@ -238,7 +237,7 @@ const StatsTab = React.memo(function StatsTab({
 
         {socialActivityCount > 0 && (
           <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">LI</div>
+            <div className="w-8 h-8 rounded-lg bg-neutral-950 flex items-center justify-center shrink-0 text-base">👥</div>
             <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-foreground">Life</span>

@@ -138,11 +138,12 @@ export default function Home() {
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
         supabase.from('hobby_items').select('category, use_count, purchase_price'),
         supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
-        supabase.from('wardrobe_items').select('id,name,category,price,purchase_date,wear_count,target,image_url,last_worn,status').eq('user_id', u.id).eq('status', 'verified').gt('wear_count', 0),
+        supabase.from('wardrobe_items').select('id,name,category,item_type,price,purchase_date,wear_count,target,image_url,last_worn,status').eq('user_id', u.id).eq('status', 'verified').gt('wear_count', 0),
       ])
       setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
       const worthIt = (wardrobeData ?? []).filter(item => {
+        if (item.item_type === 'underwear') return false
         const { isWorthIt, targetUses } = calcWorthIt({ purchasePrice: item.price, actualUses: item.wear_count, targetOverride: item.target })
         return isWorthIt && item.last_worn && item.wear_count === targetUses
       }) as unknown as WardrobeItem[]
