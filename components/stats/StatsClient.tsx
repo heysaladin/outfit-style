@@ -38,17 +38,14 @@ export function StatsClient({ items }: StatsClientProps) {
     }
   }
   const total       = items.length
-  const worn        = items.filter(i => i.wear_count > 0)
-  const idleItems   = items.filter(i => !i.last_worn || daysDiff(i.last_worn) > 90)
+  const totalWears  = items.reduce((s, i) => s + i.wear_count, 0)
+  const neverWorn   = items.filter(i => i.wear_count === 0)
   const latestUsed  = [...items].filter(i => i.last_worn).sort((a, b) => new Date(b.last_worn!).getTime() - new Date(a.last_worn!).getTime()).slice(0, 8)
   const mostWorn    = [...items].sort((a, b) => b.wear_count - a.wear_count).slice(0, 5)
   const leastWorn   = [...items].filter(i => i.wear_count > 0).sort((a, b) => a.wear_count - b.wear_count).slice(0, 5)
   const withPrice   = items.filter(i => i.price && i.wear_count > 0)
     .map(i => ({ ...i, cpw: i.price! / i.wear_count }))
     .sort((a, b) => a.cpw - b.cpw)
-
-  const itemsWornPct  = total > 0 ? Math.round((worn.length / total) * 100) : 0
-  const avgPerWear    = withPrice.length > 0 ? withPrice.reduce((s, i) => s + i.cpw, 0) / withPrice.length : 0
 
   const byCategory = CATEGORY_TREE
     .filter(cat => cat.value !== 'fashion')
@@ -97,9 +94,9 @@ export function StatsClient({ items }: StatsClientProps) {
 
       <div className="-mt-[34px] mx-3 relative bg-neutral-800 rounded-xl px-4 py-3.5 grid grid-cols-3 gap-3 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]">
         {[
-          { label: 'Items worn', value: `${itemsWornPct}%` },
-          { label: 'Avg per wear', value: avgPerWear > 0 ? formatIDRCompact(avgPerWear) : '—' },
-          { label: 'Idle', value: idleItems.length },
+          { label: 'Items', value: total },
+          { label: 'Total wears', value: totalWears },
+          { label: 'Never worn', value: neverWorn.length },
         ].map(stat => (
           <div key={stat.label} className="flex flex-col gap-0.5 min-w-0">
             <span className="text-2xl font-semibold tracking-[-0.5px] font-mono text-neutral-50 truncate">{stat.value}</span>
@@ -173,6 +170,20 @@ export function StatsClient({ items }: StatsClientProps) {
             <div className="border border-border rounded-xl flex flex-col">
               {leastWorn.map((item, idx, arr) => (
                 <ItemRow key={item.id} item={item} rank={idx + 1} showBorder={idx < arr.length - 1} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Never worn */}
+        {neverWorn.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-xl font-semibold text-foreground">Never worn ({neverWorn.length})</h2>
+            <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+              {neverWorn.map(item => (
+                <div key={item.id} className="flex-shrink-0 w-20 aspect-[3/4] rounded-xl overflow-hidden border border-border relative">
+                  <Image src={item.image_url} alt={item.name} fill className="object-cover" sizes="80px" />
+                </div>
               ))}
             </div>
           </section>
