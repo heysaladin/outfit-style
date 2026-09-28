@@ -45,6 +45,10 @@ const StatsTab = React.memo(function StatsTab({
   activities,
   streak,
   totalPoints,
+  fashionActivityCount,
+  socialActivityCount,
+  readingActivityCount,
+  workoutActivityCount,
   hobbiesByActivity,
   now,
 }: StatsTabProps) {
@@ -126,7 +130,7 @@ const StatsTab = React.memo(function StatsTab({
         ))}
       </div>
 
-      <div className="px-5 pt-7 pb-28 flex flex-col gap-6">
+      <div className="px-5 pt-7 pb-28 flex flex-col gap-4">
         <div className="border border-border rounded-xl p-4 flex flex-col gap-3">
           <div className="flex justify-between items-baseline">
             <span className="text-sm text-neutral-500">Activities per week</span>
@@ -155,6 +159,54 @@ const StatsTab = React.memo(function StatsTab({
           </div>
         </div>
 
+        {fashionActivityCount > 0 && (
+          <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">FA</div>
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-foreground">Fashion</span>
+                <span className="text-sm font-mono text-neutral-500">{fashionActivityCount}</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-foreground rounded-full" style={{ width: '100%' }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(workoutActivityCount > 0 || readingActivityCount > 0) && (
+          <div className="grid grid-cols-2 gap-4">
+            {workoutActivityCount > 0 && (
+              <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">WO</div>
+                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-foreground">Workout</span>
+                    <span className="text-sm font-mono text-neutral-500">{workoutActivityCount}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-foreground rounded-full" style={{ width: '100%' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            {readingActivityCount > 0 && (
+              <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">RE</div>
+                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-foreground">Reading</span>
+                    <span className="text-sm font-mono text-neutral-500">{readingActivityCount}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-foreground rounded-full" style={{ width: '100%' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {hobbiesByActivity.length > 0 && (
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-semibold text-foreground">By interest</h2>
@@ -180,6 +232,21 @@ const StatsTab = React.memo(function StatsTab({
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {socialActivityCount > 0 && (
+          <div className="border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-neutral-950 text-[#EEF040] text-xs font-semibold flex items-center justify-center shrink-0">LI</div>
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-foreground">Life</span>
+                <span className="text-sm font-mono text-neutral-500">{socialActivityCount}</span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-foreground rounded-full" style={{ width: '100%' }} />
+              </div>
             </div>
           </div>
         )}

@@ -326,15 +326,11 @@ export default function Home() {
   const readingActivityCount = useMemo(() => activities.filter(a => a.hobby === 'reading').length, [activities])
   const workoutActivityCount = useMemo(() => activities.filter(a => a.hobby === 'workout').length, [activities])
 
-  const hobbiesByActivity = useMemo(() => {
-    const hobbyEntries: { value: string; label: string; icon: string; category: string; count: number }[] =
-      HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
-        ...h, count: activities.filter(a => a.hobby === h.value).length,
-      }))
-    const fashionCount = activities.filter(a => a.hobby === 'fashion').length
-    if (fashionCount > 0) hobbyEntries.push({ value: 'fashion', label: 'Fashion', icon: '👗', category: 'lifestyle', count: fashionCount })
-    return hobbyEntries.sort((a, b) => b.count - a.count).filter(h => h.count > 0)
-  }, [activities])
+  const hobbiesByActivity = useMemo(() =>
+    HOBBIES.filter(h => !['social', 'reading', 'workout'].includes(h.value)).map(h => ({
+      ...h, count: activities.filter(a => a.hobby === h.value).length,
+    })).sort((a, b) => b.count - a.count).filter(h => h.count > 0),
+  [activities])
 
   async function toBase64(url: string): Promise<string> {
     try {
