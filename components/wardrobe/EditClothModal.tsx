@@ -3,6 +3,7 @@
 import { useTransition, useRef, useState } from 'react'
 import { X, ChevronDown, ChevronUp, Camera, Link } from 'lucide-react'
 import { updateItem } from '@/app/actions'
+import { TagInput } from './TagInput'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef, getSubcategoryDef, type WardrobeItem } from '@/lib/types'
 
 interface EditClothModalProps {
@@ -304,9 +305,7 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
               </div>
 
               {/* Tags */}
-              <input type="text" name="tags" placeholder="Tags: vintage, oversized, fav… (comma separated)"
-                defaultValue={item.tags?.join(', ') ?? ''}
-                className={inputCls} />
+              <TagInput name="tags" defaultValue={item.tags ?? []} placeholder="Tags: vintage, oversized, fav…" />
             </div>
           )}
 

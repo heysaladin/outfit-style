@@ -3,6 +3,7 @@
 import { useTransition, useRef, useState } from 'react'
 import { X, ImagePlus, ChevronDown, ChevronUp, Link } from 'lucide-react'
 import { uploadItem } from '@/app/actions'
+import { TagInput } from './TagInput'
 import { CATEGORY_TREE, COLORS, SEASONS, OCCASIONS, getCategoryDef, getSubcategoryDef } from '@/lib/types'
 
 interface UploadModalProps {
@@ -314,8 +315,7 @@ export function UploadModal({ open, onClose }: UploadModalProps) {
               </div>
 
               {/* Tags */}
-              <input type="text" name="tags" placeholder="Tags: vintage, oversized, fav… (comma separated)"
-                className={inputCls} />
+              <TagInput name="tags" placeholder="Tags: vintage, oversized, fav…" />
             </div>
           )}
 
