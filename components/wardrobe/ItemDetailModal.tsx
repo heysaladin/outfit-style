@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition, useState } from 'react'
+import { useTransition, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { X, Trash2, ShirtIcon, Tag, Package2, Pencil, CheckCircle2, Search } from 'lucide-react'
@@ -26,6 +26,11 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
 
   const [wearCount, setWearCount] = useState(item?.wear_count ?? 0)
   const [lastWorn, setLastWorn]   = useState(item?.last_worn ?? null)
+
+  useEffect(() => {
+    setWearCount(item?.wear_count ?? 0)
+    setLastWorn(item?.last_worn ?? null)
+  }, [item?.id])
   const [editUsesOpen, setEditUsesOpen]     = useState(false)
   const [editUsesCount, setEditUsesCount]   = useState<string>(String(item?.wear_count ?? 0))
   const [editUsesPending, setEditUsesPending] = useState(false)
@@ -232,7 +237,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
               <WorthCard
                 purchasePrice={item.price}
                 purchaseDate={item.purchase_date}
-                totalUses={item.wear_count}
+                totalUses={wearCount}
               />
 
               {/* Use bar */}
