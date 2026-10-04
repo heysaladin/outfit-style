@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft, CalendarDays } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -242,14 +242,20 @@ function OutfitCard({
   lastUsed: string | null
   onPress: () => void
 }) {
+  const worn = useCount > 0
   return (
     <button
       onClick={onPress}
       aria-label={outfit.name}
       className="border border-border rounded-xl overflow-hidden flex flex-col min-w-0 text-left bg-card"
     >
-      <div className="aspect-square w-full bg-muted border-b border-border">
+      <div className="aspect-square w-full bg-muted border-b border-border relative">
         <OutfitThumbCollage items={items} />
+        {worn && (
+          <div className="absolute bottom-1.5 right-1.5 bg-foreground text-background rounded-full p-0.5">
+            <CheckCircle2 size={13} strokeWidth={2.5} />
+          </div>
+        )}
       </div>
       <div className="px-3 pt-2.5 pb-3 flex flex-col min-w-0">
         <p className="text-sm font-medium truncate text-foreground">{outfit.name}</p>
@@ -257,7 +263,9 @@ function OutfitCard({
           <span className="text-xs text-muted-foreground truncate">
             {items.length} item{items.length !== 1 ? 's' : ''}{lastUsed ? ` · ${formatDateLabel(lastUsed)}` : ''}
           </span>
-          <span className="text-xs font-mono text-neutral-500 shrink-0">{useCount}×</span>
+          <span className={cn('text-xs font-mono shrink-0', worn ? 'text-foreground font-semibold' : 'text-neutral-400')}>
+            {useCount}×
+          </span>
         </div>
       </div>
     </button>
@@ -470,6 +478,8 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
     if (!log.outfit_id) continue
     logsByOutfit.set(log.outfit_id, [...(logsByOutfit.get(log.outfit_id) ?? []), log])
   }
+
+  const detailLogs = detail ? [...(logsByOutfit.get(detail.id) ?? [])].sort((a, b) => b.date.localeCompare(a.date)) : []
 
   return (
     <div className="h-dvh overflow-y-auto bg-background pb-24">
@@ -700,6 +710,22 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
                   </div>
                 </SortableContext>
               </DndContext>
+              {detailLogs.length > 0 && (
+                <div className="bg-muted rounded-xl px-4 py-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-foreground">
+                      <CalendarDays size={13} strokeWidth={2.5} />
+                      <span className="text-xs font-bold uppercase tracking-wider">Riwayat Pakai</span>
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">{detailLogs.length}×</span>
+                  </div>
+                  <div className="space-y-1">
+                    {detailLogs.map(log => (
+                      <p key={log.id} className="text-xs text-muted-foreground">{formatDateLabel(log.date)}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
               <button onClick={() => setPosting(true)} disabled={isPending}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl text-sm disabled:opacity-40 hover:opacity-90 transition-opacity">
                 <Share2 size={15} />
