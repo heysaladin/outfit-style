@@ -54,7 +54,7 @@ export function ItemCard({ item, onClick, selected, selectable, onVerify, onTras
       }`}>
         <div className={`relative aspect-square w-full bg-muted border-b border-border ${dimmed ? 'opacity-50' : ''}`}>
           <button onClick={onClick} className="absolute inset-0 w-full h-full block" aria-label={item.name}>
-            {src && <Image src={src} alt={item.name} fill className="object-contain mix-blend-multiply dark:mix-blend-normal" sizes="(max-width: 768px) 50vw, 25vw" unoptimized={!src.includes('supabase.co')} />}
+            {src && <Image src={src} alt={item.name} fill className="object-contain mix-blend-multiply dark:mix-blend-normal" sizes="(max-width: 768px) 50vw, 25vw" />}
           </button>
 
           {/* Status badge */}

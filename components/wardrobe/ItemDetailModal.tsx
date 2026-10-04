@@ -118,7 +118,7 @@ export function ItemDetailModal({ item, wardrobes, user, onClose }: ItemDetailMo
 
         {/* Image */}
         <div className="mx-4 mt-1 aspect-square rounded-xl overflow-hidden bg-muted relative">
-          <Image src={item.image_url} alt={item.name} fill className="object-contain" sizes="(max-width: 430px) 100vw, 430px" />
+          <Image src={item.image_url} alt={item.name} fill className="object-contain" sizes="(max-width: 430px) 100vw, 430px" unoptimized={!item.image_url.includes('supabase.co')} />
         </div>
 
         {/* Name / meta */}
