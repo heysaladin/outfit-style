@@ -103,7 +103,7 @@ export function FashionItemDetailClient({ item, user }: Props) {
         {/* Hero image */}
         {item.image_url && (
           <div className="rounded-[28px] overflow-hidden mb-0 bg-card">
-            <Image src={item.image_url} alt={item.name} width={800} height={800} className="w-full block object-contain" style={{ height: 'auto' }} sizes="(max-width: 768px) 100vw, 50vw" />
+            <Image src={item.image_url} alt={item.name} width={800} height={800} className="w-full block object-contain" style={{ height: 'auto' }} sizes="(max-width: 768px) 100vw, 50vw" unoptimized={!item.image_url.includes('supabase.co')} />
           </div>
         )}
 

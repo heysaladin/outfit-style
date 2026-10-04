@@ -29,8 +29,9 @@ export function EditClothModal({ item, onClose }: EditClothModalProps) {
   const [error, setError] = useState('')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imageUrlInput, setImageUrlInput] = useState('')
-  const [showUrlInput, setShowUrlInput] = useState(false)
+  const isExternalUrl = !!(item.image_url && !item.image_url.includes('supabase.co'))
+  const [imageUrlInput, setImageUrlInput] = useState(isExternalUrl ? (item.image_url ?? '') : '')
+  const [showUrlInput, setShowUrlInput] = useState(isExternalUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
