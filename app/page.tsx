@@ -63,6 +63,9 @@ export default function Home() {
   const [totalPoints, setTotalPoints] = useState(0)
   const [gearCounts, setGearCounts] = useState<Record<string, number>>({})
   const [hobbyProgress, setHobbyProgress] = useState<Record<string, number>>({})
+  const [fashionTotalInvested, setFashionTotalInvested] = useState(0)
+  const [fashionWorthItAccum, setFashionWorthItAccum] = useState(0)
+  const [fashionProgressWorth, setFashionProgressWorth] = useState(0)
 
   // Search
   const [searchQ, setSearchQ] = useState('')
@@ -133,12 +136,13 @@ export default function Home() {
       const u = data.user
       setUser(u)
       if (!u) return
-      const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }, { data: wardrobeData }] = await Promise.all([
+      const [{ data: acts }, { data: pics }, { data: gear }, { count: wardrobeCount }, { data: wardrobeData }, { data: allPricedItems }] = await Promise.all([
         supabase.from('hobby_activities').select('id,hobby,activity_at,note,location,user_id,created_at,outfit_id,outfit_snapshot,outfits(id,name,outfit_items(item_id,wardrobe_items(*)))').eq('user_id', u.id).order('activity_at', { ascending: false }),
         supabase.from('hobby_photos').select('*').eq('user_id', u.id).order('created_at', { ascending: false }),
         supabase.from('hobby_items').select('category, use_count, purchase_price'),
         supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'verified'),
         supabase.from('wardrobe_items').select('id,name,category,item_type,price,purchase_date,wear_count,target,image_url,last_worn,status').eq('user_id', u.id).eq('status', 'verified').gt('wear_count', 0),
+        supabase.from('wardrobe_items').select('price,wear_count,target').eq('user_id', u.id).eq('status', 'verified').is('declutter_status', null).not('price', 'is', null),
       ])
       setActivities((acts ?? []) as unknown as HobbyActivity[])
       setPhotos(pics ?? [])
@@ -154,6 +158,18 @@ export default function Home() {
         if (isWorthIt) { points += targetUses }
       }
       setTotalPoints(points)
+      const priced = allPricedItems ?? []
+      setFashionTotalInvested(priced.reduce((s, i) => s + (i.price ?? 0), 0))
+      setFashionWorthItAccum(priced.reduce((s, i) => {
+        const { isWorthIt } = calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, targetOverride: i.target })
+        return isWorthIt ? s + (i.price ?? 0) : s
+      }, 0))
+      setFashionProgressWorth(priced.reduce((s, i) => {
+        const { isWorthIt, worthItProgress } = calcWorthIt({ purchasePrice: i.price, actualUses: i.wear_count, targetOverride: i.target })
+        if (isWorthIt) return s
+        return s + (i.price ?? 0) * (worthItProgress / 100)
+      }, 0))
+
       const counts: Record<string, number> = { fashion: wardrobeCount ?? 0 }
       const progressBuckets: Record<string, number[]> = {}
       for (const item of (gear ?? [])) {
@@ -667,6 +683,9 @@ export default function Home() {
               readingActivityCount={readingActivityCount}
               workoutActivityCount={workoutActivityCount}
               hobbiesByActivity={hobbiesByActivity}
+              fashionTotalInvested={fashionTotalInvested}
+              fashionWorthItAccum={fashionWorthItAccum}
+              fashionProgressWorth={fashionProgressWorth}
             />
           )}
 

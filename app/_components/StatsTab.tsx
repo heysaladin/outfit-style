@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import type { HobbyActivity } from '@/lib/types'
@@ -25,6 +25,9 @@ interface StatsTabProps {
   workoutActivityCount: number
   hobbiesByActivity: HobbyWithCount[]
   now: Date
+  fashionTotalInvested: number
+  fashionWorthItAccum: number
+  fashionProgressWorth: number
 }
 
 function EmptyState({ icon, title, desc, children }: { icon: string; title: string; desc: string; children?: React.ReactNode }) {
@@ -40,6 +43,130 @@ function EmptyState({ icon, title, desc, children }: { icon: string; title: stri
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
+const PASSWORD = 'uang'
+
+function FashionValueSection({ totalInvested, worthItAccum, progressWorth }: {
+  totalInvested: number
+  worthItAccum: number
+  progressWorth: number
+}) {
+  const [visible, setVisible] = useState(false)
+  const [pwOpen, setPwOpen] = useState(false)
+  const [pwInput, setPwInput] = useState('')
+  const [pwError, setPwError] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const amortized = worthItAccum + progressWorth
+  const progressPct = Math.round((amortized / totalInvested) * 100)
+  const remaining = Math.max(0, totalInvested - amortized)
+
+  function openPrompt() {
+    if (visible) { setVisible(false); return }
+    setPwInput(''); setPwError(false); setPwOpen(true)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
+  function submitPassword() {
+    if (pwInput === PASSWORD) {
+      setVisible(true); setPwOpen(false)
+    } else {
+      setPwError(true)
+      setPwInput('')
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm">👔</span>
+            <span className="text-sm font-semibold text-muted-foreground">fashion in value</span>
+          </div>
+          <button
+            onClick={openPrompt}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {visible ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            )}
+          </button>
+        </div>
+
+        {visible && (
+          <div className="border border-border rounded-xl overflow-hidden">
+            <div className="px-4 py-3.5 flex items-center justify-between border-b border-border">
+              <span className="text-sm text-muted-foreground">Total invested</span>
+              <span className="text-sm font-mono font-semibold text-foreground">{formatIDR(totalInvested)}</span>
+            </div>
+            <div className="px-4 py-3.5 flex items-center justify-between border-b border-border">
+              <span className="text-sm text-muted-foreground">Worth it</span>
+              <span className="text-sm font-mono font-semibold text-green-600">−{formatIDR(worthItAccum)}</span>
+            </div>
+            <div className="px-4 py-3.5 flex items-center justify-between border-b border-border">
+              <span className="text-sm text-muted-foreground">Progress worth</span>
+              <span className="text-sm font-mono font-semibold text-foreground">{formatIDR(progressWorth)}</span>
+            </div>
+            <div className="px-4 py-3.5 flex items-center justify-between border-b border-border">
+              <span className="text-sm font-medium text-foreground">Remaining</span>
+              <span className="text-sm font-mono font-bold text-foreground">{formatIDR(remaining)}</span>
+            </div>
+            <div className="px-4 py-4 flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatIDR(worthItAccum + progressWorth)}</span>
+                <span>{formatIDR(totalInvested)}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-foreground rounded-full transition-all"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {pwOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setPwOpen(false)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="relative bg-background rounded-2xl shadow-xl p-5 w-[280px] flex flex-col gap-3"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-sm font-semibold text-foreground text-center">Enter password</p>
+            <input
+              ref={inputRef}
+              type="password"
+              value={pwInput}
+              onChange={e => { setPwInput(e.target.value); setPwError(false) }}
+              onKeyDown={e => e.key === 'Enter' && submitPassword()}
+              placeholder="Password"
+              className={`w-full rounded-xl border px-3 h-11 text-sm bg-background outline-none focus:ring-2 focus:ring-ring text-center tracking-widest ${pwError ? 'border-red-400' : 'border-border'}`}
+            />
+            {pwError && <p className="text-xs text-red-500 text-center -mt-1">Wrong password</p>}
+            <button
+              onClick={submitPassword}
+              className="w-full h-11 rounded-xl bg-foreground text-background text-sm font-bold"
+            >
+              Unlock
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+function formatIDR(n: number): string {
+  if (n >= 1_000_000) return `Rp ${(n / 1_000_000).toFixed(1)}jt`
+  if (n >= 1_000) return `Rp ${Math.round(n / 1_000)}rb`
+  return `Rp ${Math.round(n)}`
+}
+
 const StatsTab = React.memo(function StatsTab({
   user,
   activities,
@@ -51,6 +178,9 @@ const StatsTab = React.memo(function StatsTab({
   workoutActivityCount,
   hobbiesByActivity,
   now,
+  fashionTotalInvested,
+  fashionWorthItAccum,
+  fashionProgressWorth,
 }: StatsTabProps) {
   const weeklyBuckets = useMemo(() => {
     const nowMs = now.getTime()
@@ -249,6 +379,12 @@ const StatsTab = React.memo(function StatsTab({
             </div>
           </div>
         )}
+
+        {fashionTotalInvested > 0 && <FashionValueSection
+          totalInvested={fashionTotalInvested}
+          worthItAccum={fashionWorthItAccum}
+          progressWorth={fashionProgressWorth}
+        />}
       </div>
     </>
   )
