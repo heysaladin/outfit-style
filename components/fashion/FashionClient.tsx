@@ -331,10 +331,11 @@ export function FashionClient({ user, activities, photos, items }: FashionClient
       )}
 
       {/* ── Quick Post Outfit Drawer ── */}
-      <Drawer open={qpOpen} onOpenChange={setQpOpen}>
+      <Drawer open={qpOpen} onOpenChange={setQpOpen} dismissible={false}>
         <DrawerContent className="max-h-[92dvh] flex flex-col">
-          <DrawerHeader>
+          <DrawerHeader className="flex flex-row items-center justify-between">
             <DrawerTitle>Post Outfit</DrawerTitle>
+            <button onClick={() => setQpOpen(false)} className="text-muted-foreground hover:text-foreground p-1" aria-label="Close">✕</button>
           </DrawerHeader>
 
           <div className="overflow-y-auto flex-1 px-4 pb-2">
