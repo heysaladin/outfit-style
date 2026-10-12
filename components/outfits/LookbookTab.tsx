@@ -24,7 +24,7 @@ function OutfitThumb({ outfit }: { outfit: Outfit }) {
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
     .map(oi => oi.wardrobe_items as WardrobeItem)
     .filter(Boolean)[0]
-  if (!item) return <div className="w-8 h-8 rounded-lg bg-muted border border-border flex items-center justify-center text-sm flex-shrink-0">👗</div>
+  if (!item) return <div className="w-8 h-8 rounded-lg bg-muted border border-border flex-shrink-0" />
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={item.image_url} alt="" className="w-8 h-8 rounded-lg object-cover border border-border flex-shrink-0" />
 }

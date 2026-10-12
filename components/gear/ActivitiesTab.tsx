@@ -208,7 +208,7 @@ export function ActivitiesTab({ hobby, activities: initialActivities, photos: in
               return (
                 <div key={act.id} className="rounded-3xl overflow-hidden bg-card">
                   <div className="px-3.5 pt-3.5 pb-2.5 flex items-center justify-between">
-                    <span className="text-[12px] font-bold text-muted-foreground">👗 {outfitLabel}</span>
+                    <span className="text-[12px] font-bold text-muted-foreground">{outfitLabel}</span>
                     <div className="flex items-center gap-1">
                       <span className="text-[11px] font-semibold text-muted-foreground">{dateLabel}</span>
                       {user && (

@@ -35,7 +35,7 @@ interface OutfitsClientProps {
 function OutfitCollage({ items }: { items: WardrobeItem[] }) {
   const shown = items.slice(0, 4)
   if (shown.length === 0) return (
-    <div className="w-full h-full flex items-center justify-center text-4xl bg-muted">👗</div>
+    <div className="w-full h-full flex items-center justify-center bg-muted" />
   )
   if (shown.length === 1) return (
     <div className="relative w-full h-full">
@@ -59,7 +59,7 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
 function OutfitThumbCollage({ items }: { items: WardrobeItem[] }) {
   const shown = items.slice(0, 3)
   if (shown.length === 0) return (
-    <div className="w-full h-full flex items-center justify-center text-3xl bg-muted">👗</div>
+    <div className="w-full h-full flex items-center justify-center bg-muted" />
   )
   return (
     <div className="grid grid-cols-2 grid-rows-2 gap-1.5 p-2 w-full h-full box-border">
@@ -546,7 +546,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
       {view === 'outfits' && (
         outfits.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center px-6">
-            <div className="text-5xl mb-4">👗</div>
+            <div className="w-12 h-12 mb-4 rounded-xl bg-muted" />
             <p className="text-foreground font-semibold mb-1">No outfits yet</p>
             <p className="text-muted-foreground text-sm">Tap + to create your first outfit</p>
           </div>

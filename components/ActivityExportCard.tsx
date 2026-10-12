@@ -12,18 +12,9 @@ export interface ActivityExportData {
 }
 
 const Logo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-    <div style={{
-      width: 28, height: 28, borderRadius: 8,
-      background: '#171717',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <span style={{ fontSize: 14 }}>✦</span>
-    </div>
-    <span style={{ fontSize: 14, fontWeight: 800, color: '#171717', letterSpacing: -0.3 }}>
-      Interestory
-    </span>
-  </div>
+  <span style={{ fontSize: 14, fontWeight: 800, color: '#171717', letterSpacing: -0.3 }}>
+    Interestory
+  </span>
 )
 
 export const ActivityExportCard = forwardRef<HTMLDivElement, { data: ActivityExportData }>(

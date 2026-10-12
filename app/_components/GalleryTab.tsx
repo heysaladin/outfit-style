@@ -191,13 +191,13 @@ const GalleryTab = React.memo(function GalleryTab({
             const outfitSnapshotItems = act.outfit_snapshot && act.outfit_snapshot.length > 0 ? act.outfit_snapshot : null
             const outfitLinkedItems = act.outfits ? (act.outfits.outfit_items?.map((oi: { item_id: string; wardrobe_items: { id: string; image_url: string; name: string } }) => oi.wardrobe_items).filter(Boolean) ?? []) : null
             const outfitDisplayItems = outfitSnapshotItems ?? outfitLinkedItems
-            const outfitLabel = act.outfits?.name ?? '👗 Outfit'
+            const outfitLabel = act.outfits?.name ?? 'Outfit'
 
             if (outfitDisplayItems) {
               return (
                 <div key={`a-${act.id}`} className="rounded-xl overflow-hidden border border-border cursor-pointer" style={{ background: 'var(--card)' }} onClick={() => onOpenActivity(act)}>
                   <div className="flex items-center justify-between px-4 pt-3 pb-2">
-                    <span className="text-para-xs font-bold text-muted-foreground">{act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit'}</span>
+                    <span className="text-para-xs font-bold text-muted-foreground">{act.outfits ? outfitLabel : 'Outfit'}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-para-xs font-semibold text-muted-foreground/60">{timeAgo}</span>
                       <button
@@ -205,7 +205,7 @@ const GalleryTab = React.memo(function GalleryTab({
                           e.stopPropagation()
                           onTriggerExport({
                             type: 'outfit',
-                            label: act.outfits ? `👗 ${outfitLabel}` : '👗 Outfit',
+                            label: act.outfits ? outfitLabel : 'Outfit',
                             timestamp: timeAgo,
                             text: act.note ?? null,
                             items: outfitDisplayItems as { id: string; image_url: string; name: string }[],
