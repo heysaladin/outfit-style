@@ -191,6 +191,7 @@ export interface Outfit {
   name: string
   occasion: string | null
   notes: string | null
+  collection_id: string | null
   created_at: string
   updated_at: string
   outfit_items?: { item_id: string; sort_order: number; wardrobe_items: WardrobeItem }[]

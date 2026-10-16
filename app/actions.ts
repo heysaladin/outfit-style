@@ -337,6 +337,7 @@ export async function useOutfit(outfitId: string, date?: string): Promise<{ erro
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
+  const { data: outfit } = await supabase.from('outfits').select('collection_id').eq('id', outfitId).eq('user_id', user.id).single()
   const { data: outfitItems } = await supabase
     .from('outfit_items').select('item_id').eq('outfit_id', outfitId)
 
@@ -356,6 +357,7 @@ export async function useOutfit(outfitId: string, date?: string): Promise<{ erro
   revalidatePath('/outfits')
   revalidatePath('/calendar')
   revalidatePath('/stats')
+  if (outfit?.collection_id) revalidatePath(`/outfits/collection/${outfit.collection_id}`)
   return {}
 }
 
@@ -451,7 +453,7 @@ export async function assignItemToWardrobe(itemId: string, wardrobeId: string | 
 // ─── Outfits ──────────────────────────────────────────────────────────────
 
 export async function createOutfit(
-  name: string, itemIds: string[], occasion?: string
+  name: string, itemIds: string[], occasion?: string, collectionId?: string
 ): Promise<{ error?: string; id?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -459,7 +461,7 @@ export async function createOutfit(
 
   const { data: outfit, error } = await supabase
     .from('outfits')
-    .insert({ user_id: user.id, name, occasion: occasion || null })
+    .insert({ user_id: user.id, name, occasion: occasion || null, collection_id: collectionId || null })
     .select().single()
 
   if (error || !outfit) return { error: error?.message ?? 'Failed' }
@@ -479,8 +481,11 @@ export async function deleteOutfit(id: string): Promise<{ error?: string }> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
+  const { data: outfit } = await supabase.from('outfits').select('collection_id').eq('id', id).eq('user_id', user.id).single()
+
   await supabase.from('outfits').delete().eq('id', id).eq('user_id', user.id)
   revalidatePath('/outfits')
+  if (outfit?.collection_id) revalidatePath(`/outfits/collection/${outfit.collection_id}`)
   return {}
 }
 
@@ -491,10 +496,11 @@ export async function updateOutfit(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
-  const { error } = await supabase
+  const { data: outfit, error } = await supabase
     .from('outfits')
     .update({ name, occasion: occasion || null })
     .eq('id', id).eq('user_id', user.id)
+    .select('collection_id').single()
 
   if (error) return { error: error.message }
 
@@ -506,6 +512,7 @@ export async function updateOutfit(
   }
 
   revalidatePath('/outfits')
+  if (outfit?.collection_id) revalidatePath(`/outfits/collection/${outfit.collection_id}`)
   return {}
 }
 
@@ -514,7 +521,7 @@ export async function reorderOutfitItems(outfitId: string, orderedItemIds: strin
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
-  const { data: outfit } = await supabase.from('outfits').select('id').eq('id', outfitId).eq('user_id', user.id).single()
+  const { data: outfit } = await supabase.from('outfits').select('id, collection_id').eq('id', outfitId).eq('user_id', user.id).single()
   if (!outfit) return { error: 'Not found' }
 
   await supabase.from('outfit_items').delete().eq('outfit_id', outfitId)
@@ -523,6 +530,7 @@ export async function reorderOutfitItems(outfitId: string, orderedItemIds: strin
   )
 
   revalidatePath('/outfits')
+  if (outfit.collection_id) revalidatePath(`/outfits/collection/${outfit.collection_id}`)
   return {}
 }
 
@@ -574,6 +582,7 @@ export async function updateWardrobeCollection(
   }
 
   revalidatePath('/outfits')
+  revalidatePath(`/outfits/collection/${id}`)
   return {}
 }
 
@@ -591,6 +600,7 @@ export async function reorderCollectionItems(collectionId: string, orderedItemId
   )
 
   revalidatePath('/outfits')
+  revalidatePath(`/outfits/collection/${collectionId}`)
   return {}
 }
 

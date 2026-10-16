@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft, CalendarDays } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft, CalendarDays, ExternalLink } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -56,7 +57,7 @@ function OutfitCollage({ items }: { items: WardrobeItem[] }) {
   )
 }
 
-function OutfitThumbCollage({ items }: { items: WardrobeItem[] }) {
+export function OutfitThumbCollage({ items }: { items: WardrobeItem[] }) {
   const shown = items.slice(0, 3)
   if (shown.length === 0) return (
     <div className="w-full h-full flex items-center justify-center bg-muted" />
@@ -76,7 +77,7 @@ function OutfitThumbCollage({ items }: { items: WardrobeItem[] }) {
   )
 }
 
-function collectionWorthItProgress(items: WardrobeItem[]): number | null {
+export function collectionWorthItProgress(items: WardrobeItem[]): number | null {
   const priced = items.filter(i => i.price && i.price > 0)
   if (priced.length === 0) return null
   const total = priced.reduce((sum, item) => {
@@ -86,7 +87,7 @@ function collectionWorthItProgress(items: WardrobeItem[]): number | null {
   return total / priced.length
 }
 
-function filterItems(items: WardrobeItem[], q: string) {
+export function filterItems(items: WardrobeItem[], q: string) {
   if (!q.trim()) return items
   const lq = q.toLowerCase()
   return items.filter(i =>
@@ -94,7 +95,7 @@ function filterItems(items: WardrobeItem[], q: string) {
   )
 }
 
-function ItemPicker({
+export function ItemPicker({
   allItems,
   selectedIds,
   onToggle,
@@ -144,7 +145,7 @@ function ItemPicker({
   )
 }
 
-function SortableDetailItem({ item }: { item: WardrobeItem }) {
+export function SortableDetailItem({ item }: { item: WardrobeItem }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   return (
     <div ref={setNodeRef}
@@ -233,7 +234,7 @@ function SortableCollectionCard({
   )
 }
 
-function OutfitCard({
+export function OutfitCard({
   outfit, items, useCount, lastUsed, onPress,
 }: {
   outfit: Outfit
@@ -296,6 +297,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
   const [postCaption, setPostCaption]       = useState('')
 
   // ── Wardrobe collection state ─────────────────────────────────────────────
+  const router = useRouter()
   const [wcCreating, setWcCreating]         = useState(false)
   const [wcDetail, setWcDetail]             = useState<WardrobeCollection | null>(null)
   const [wcEditing, setWcEditing]           = useState(false)
@@ -379,9 +381,6 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
   function toggleWcItem(id: string) {
     setWcSelectedIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
-  function toggleWcEditItem(id: string) {
-    setWcEditIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
-  }
   function resetWcCreate() { setWcName(''); setWcSelectedIds(new Set()); setWcError(''); setWcCreateSearch('') }
   function handleWcCreate() {
     if (!wcName.trim()) return setWcError('Enter a collection name')
@@ -392,6 +391,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
       if (res.error) setWcError(res.error)
       else { resetWcCreate(); setWcCreating(false) }
     })
+  }
+  function toggleWcEditItem(id: string) {
+    setWcEditIds(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
   function openWcEdit() {
     if (!wcDetail) return
@@ -789,9 +791,14 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
             <div className="w-10 h-1 bg-border rounded-full mx-auto mt-3" />
             <div className="absolute top-4 right-4 flex items-center gap-2">
               {!wcUseMode && (
-                <button onClick={openWcEdit} aria-label="Edit koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
-                  <Pencil size={17} />
-                </button>
+                <>
+                  <button onClick={openWcEdit} aria-label="Edit koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Pencil size={17} />
+                  </button>
+                  <button onClick={() => router.push(`/outfits/collection/${wcDetail.id}`)} aria-label="Lihat detail koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
+                    <ExternalLink size={17} />
+                  </button>
+                </>
               )}
               <button onClick={() => { setWcDetail(null); exitWcUseMode(); setConfirmWcDelete(false) }} aria-label="Tutup" className="text-muted-foreground hover:text-foreground transition-colors">
                 <X size={20} />
