@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ChevronLeft, Pencil, X, Trash2, Shirt, Share2, CheckCircle2, Plus, CalendarDays } from 'lucide-react'
+import { ChevronLeft, Pencil, X, Trash2, Shirt, Share2, CheckCircle2, Plus, CalendarDays, Copy, Check } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -16,7 +16,7 @@ import {
 } from '@/app/actions'
 import type { Outfit, OutfitLog, WardrobeCollection, WardrobeItem } from '@/lib/types'
 import { OCCASIONS } from '@/lib/types'
-import { ItemPicker, OutfitCard, SortableDetailItem, collectionWorthItProgress } from './OutfitsClient'
+import { ItemPicker, OutfitCard, SortableDetailItem, collectionWorthItProgress, collectionItemsToJSON } from './OutfitsClient'
 import { formatDateLabel } from '@/lib/date'
 
 interface Props {
@@ -128,6 +128,15 @@ export function CollectionDetailClient({ collection, allItems, outfits, logs }: 
     startTransition(async () => {
       await useCollectionItems([...useIds], useDate)
       exitUseMode()
+    })
+  }
+
+  // ── Copy as JSON (for pasting into an LLM) ──────────────────────────────────
+  const [copied, setCopied] = useState(false)
+  function handleCopyJSON() {
+    navigator.clipboard.writeText(collectionItemsToJSON(collection.name, items)).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
     })
   }
 
@@ -281,6 +290,10 @@ export function CollectionDetailClient({ collection, allItems, outfits, logs }: 
             <button onClick={openWcEdit} aria-label="Edit koleksi"
               className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
               <Pencil size={16} />
+            </button>
+            <button onClick={handleCopyJSON} aria-label="Copy items as JSON" disabled={items.length === 0}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40">
+              {copied ? <Check size={16} className="text-primary" /> : <Copy size={16} />}
             </button>
             <button onClick={() => setUseMode(true)} aria-label="Pakai item"
               className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">

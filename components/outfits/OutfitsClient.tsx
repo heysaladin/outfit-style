@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft, CalendarDays, ExternalLink } from 'lucide-react'
+import { Plus, X, Trash2, Shirt, Pencil, Search, Share2, CheckCircle2, ChevronLeft, CalendarDays, ExternalLink, Copy, Check } from 'lucide-react'
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -85,6 +85,27 @@ export function collectionWorthItProgress(items: WardrobeItem[]): number | null 
     return sum + worthItProgress
   }, 0)
   return total / priced.length
+}
+
+export function collectionItemsToJSON(collectionName: string, items: WardrobeItem[]) {
+  const clean = <T extends Record<string, unknown>>(obj: T) =>
+    Object.fromEntries(
+      Object.entries(obj).filter(([, v]) => v !== null && v !== '' && !(Array.isArray(v) && v.length === 0))
+    )
+  return JSON.stringify({
+    collection: collectionName,
+    items: items.map(i => clean({
+      name: i.name,
+      category: i.category,
+      subcategory: i.subcategory,
+      item_type: i.item_type,
+      color: i.color,
+      brand: i.brand,
+      seasons: i.seasons,
+      occasions: i.occasions,
+      tags: i.tags,
+    })),
+  }, null, 2)
 }
 
 export function filterItems(items: WardrobeItem[], q: string) {
@@ -312,6 +333,7 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
   const [wcUseIds, setWcUseIds]             = useState<Set<string>>(new Set())
   const [wcUseDate, setWcUseDate]           = useState(() => new Date().toISOString().split('T')[0])
   const [wcUseConfirm, setWcUseConfirm]     = useState(false)
+  const [wcCopied, setWcCopied]             = useState(false)
 
   const [confirmDelete, setConfirmDelete]     = useState(false)
   const [confirmWcDelete, setConfirmWcDelete] = useState(false)
@@ -426,6 +448,13 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
     startTransition(async () => {
       await useCollectionItems([...wcUseIds], wcUseDate)
       exitWcUseMode()
+    })
+  }
+  function handleCopyWcJSON() {
+    if (!wcDetail) return
+    navigator.clipboard.writeText(collectionItemsToJSON(wcDetail.name, sortedWcDetailItems)).then(() => {
+      setWcCopied(true)
+      setTimeout(() => setWcCopied(false), 1500)
     })
   }
 
@@ -794,6 +823,9 @@ export function OutfitsClient({ outfits, allItems, wardrobeCollections, logs, lo
                 <>
                   <button onClick={openWcEdit} aria-label="Edit koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
                     <Pencil size={17} />
+                  </button>
+                  <button onClick={handleCopyWcJSON} aria-label="Copy items as JSON" className="text-muted-foreground hover:text-foreground transition-colors">
+                    {wcCopied ? <Check size={17} className="text-primary" /> : <Copy size={17} />}
                   </button>
                   <button onClick={() => router.push(`/outfits/collection/${wcDetail.id}`)} aria-label="Lihat detail koleksi" className="text-muted-foreground hover:text-foreground transition-colors">
                     <ExternalLink size={17} />
