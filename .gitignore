@@ -44,3 +44,6 @@ next-env.d.ts
 
 # screenshots
 /screenshots
+
+# playwright mcp session files
+/.playwright-mcp
